@@ -110,7 +110,7 @@ export async function createSubject(name: string, color?: number): Promise<ID> {
   return id
 }
 
-export async function updateSubject(id: ID, patch: Partial<Pick<Subject, 'name' | 'color' | 'icon'>>) {
+export async function updateSubject(id: ID, patch: Partial<Pick<Subject, 'name' | 'color' | 'icon' | 'short'>>) {
   const s = await db.subjects.get(id)
   if (!s) throw new ValidationError('Fach nicht gefunden.')
   const name = patch.name !== undefined ? requireText(patch.name, 'Der Fachname', 60) : s.name
@@ -118,7 +118,8 @@ export async function updateSubject(id: ID, patch: Partial<Pick<Subject, 'name' 
     const dup = (await db.subjects.toArray()).some((x) => x.id !== id && x.name.toLowerCase() === name.toLowerCase())
     if (dup) throw new ValidationError(`Das Fach „${name}“ gibt es schon.`)
   }
-  await db.subjects.update(id, { ...patch, name })
+  const short = patch.short !== undefined ? patch.short?.trim().slice(0, 8) || null : undefined
+  await db.subjects.update(id, { ...patch, name, ...(short !== undefined ? { short } : {}) })
 }
 
 export async function reorderSubjects(ids: ID[]) {

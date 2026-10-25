@@ -69,8 +69,39 @@ export async function validateEvent(e: EventInput): Promise<Omit<CalendarEvent, 
     topicIds: [...new Set(e.topicIds)], materialIds: [...new Set(e.materialIds)], deckId: e.deckId, taskId: e.taskId, examId: e.examId,
     workloadMinutes: e.workloadMinutes, reminderMinutes: e.reminderMinutes, checklist: cleanChecklist(e.checklist), recurrence,
     completedDates: recurrence ? (e.completedDates ?? []) : [], seriesId: e.seriesId ?? null, originalDate: e.originalDate ?? null,
-    source: e.source ?? 'manual', pinned: e.pinned ?? false, blocksStudy: e.blocksStudy,
+    source: e.source ?? 'manual', pinned: e.pinned ?? false, blocksStudy: e.blocksStudy, ...timetableFields(e),
   }
+}
+
+const CHANGE_TYPES = ['cancelled', 'substitute', 'room', 'extra', 'info']
+
+/** Optional timetable fields – only stored when set, so ordinary events keep their exact shape. */
+function timetableFields(e: EventInput): Partial<CalendarEvent> {
+  const out: Partial<CalendarEvent> = {}
+  if (e.category !== 'lesson') return out
+  const okPeriod = (n: unknown): n is number => Number.isInteger(n) && (n as number) >= 0 && (n as number) <= 20
+  if (e.period != null) {
+    if (!okPeriod(e.period)) throw new ValidationError('Ungültige Stunde im Stundenraster.')
+    out.period = e.period
+    if (e.periodEnd != null) {
+      if (!okPeriod(e.periodEnd) || e.periodEnd < e.period) throw new ValidationError('Die letzte Stunde darf nicht vor der ersten liegen.')
+      if (e.periodEnd !== e.period) out.periodEnd = e.periodEnd
+    }
+  }
+  if (e.weekType != null) {
+    if (e.weekType !== 'A' && e.weekType !== 'B') throw new ValidationError('Ungültige Woche (A/B).')
+    out.weekType = e.weekType
+  }
+  if (e.lessonChange) {
+    const c = e.lessonChange
+    if (!CHANGE_TYPES.includes(c.type)) throw new ValidationError('Unbekannte Stundenplanänderung.')
+    const b = c.before
+    out.lessonChange = {
+      type: c.type, note: String(c.note ?? '').trim().slice(0, 500),
+      before: b ? { subjectId: b.subjectId ?? null, teacher: String(b.teacher ?? '').slice(0, 120), location: String(b.location ?? '').slice(0, 120), start: isTime(b.start) ? b.start : null, end: isTime(b.end) ? b.end : null } : null,
+    }
+  }
+  return out
 }
 
 // ───────────────────────── Undo ─────────────────────────

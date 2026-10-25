@@ -13,6 +13,7 @@ import { averageMastery, LEVEL_LABELS, type TopicStats } from '@/lib/mastery'
 import { Badge, ButtonLink, Card, cn, EmptyState, LoadingBlock, ProgressBar, Ring, SectionHeader, StatTile, SubjectDot } from '@/components/ui'
 import { Markdown } from '@/components/Markdown'
 import { DayStrip } from '@/features/calendar/DayStrip'
+import { TodaySchool } from '@/features/timetable/TodaySchool'
 
 function greeting() {
   const h = new Date().getHours()
@@ -89,6 +90,9 @@ export function Dashboard() {
       </header>
 
       <DayStrip />
+
+      {/* renders only once the timetable has lessons */}
+      <TodaySchool compact />
 
       {/* Was soll ich heute lernen? */}
       <section aria-labelledby="today">

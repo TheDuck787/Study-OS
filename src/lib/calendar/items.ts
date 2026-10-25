@@ -1,4 +1,4 @@
-import type { CalendarEvent, DayKey, Exam, Priority, Task } from '@/db/types'
+import type { CalendarEvent, DayKey, Exam, LessonChange, Priority, Task, WeekType } from '@/db/types'
 import { addDays } from '../dates'
 import { KIND_META, type ItemKind } from './meta'
 import { occurrencesInRange, spanDays } from './recurrence'
@@ -49,6 +49,12 @@ export interface CalItem {
   deadline: boolean
   /** All-day entry during which no studying is possible (internship day …). */
   blocksStudy?: boolean
+  /** Timetable: periods, A/B week, change of this single lesson, series it replaces. */
+  period?: number | null
+  periodEnd?: number | null
+  weekType?: WeekType | null
+  lessonChange?: LessonChange | null
+  seriesId?: string | null
 }
 
 export interface BuildInput {
@@ -93,6 +99,11 @@ export function eventOccurrences(e: CalendarEvent, from: DayKey, to: DayKey): Ca
     checklist: { done: e.checklist.filter((c) => c.done).length, total: e.checklist.length },
     deadline: false,
     blocksStudy: e.blocksStudy,
+    period: e.period ?? null,
+    periodEnd: e.periodEnd ?? e.period ?? null,
+    weekType: e.weekType ?? null,
+    lessonChange: e.lessonChange ?? null,
+    seriesId: e.seriesId,
   }))
 }
 

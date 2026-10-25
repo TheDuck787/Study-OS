@@ -267,3 +267,25 @@ dialog {
     --mobile-nav-h: 64px;
   }
 }
+
+/* Timetable (Stundenplan) */
+.tt-card {
+  background: color-mix(in oklab, var(--c) 16%, var(--surface));
+  border: 1px solid color-mix(in oklab, var(--c) 34%, transparent);
+  border-left: 3px solid var(--c);
+  transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+}
+.tt-card:hover { background: color-mix(in oklab, var(--c) 24%, var(--surface)); box-shadow: var(--shadow); }
+.tt-card:active { transform: scale(0.985); }
+.tt-card.tt-cancelled {
+  --c: var(--danger);
+  background: repeating-linear-gradient(135deg, var(--danger-soft) 0 6px, transparent 6px 12px), var(--surface);
+  border-color: color-mix(in oklab, var(--danger) 40%, transparent);
+  border-left-color: var(--danger);
+}
+.tt-card.tt-changed { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--s3) 70%, transparent); }
+@keyframes tt-in-left { from { transform: translateX(-14px); opacity: 0.4; } to { transform: none; opacity: 1; } }
+@keyframes tt-in-right { from { transform: translateX(14px); opacity: 0.4; } to { transform: none; opacity: 1; } }
+.tt-in-left { animation: tt-in-left 200ms ease-out; }
+.tt-in-right { animation: tt-in-right 200ms ease-out; }
+.tt-free { background: repeating-linear-gradient(135deg, transparent 0 8px, color-mix(in oklab, var(--border) 45%, transparent) 8px 9px); }

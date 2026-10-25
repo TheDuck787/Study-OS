@@ -1,4 +1,4 @@
-import { BookOpen, CalendarClock, CalendarDays, ClipboardList, House, Layers, Library, ListChecks, ListTodo, MessagesSquare, RotateCcw, Settings, Sigma, Sun, TrendingUp, type LucideIcon } from 'lucide-react'
+import { BookOpen, CalendarClock, CalendarDays, ClipboardList, House, Layers, Library, ListChecks, ListTodo, MessagesSquare, RotateCcw, Settings, Sigma, Sun, TableProperties, TrendingUp, type LucideIcon } from 'lucide-react'
 
 export interface NavItem {
   to: string
@@ -10,6 +10,7 @@ export interface NavItem {
 export const NAV: NavItem[] = [
   { to: '/', label: 'Heute', icon: House, group: 'main' },
   { to: '/mein-tag', label: 'Mein Tag', icon: Sun, group: 'main' },
+  { to: '/stundenplan', label: 'Stundenplan', icon: TableProperties, group: 'main' },
   { to: '/kalender', label: 'Kalender', icon: CalendarDays, group: 'main' },
   { to: '/aufgaben', label: 'Aufgaben', icon: ListTodo, group: 'main' },
   { to: '/faecher', label: 'Fächer', icon: BookOpen, group: 'main' },
@@ -25,4 +26,5 @@ export const NAV: NavItem[] = [
   { to: '/einstellungen', label: 'Einstellungen', icon: Settings, group: 'organize' },
 ]
 
-export const MOBILE_PRIMARY = ['/', '/kalender', '/aufgaben', '/faecher']
+/** Bottom bar on phones (the rest is under "Mehr"). */
+export const MOBILE_PRIMARY = ['/', '/stundenplan', '/kalender', '/aufgaben']

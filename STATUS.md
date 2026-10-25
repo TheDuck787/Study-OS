@@ -18,8 +18,9 @@ Plan und Architekturentscheidungen: `docs/PLAN.md`. Setup & Nutzung: `README.md`
 | 6 | Prüfungsvorbereitung (Prüfungen, Lernpläne, Probeklausur) | erledigt |
 | 7 | Dokumente (PDF, OCR, Struktur, Generierung mit Prüfschritt) | erledigt |
 | 8 | Qualitätssicherung | erledigt – siehe „Tests“ |
-| 11 | Google-Anmeldung & Synchronisierung (Supabase Auth, `sync_records` mit RLS) | Code fertig und getestet – **Einrichtung in Google/Supabase/Vercel durch dich ausstehend** (siehe unten) |
+| 11 | Google-Anmeldung & Synchronisierung (Supabase Auth, `sync_records` mit RLS) | erledigt – Vercel-Variablen gesetzt, `/api/config` liefert die Supabase-Konfiguration, Tabelle `sync_records` mit RLS angelegt (geprüft 25.10.2026) |
 | 10 | Kalender & Planer (Ansichten, Aufgaben, Prüfungsvorbereitung, Planer, Mein Tag, Wochenplanung) | erledigt – Details unten, Plan: `docs/CALENDAR.md` |
+| 12 | Stundenplan im WebUntis-Stil (Woche/Tag/Liste, Entfall/Vertretung, Hausaufgaben, Prüfungen, CSV/ICS) | erledigt – Details unten |
 
 ## Wichtige Pfade
 - `src/lib/` – reine, getestete Logik: `answerCheck.ts`, `mathcheck.ts`, `mathgen.ts`, `mastery.ts`, `srs.ts`, `recommend.ts`, `studyplan.ts`, `progress.ts`, `grading.ts`, `docs/*`
@@ -37,6 +38,7 @@ Plan und Architekturentscheidungen: `docs/PLAN.md`. Setup & Nutzung: `README.md`
 - `supabase/migrations/20261025120000_sync_records.sql` – Cloud-Tabelle für die Synchronisierung (RLS); `supabase/archive/` – alte, nie angewendete relationale Entwürfe
 - `src/lib/sync/` – Sync-Engine (`engine.ts`, rein und getestet), IndexedDB-Anbindung und Sync-Zustand (`local.ts`); `src/lib/cloud/` – Konfiguration, Supabase-Client (PKCE), Remote-Speicher
 - `src/features/account/` – Anmeldung, Sync-Steuerung, Erst-Anmelde-Dialog, Konto-Bereich, Statusanzeige; `server/publicConfig.ts` – `/api/config` (nur öffentliche Werte)
+- `src/lib/timetable/` – reine Stundenplan-Logik: Stundenraster, A/B-Wochen, nächste Stunde, Schulzeiten, Tagesstatus (`core.ts`), CSV (`csv.ts`), ICS (`ics.ts`); `src/db/timetable.ts` – Stunden, Änderungen je Tag, Hausaufgaben/Prüfungen, Import; `src/features/timetable/` – Seite `/stundenplan`, Woche/Tag/Liste, Editor, Detailblatt, Stammdaten, Import, Tagesübersicht
 - `tests/unit`, `tests/server` (Vitest), `tests/e2e` (Playwright)
 
 ## Tests (Stand 25.10.2026, alle grün)
@@ -44,11 +46,11 @@ Plan und Architekturentscheidungen: `docs/PLAN.md`. Setup & Nutzung: `README.md`
 |---|---|
 | `npm run typecheck` | 0 Fehler |
 | `npm run lint` | 0 Fehler, 0 Warnungen |
-| `npm test` (Vitest) | 189 Tests bestanden – Lernlogik, Mathe-Generatoren, Fragenbibliothek, Datenbank-Flows, **Kalender & Planer (30)** und API: Zugangscode-Pflicht, Sperre auf Vercel ohne `APP_ACCESS_TOKEN`, Validierung, SSE-Streaming, Rate-Limit, 404, Pfad-Wiederherstellung der Vercel Function |
+| `npm test` (Vitest) | 217 Tests bestanden (davon Stundenplan 15 + 1 Sync) – Lernlogik, Mathe-Generatoren, Fragenbibliothek, Datenbank-Flows, **Kalender & Planer (30)** und API: Zugangscode-Pflicht, Sperre auf Vercel ohne `APP_ACCESS_TOKEN`, Validierung, SSE-Streaming, Rate-Limit, 404, Pfad-Wiederherstellung der Vercel Function |
 | `npm run build` | erfolgreich; Geheimnis-Prüfung von `dist/` bestanden |
 | `vercel build` (lokal, Vercel CLI) | erfolgreich: statische Ausgabe + Function `api/index` (Node 22); kompilierte Function direkt aufgerufen: `/api/health` 200, Status, 404, Sperre ohne Zugangscode |
-| `npm run test:e2e:prod` (Produktions-Build) | 15/15 – Definition-of-Done-Ablauf, Mathe, Demo-Trennung, leerer Start, Installierbarkeit, Offline-Start, Zugangscode, **6 Kalender-Abläufe** und **2 Android-Abläufe (Pixel 7)** |
-| `npm run test:e2e` (Dev-Server) | 12/12 (3 nur im Produktions-Build sinnvolle Tests übersprungen) |
+| `npm run test:e2e` (Dev-Server, 25.10.2026 nach Stundenplan) | 19/19 bestanden (3 nur im Produktions-Build sinnvolle Tests übersprungen); gegen den Produktions-Build zusätzlich Deploy- und Stundenplan-Tests 5/5 |
+| `npm run test:e2e:prod` (Produktions-Build, vor dem Stundenplan) | 15/15 – Definition-of-Done-Ablauf, Mathe, Demo-Trennung, leerer Start, Installierbarkeit, Offline-Start, Zugangscode, **6 Kalender-Abläufe** und **2 Android-Abläufe (Pixel 7)** |
 | `npm run test:sql` | Migrationen 0001 + 0002 laufen, RLS trennt Nutzer (auch Termine/Aufgaben), Constraints greifen |
 
 **Kalender-Tests im Detail (25.10.2026, alle ausgeführt und grün):**
@@ -83,12 +85,9 @@ Nicht getestet: echtes Deployment auf Vercel (kein Vercel-Konto in dieser Umgebu
 
 **Nicht verifiziert (braucht deinen Zugang):** echter Google-Login, Google-Provider in Supabase, Redirect-URLs, Vercel-Variablen, die angewendete Tabelle im echten Projekt.
 
-### Was du noch tun musst (Schritt für Schritt in `DEPLOY.md`, Abschnitt 8)
-1. **Datenbank-Tabelle anlegen:** Der Supabase-Connector hat beim Anwenden der Migration um deine Bestätigung gebeten; die Anfrage lief ohne Antwort ab, es wurde **nichts** geändert. Entweder mir die Ausführung erlauben oder `supabase/migrations/20261025120000_sync_records.sql` im SQL-Editor von „Study OAS“ ausführen.
-2. **Google Cloud Console:** OAuth-Client (Web) anlegen – JavaScript-Ursprung `https://<deine-adresse>.vercel.app`, Redirect-URI `https://kqxxrnfoshqenewczguv.supabase.co/auth/v1/callback`; Zielgruppe „Extern“, dich als Testnutzer eintragen oder App veröffentlichen.
-3. **Supabase → Authentication:** Google-Provider aktivieren (Client-ID + Secret), Site URL und Redirect-URL `https://<deine-adresse>.vercel.app/**` eintragen.
-4. **Vercel:** prüfen, ob `SUPABASE_URL` und `SUPABASE_ANON_KEY`/`SUPABASE_PUBLISHABLE_KEY` existieren; sonst anlegen (Werte in `DEPLOY.md`), dann Redeploy. Kontrolle: `https://<deine-adresse>.vercel.app/api/config`.
-5. Danach am PC anmelden und hochladen, am Handy anmelden – Tests in `DEPLOY.md` 8 E.
+### Einrichtung (Stand 25.10.2026)
+- Erledigt und geprüft: Vercel-Variablen `SUPABASE_URL` + `SUPABASE_PUBLISHABLE_KEY` (Production), `/api/config` liefert URL und Publishable Key; Tabelle `public.sync_records` mit erzwungener RLS, 4 Policies, Trigger, kein Zugriff für `anon`; Supabase-Sicherheitshinweise: keine.
+- Google-Provider, Site URL und Redirect-URLs hast du in Supabase eingetragen; Anmeldung PC ↔ Handy laut dir funktionsfähig.
 
 ## Kalender & Planer – Umsetzung (25.10.2026)
 **Datenmodell (eine Quelle je Information):** neue Tabellen `events` (Termine, Unterricht, Lernblöcke, Karteikarten-Blöcke, Praktika, Pausen, eigene Typen – mit Wiederholung, Ausnahmen, Checkliste, Erinnerung), `tasks` (Hausaufgaben, Projekte, To-dos mit Teilaufgaben) und `eventCategories`. Prüfungen bleiben in `exams` (neu: Uhrzeit, Raum, Selbsteinschätzung je Thema, geschätzte Vorbereitungszeit), ihre Lerneinheiten in `exam.plan` (neu: Uhrzeit, „von dir festgelegt“). Geplante Arbeitszeit für eine Aufgabe ist ein Termin mit `taskId` – die Aufgabe wird nie kopiert. Der Kalender berechnet daraus zur Laufzeit eine Liste; alle Ansichten lesen dieselben Daten live. Schema-Version 2, Sicherung Version 2 (alte Sicherungen bleiben lesbar), Supabase-Migration 0002.
@@ -104,6 +103,17 @@ Nicht getestet: echtes Deployment auf Vercel (kein Vercel-Konto in dieser Umgebu
 - Erinnerungen für Termine und Aufgaben (bei geöffneter App, mit Systembenachrichtigung wenn erlaubt), Kalender und Aufgaben in der globalen Suche, Demo-Daten mit Stundenplan.
 
 **In der Kalender-QA gefunden und behoben:** Detailbereich quetschte die Wochenspalten (jetzt Schublade über dem Raster); Unterricht verdrängte im Monat Prüfungen und Fristen (jetzt Zusammenfassung); Neuberechnung tauschte Teile eines Projekts (alte Blöcke jetzt nach Datum zugeordnet); Karteikarten-Blöcke auf Ruhetagen; Zeitleiste in „Mein Tag“ zeigte an Ruhetagen freie Zeit; Breitenangaben bei Eingabefeldern wurden von `w-full` überschrieben; zwei gleich beschriftete „Verschieben“-Knöpfe.
+
+## Stundenplan – Umsetzung (25.10.2026)
+**Datenmodell ohne Migration:** Eine regelmäßige Stunde ist ein wöchentlicher Termin (`events`, Kategorie `lesson`, Wiederholung jede Woche bzw. alle 2 Wochen bei A/B) mit den neuen optionalen Feldern `period`/`periodEnd` (Stundenraster), `weekType` (A/B) und `lessonChange` (Entfall, Vertretung, Raumänderung, Zusatzstunde, Hinweis – mit dem regulären Stand zum Hervorheben). Eine Änderung für einen Tag ersetzt genau dieses Vorkommen (wie „nur diesen Termin ändern“ im Kalender) und lässt sich wieder aufheben. Stundenraster, Lehrkräfte, Räume, Schultage und A/B-Bezug liegen in `meta.timetable`; Fächer haben optional ein Kürzel. Dadurch zeigen Kalender, Planer, Sicherung und Google-Synchronisierung den Stundenplan ohne Sonderfälle; die Supabase-Tabelle bleibt unverändert. Schon im Kalender eingetragener Unterricht erscheint automatisch im Stundenplan.
+
+**Funktionen:** Seite „Stundenplan“ (Desktop-Navigation und untere Handy-Leiste; „Fächer“ liegt am Handy jetzt unter „Mehr“). Woche Mo–Fr (optional Sa) mit Stundennummern und -zeiten, farbigen Karten (Fach, Raum, Lehrkraft), Doppelstunden, Überlappungen nebeneinander, heutiger Spalte, Jetzt-Linie, Tippen auf freie Stunde zum Anlegen; Tag (Standard am Handy) mit freien Stunden, Pausen, „Jetzt/Nächste Stunde“ mit Fortschritt, fälligen Hausaufgaben/Prüfungen, Wischen für den nächsten Tag; Liste der kommenden zwei Wochen; Wochen-Navigation mit KW und A/B-Woche. Stunden anlegen, bearbeiten (alle Wochen oder ab dieser Woche), duplizieren, löschen (ab dieser Woche / alle), Rückgängig. Entfall/Vertretung/Raum/Hinweis je Tag. Hausaufgabe aus der Stunde (Fälligkeit standardmäßig zur nächsten Stunde des Fachs, Entfall wird übersprungen) → normale Aufgabe; Prüfung aus der Stunde → normale Prüfung, danach Themen wählen, der Lernplaner bereitet vor. „Lernzeiten vorschlagen“ öffnet den vorhandenen Planer (Unterricht ist belegt, Entfall gibt Zeit frei); „Schulzeiten an den Lernplaner übergeben“. Stammdaten: Stundenraster (Generator aus eigenen Zeiten + Einzelbearbeitung), Fächer (Name, Kürzel, Farbe), Lehrkräfte, Räume (Umbenennen ändert alle Stunden), Samstag, A/B-Wochen (Korrektur verschiebt vorhandene A/B-Stunden mit). Tagesübersicht „Heute in der Schule“ auch auf der Startseite. Import CSV/ICS mit Vorschau, Fehlern je Zeile, Duplikat-Erkennung und Rückgängig (ICS: Serien bleiben Serien, Einzeltermine z. B. aus WebUntis werden zu wöchentlichen bzw. A/B-Stunden zusammengefasst, Ferienwochen werden Ausnahmen); Export CSV (Excel, Formel-Schutz) und ICS (Serien, Ausnahmen, Änderungen, abgesagte Stunden).
+
+**Bewusst nicht enthalten:** keine erfundenen Stundenpläne oder Klingelzeiten (der Raster-Generator nutzt nur deine Eingaben), keine Live-Vertretungspläne/WebUntis-Anmeldung – Änderungen trägst du selbst ein oder importierst eine Datei.
+
+**In der Stundenplan-QA gefunden und behoben:** Editor konnte schnelle Eingaben mit dem nachgeladenen Stand überschreiben (Formular erscheint jetzt erst nach dem Laden); A/B-Einstellung bezog sich sonntags auf die vergangene statt die angezeigte Woche; Raster begann eine Stunde zu früh; „Lernzeiten vorschlagen“ am Handy doppelt.
+
+**Tests:** Unit `tests/unit/timetable.test.ts` (15: Raster, A/B, Kürzel, Serien, Entfall/Vertretung + Aufheben, „ab dieser Woche“ mit mitwandernden Änderungen, Duplizieren/Löschen, nächste Stunde, Hausaufgabe/Prüfung, Planer nutzt Entfall-Zeit, Schulzeiten, CSV-Rundreise + Formel-Schutz + Fehler je Zeile, Import ohne Duplikate + Rückgängig, ICS-Rundreise, WebUntis-ähnliche Einzeltermine, UTC/Zeilenumbruch) und `tests/unit/sync.test.ts` (Stundenplan inkl. Entfall PC → Handy → PC). E2E Desktop `tests/e2e/timetable.spec.ts` (2 komplette Abläufe inkl. Export/Import) und Android `tests/e2e/timetable-mobile.spec.ts` (Tag/Woche/Blatt ohne seitliches Scrollen, Wischen). Screenshots geprüft (Desktop dunkel, Pixel 7).
 
 ## Bekannte Grenzen / offen
 - Kalender: Ziehen und Größe ändern mit Maus/Stift; am Touchscreen über „Verschieben“ und den Editor (bewusst, weil Ziehen dort unzuverlässig ist). Rückgängig gilt bis zum Neuladen der Seite. Schulferien/Feiertage werden nicht automatisch eingetragen (als ganztägiger Eintrag mit „nicht lernen“ möglich).

@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { db, useTestDatabase as selectTestDb } from '@/db/index'
 import * as repo from '@/db/repo'
 import * as cal from '@/db/calendar'
+import * as tt from '@/db/timetable'
+import { buildItems } from '@/lib/calendar/items'
 import { countMeaningful, runSync, SyncGuardError, type PushRow, type RemoteRow, type RemoteStore, type SyncMode } from '@/lib/sync/engine'
 import { dexieLocalStore, getSyncDb, getSyncState, resetSyncState, setSyncState, selectTestSyncDb } from '@/lib/sync/local'
 import { hashRecord, stableStringify } from '@/lib/sync/hash'
@@ -241,5 +243,28 @@ describe('sync between PC and phone', () => {
     expect(pulled.map((r) => (r.data as { name?: string })?.name)).toEqual(['F5'])
     const r = await sync(cloud)
     expect(r.downloaded).toBe(1)
+  })
+
+  it('the timetable travels too: bell schedule, A/B weeks, lessons and a cancelled lesson', async () => {
+    const cloud = new FakeCloud()
+    on('pc')
+    await tt.saveTimetableSettings({ periods: [{ n: 1, start: '07:45', end: '08:30' }], days: [1, 2, 3, 4, 5], teachers: [], rooms: [], weekAMonday: '2026-11-02' })
+    const sid = await repo.createSubject('Mathematik')
+    await tt.createLesson(tt.emptyLesson({ subjectId: sid, weekday: 1, start: '07:45', end: '08:30', period: 1, teacher: 'MÜL', location: 'R 104', weekType: 'B', validFrom: '2026-11-02' }))
+    const items = () => db.events.toArray().then((events) => buildItems({ events, exams: [], tasks: [], from: '2026-11-02', to: '2026-11-30' }))
+    await tt.setLessonChange((await items())[0], { type: 'cancelled', note: 'Wandertag' })
+    await sync(cloud, 'merge')
+    on('phone')
+    await sync(cloud, 'useCloud')
+    const s = await tt.getTimetableSettings()
+    expect(s).toMatchObject({ periods: [{ n: 1, start: '07:45', end: '08:30' }], weekAMonday: '2026-11-02', teachers: [{ short: 'MÜL' }], rooms: [{ name: 'R 104' }] })
+    const phone = await items()
+    expect(phone.map((i) => [i.date, i.cancelled, i.lessonChange?.note ?? null])).toEqual([['2026-11-09', true, 'Wandertag'], ['2026-11-23', false, null]])
+    // the phone takes the cancellation back → PC follows
+    await tt.clearLessonChange(phone[0])
+    await sync(cloud)
+    on('pc')
+    await sync(cloud)
+    expect((await items()).every((i) => !i.cancelled)).toBe(true)
   })
 })

@@ -39,6 +39,8 @@ export interface Profile {
 export interface Subject {
   id: ID
   name: string
+  /** Short code for the timetable (e.g. "MA"); optional. */
+  short?: string | null
   /** Index into the subject color palette (see lib/colors.ts). */
   color: number
   /** Key of a subject icon (see lib/calendar/icons.tsx); optional. */
@@ -454,8 +456,58 @@ export interface CalendarEvent {
   pinned: boolean
   /** Unavailable for studying (e.g. internship day, family event) even if all-day. */
   blocksStudy: boolean
+  /** Timetable (lessons only): first and last period of the bell schedule, e.g. 3–4 for a double lesson. */
+  period?: number | null
+  periodEnd?: number | null
+  /** Timetable: lesson only in A or B weeks (the series then repeats every 2 weeks). */
+  weekType?: WeekType | null
+  /** Timetable: change of a single lesson (cancelled, substitute …) – set on the occurrence that replaces it. */
+  lessonChange?: LessonChange | null
   createdAt: ISODate
   updatedAt: ISODate
+}
+
+// ───────────────────────── Timetable ─────────────────────────
+
+export type WeekType = 'A' | 'B'
+export type LessonChangeType = 'cancelled' | 'substitute' | 'room' | 'extra' | 'info'
+
+export interface LessonChange {
+  type: LessonChangeType
+  /** Free text from the student, e.g. "Vertretung durch Fr. Kurz, Aufgaben im Buch S. 40". */
+  note: string
+  /** What the regular lesson looked like – lets the timetable highlight what changed. */
+  before?: { subjectId: ID | null; teacher: string; location: string; start: string | null; end: string | null } | null
+}
+
+/** One row of the bell schedule (Stundenraster). */
+export interface TimetablePeriod {
+  /** 1-based number shown in the timetable ("3. Stunde"). */
+  n: number
+  start: string
+  end: string
+}
+
+export interface TimetableTeacher {
+  id: ID
+  /** Short code as used at school ("MÜL"). */
+  short: string
+  name: string
+}
+
+export interface TimetableRoom {
+  id: ID
+  name: string
+}
+
+export interface TimetableSettings {
+  periods: TimetablePeriod[]
+  /** Weekdays shown (1 = Monday … 6 = Saturday). */
+  days: number[]
+  teachers: TimetableTeacher[]
+  rooms: TimetableRoom[]
+  /** A/B weeks: the Monday of any A week, null = no A/B weeks. */
+  weekAMonday: DayKey | null
 }
 
 export interface EventCustomCategory {

@@ -154,9 +154,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       <nav aria-label="Navigation" className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface/95 backdrop-blur lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', paddingLeft: 'env(safe-area-inset-left, 0px)', paddingRight: 'env(safe-area-inset-right, 0px)' }}>
         <div className="grid grid-cols-5">
           {mobileItems.map((n) => (
-            <NavLink key={n.to} to={n.to} end={n.to === '/'} className={({ isActive }) => cn('flex flex-col items-center gap-0.5 py-2 text-[0.7rem]', isActive ? 'text-accent' : 'text-fg-muted')}>
+            <NavLink key={n.to} to={n.to} end={n.to === '/'} className={({ isActive }) => cn('flex min-w-0 flex-col items-center gap-0.5 px-0.5 py-2 text-[0.7rem]', isActive ? 'text-accent' : 'text-fg-muted')}>
               <n.icon className="size-5" aria-hidden />
-              {n.label}
+              <span className="max-w-full truncate">{n.label}</span>
             </NavLink>
           ))}
           <button type="button" onClick={() => setMoreOpen(true)} aria-expanded={moreOpen} className="flex flex-col items-center gap-0.5 py-2 text-[0.7rem] text-fg-muted cursor-pointer">
