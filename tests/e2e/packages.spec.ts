@@ -35,12 +35,26 @@ test.describe('Lernpakete', () => {
     await page.getByRole('link', { name: 'Thema öffnen' }).click()
     await expect(page.getByRole('heading', { name: 'Textanalyse', level: 1 })).toBeVisible()
     await page.reload()
-    await expect(page.getByRole('heading', { name: 'Fragen (29)' })).toBeVisible() // 20 questions + 9 exercises survive a reload
+    // "Lernen": the learning path in study order, the overview is open
+    await expect(page.getByRole('tab', { name: /Lernen/ })).toHaveAttribute('aria-selected', 'true')
+    const path = ['Überblick', 'Erklärungen', 'Musterbeispiele', 'Fachbegriffe', 'Typische Fehler', 'Lernzettel']
+    const heads = await page.locator('h3[id^="lg-"]').allTextContents()
+    expect(heads.map((h) => h.replace(/\s*\(\d+\)$/, ''))).toEqual(path)
     await expect(page.getByText('Überblick: Textanalyse')).toBeVisible()
+    await expect(page.locator('details summary').nth(1)).toContainText(/2\.\s*Was ist eine Textanalyse\?/) // explanations in package order
     await expect(page.getByText('Lernzettel: Textanalyse')).toBeVisible()
 
+    // "Üben & Prüfen": tests and exercises by level survive a reload
+    await page.getByRole('tab', { name: /Üben & Prüfen/ }).click()
+    await expect(page.getByRole('heading', { name: 'Fragen (29)' })).toBeVisible() // 20 questions + 9 exercises
+    await expect(page.getByRole('heading', { name: 'Testfragen (20)' })).toBeVisible()
+    for (const lv of ['Leicht', 'Mittel', 'Schwer']) await expect(page.getByRole('heading', { name: `Übungsaufgaben · ${lv} (3)` })).toBeVisible()
+    await expect(page.getByRole('link', { name: /Karten mit Wiederholungsplan/ })).toBeVisible()
+    await page.reload()
+    await expect(page.getByRole('tab', { name: /Üben & Prüfen/ })).toHaveAttribute('aria-selected', 'true') // area is kept in the URL
+
     // exam mode with the marked questions
-    await page.getByRole('button', { name: 'Prüfungsmodus' }).click()
+    await page.getByRole('button', { name: /Prüfungsmodus/ }).click()
     await expect(page.getByText(/Frage 1 von 8/)).toBeVisible()
 
     // flashcards are in the deck list
