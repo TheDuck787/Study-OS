@@ -1,0 +1,564 @@
+{
+  "format": "studyos-learning-package",
+  "version": 1,
+  "id": "deutsch-sachtextanalyse-klasse-9",
+  "title": "Sachtextanalyse – Klasse 9",
+  "subject": "Deutsch",
+  "topic": "Sachtextanalyse",
+  "level": "Klasse 9",
+  "grade": 9,
+  "language": "de",
+  "description": "Sachtexte analysieren – von der Einleitung über Gedankengang und Argumentation bis zu Sprache und Textbelegen. Alle Beispiele beziehen sich auf den eigens geschriebenen Kommentar „Zwanzig Minuten ohne Bildschirm“.",
+  "author": "Study OS",
+  "createdAt": "2026-10-25",
+  "objectives": [
+    "Ich kann Sachtexte nach Textsorte und Funktion einordnen.",
+    "Ich kann eine Einleitung mit TATTE und Kernaussage schreiben.",
+    "Ich kann den Gedankengang eines Textes mit Funktionsverben wiedergeben.",
+    "Ich kann These, Argumente, Belege, Einwände und Widerlegungen erkennen und Argumenttypen bestimmen.",
+    "Ich kann sprachliche Mittel mit Beleg, Wirkung und Funktion analysieren.",
+    "Ich kann korrekt zitieren und einen begründeten Schluss schreiben."
+  ],
+  "notes": [
+    {
+      "id": "sachtexte",
+      "title": "Sachtexte und ihre Funktion",
+      "content": "Ein **Sachtext** (auch *pragmatischer* oder *nicht-literarischer Text*) bezieht sich auf die **wirkliche Welt**: auf Ereignisse, Probleme, Fakten und Meinungen. Ein literarischer Text dagegen erschafft eine erfundene Welt (Figuren, Erzähler, Handlung).\n\n**Die vier Textfunktionen** – jeder Sachtext hat mindestens eine *Hauptfunktion*:\n\n| Funktion | Absicht | typische Textsorten |\n|---|---|---|\n| **informieren** | sachlich über Fakten berichten | Nachricht, Bericht, Lexikonartikel |\n| **argumentieren / überzeugen** | eine Meinung begründen | Kommentar, Leserbrief, Rede, Essay |\n| **appellieren** | zu einer Handlung auffordern | Werbung, Aufruf, Rede |\n| **instruieren** | eine Anleitung geben | Gebrauchsanweisung, Rezept |\n\n**Wichtige Textsorten erkennen**\n\n| Textsorte | Merkmale |\n|---|---|\n| **Nachricht** | kurz, sachlich, das Wichtigste zuerst (W-Fragen), keine Meinung |\n| **Bericht** | ausführlicher als die Nachricht, weiterhin sachlich, Hintergründe |\n| **Reportage** | anschaulich, Präsens, Eindrücke vor Ort, mit Personen und Szenen |\n| **Kommentar** | Meinung der Verfasserin/des Verfassers, These + Argumente, oft zugespitzter Schluss |\n| **Glosse** | kurzer, ironisch-spöttischer Meinungstext |\n| **Interview** | Fragen und Antworten, wörtliche Rede |\n\n**Merke:** Bei Sachtexten sprichst du von der **Verfasserin / dem Verfasser** (oder Autor/in) – *nicht* von einem Erzähler. Die Person meint, was sie schreibt (außer bei Ironie)."
+    },
+    {
+      "id": "erschliessen",
+      "title": "Den Text erschließen – mit Übungstext",
+      "content": "Bevor du schreibst, musst du den Text **verstehen und ordnen**. Das spart in der Klassenarbeit Zeit, weil du beim Schreiben nicht mehr suchen musst.\n\n**Fünf Schritte**\n1. **Überfliegen:** Titel, Quelle, Textsorte. Worum geht es ungefähr?\n2. **Genau lesen und markieren:** These (eine Farbe), Argumente (zweite Farbe), Einwände/Gegenargumente (dritte Farbe). Auffällige Sprache am Rand notieren.\n3. **Sinnabschnitte bilden:** Wo beginnt ein neuer Gedanke? Signalwörter helfen: *zunächst, hinzu kommt, natürlich … aber, doch, entscheidend ist, gerade deshalb*.\n4. **Randnotizen in Stichworten:** z. B. „Z. 4–7: Arg. 1 Konzentration + Beleg Lehrkräfte“.\n5. **Kernaussage in einem Satz:** *Die Verfasserin meint, dass …, weil …*\n\n---\n\n### Übungstext (wird in allen Beispielen, Fragen und Übungen verwendet)\n\n**„Zwanzig Minuten ohne Bildschirm“** – Kommentar von Lena Brandt, Schülerzeitung „Pausenhof“, 2026\n*Originaltext für Übungszwecke (Study OS). Autorin und Zeitung sind erfunden.*\n\n` 1`  Seit diesem Schuljahr gilt an vielen Schulen: Das Handy bleibt in der Pause in der Tasche.\n` 2`  Was manche Eltern als längst überfällig feiern, empfinden viele Jugendliche als Bevormundung.\n` 3`  Doch wer genauer hinsieht, erkennt: Das Verbot ist weniger Strafe als Chance.\n` 4`  Zunächst geht es um Konzentration. Eine Pause soll den Kopf frei machen,\n` 5`  nicht mit neuen Reizen füllen. Wer zwanzig Minuten lang Kurzvideos schaut,\n` 6`  sitzt danach zwar am Platz, ist aber gedanklich noch im Feed.\n` 7`  Lehrkräfte berichten, dass Klassen nach handyfreien Pausen ruhiger in den Unterricht starten.\n` 8`  Hinzu kommt das Miteinander. Auf manchen Schulhöfen standen früher Dutzende Jugendliche\n` 9`  nebeneinander – und jede und jeder schaute auf einen eigenen kleinen Bildschirm.\n`10`  Gespräche, Spiele, auch Streit und Versöhnung fanden kaum noch statt.\n`11`  Eine Schulleiterin sagt dazu: „Seit es das Verbot gibt, ist es auf dem Hof\n`12`  wieder laut – und das ist gut so.“\n`13`  Natürlich lässt sich einwenden, dass Jugendliche lernen müssen, selbst mit dem Handy umzugehen.\n`14`  Ein Verbot, so die Kritik, nehme ihnen genau diese Übung weg.\n`15`  Das stimmt – aber nur halb. Wer Fahrradfahren lernt, übt auch nicht zuerst auf der Autobahn.\n`16`  Medienkompetenz entsteht im Unterricht, wo über Algorithmen, Werbung und Datenschutz\n`17`  gesprochen wird, nicht in einer Pause, in der jeder allein vor sich hin wischt.\n`18`  Ein weiterer Einwand wiegt schwerer: Was ist im Notfall?\n`19`  Doch auch hier gibt es einfache Lösungen. Das Sekretariat ist jederzeit erreichbar,\n`20`  und wer dringend telefonieren muss, darf das mit Erlaubnis tun.\n`21`  Niemand ist ohne Handy plötzlich von der Welt abgeschnitten.\n`22`  Entscheidend ist allerdings, wie ein solches Verbot eingeführt wird.\n`23`  Wird es einfach von oben verordnet, wirkt es wie ein Misstrauensvotum gegen die Jugend.\n`24`  Wird es dagegen gemeinsam mit der Schülervertretung entwickelt, kann es zu einer Regel\n`25`  werden, die alle mittragen.\n`26`  Die Pause gehört den Schülerinnen und Schülern. Gerade deshalb sollte sie nicht dem Bildschirm gehören.\n`27`  Wer das Handy für zwanzig Minuten weglegt, verliert wenig – und gewinnt vielleicht ein Gespräch.\n\n---\n\n**Sinnabschnitte dieses Textes**\n\n| Zeilen | Funktion | Inhalt |\n|---|---|---|\n| 1–3 | Einleitung + These | Handyverbot in Pausen; Streit darüber; These: „Chance“ statt Strafe |\n| 4–7 | Argument 1 | Konzentration – Beleg: Beobachtung von Lehrkräften |\n| 8–12 | Argument 2 | Miteinander – Beleg: Beispiel Schulhof + Zitat einer Schulleiterin |\n| 13–17 | Einwand 1 + Widerlegung | „selbst lernen“ – Gegenvergleich Fahrrad/Autobahn; Medienkompetenz im Unterricht |\n| 18–21 | Einwand 2 + Widerlegung | Notfall – Sekretariat, Telefonieren mit Erlaubnis |\n| 22–25 | Einschränkung | Verbot nur sinnvoll, wenn gemeinsam mit der Schülervertretung entwickelt |\n| 26–27 | Schluss | Zuspitzung: Pause gehört den Jugendlichen, nicht dem Bildschirm |"
+    },
+    {
+      "id": "aufbau",
+      "title": "Aufbau einer Sachtextanalyse",
+      "content": "Eine Sachtextanalyse hat drei Teile. Der Hauptteil ist der längste (etwa drei Viertel des Textes).\n\n### 1. Einleitung\nTATTE-Angaben + **Kernaussage / These** des Textes, eventuell deine **Deutungs-** bzw. **Arbeitshypothese** zur Wirkung (→ eigene Notiz).\n\n### 2. Hauptteil\n1. **Inhalt und Gedankengang** – Abschnitt für Abschnitt, mit Funktion (*führt an, räumt ein, widerlegt*).\n2. **Argumentation** – These, Argumente, Belege, Argumenttypen, Umgang mit Gegenargumenten, Aufbau (z. B. steigernd).\n3. **Sprache** – Wortwahl, Satzbau, rhetorische Mittel, jeweils mit **Wirkung** und **Funktion** für die Absicht.\n4. **Absicht und Wirkung** zusammenführen: Wie versucht der Text, die Leser zu überzeugen?\n\n> Du darfst 2. und 3. auch **verbinden** (Abschnitt für Abschnitt Argumentation *und* Sprache). Das ist anspruchsvoller, wirkt aber oft flüssiger.\n\n### 3. Schluss\nErgebnis bündeln, Hypothese überprüfen, eventuell **begründete Stellungnahme** (nur wenn die Aufgabe danach fragt!).\n\n**Grundregeln für alle Teile:** Präsens · sachlicher Stil · eigene Worte · jede Aussage am Text belegen · Verfasser/in statt „Erzähler“."
+    },
+    {
+      "id": "einleitung",
+      "title": "Die Einleitung",
+      "content": "Die Einleitung ist kurz (2–4 Sätze), aber sie entscheidet über den ersten Eindruck.\n\n**Was hinein gehört (TATTE + Kernaussage)**\n- **T**itel – in Anführungszeichen\n- **A**utor/in\n- **T**extsorte – möglichst genau (*Kommentar*, nicht nur „Text“)\n- **T**hema – das allgemeine Problem, nicht der ganze Inhalt\n- **E**rscheinungsjahr und Quelle (Zeitung, Website …)\n- **Kernaussage / These** der Verfasserin\n- optional: **Hypothese zur Wirkung** (*Der Text versucht, vor allem Jugendliche zu überzeugen, indem …*)\n\n**Formulierungshilfen**\n> In dem Kommentar „…“ von …, erschienen … in …, setzt sich die Verfasserin mit der Frage auseinander, ob … . Sie vertritt die These, dass … .\n\n> Der Kommentar „…“ von … (…) behandelt das Thema … . Die Autorin kommt zu dem Ergebnis, dass … .\n\n**Was *nicht* hinein gehört**\n- Nacherzählung von Einzelheiten\n- Stilmittel oder Zitate (gehören in den Hauptteil)\n- deine eigene Meinung („Ich finde das Verbot gut.“)\n- ein Einstieg wie in einem Aufsatz („Handys sind heute überall.“) – höchstens ein kurzer, sachlicher Satz, wenn die Lehrkraft das wünscht."
+    },
+    {
+      "id": "gedankengang",
+      "title": "Inhalt und Gedankengang wiedergeben",
+      "content": "Im ersten Teil des Hauptteils beschreibst du, **was** die Verfasserin in welcher **Reihenfolge** schreibt – und **welche Funktion** jeder Abschnitt hat. Das ist mehr als eine Inhaltsangabe: Du zeigst, wie der Text *gebaut* ist.\n\n**Schlechte Wiedergabe (nur Inhalt):**\n> Zuerst geht es um Konzentration. Dann geht es um den Schulhof. Dann geht es um den Notfall.\n\n**Gute Wiedergabe (Inhalt + Funktion):**\n> Zunächst **begründet** die Verfasserin ihre These mit der Konzentration der Schülerinnen und Schüler (Z. 4–7). Anschließend **führt** sie als zweites Argument das soziale Miteinander **an** (Z. 8–12). Danach **greift** sie zwei mögliche Einwände **auf** und **entkräftet** sie (Z. 13–21), bevor sie ihre Position **einschränkt** (Z. 22–25).\n\n**Verben für den Gedankengang** (statt „sagt“ und „geht es um“)\n\n| Funktion | Verben |\n|---|---|\n| These | behauptet, vertritt die Auffassung, stellt die These auf |\n| Argument | begründet, führt an, stützt, untermauert |\n| Beispiel / Beleg | veranschaulicht, belegt, verweist auf, zitiert |\n| Gegenargument | räumt ein, gesteht zu, greift einen Einwand auf |\n| Widerlegung | entkräftet, widerlegt, weist zurück, relativiert |\n| Einschränkung | schränkt ein, differenziert, gibt zu bedenken |\n| Schluss | fasst zusammen, spitzt zu, appelliert, fordert |\n\n**Indirekte Rede:** Wenn du wiedergibst, was im Text *jemand anderes* sagt, nutze den **Konjunktiv I**: *Kritiker meinen, ein Verbot **nehme** Jugendlichen die Übung weg.*"
+    },
+    {
+      "id": "argumentation",
+      "title": "Argumentation analysieren",
+      "content": "**Die Bausteine einer Argumentation**\n\n| Baustein | Frage | Beispiel aus dem Text |\n|---|---|---|\n| **These** | Was behauptet die Verfasserin? | „Das Verbot ist weniger Strafe als Chance.“ (Z. 3) |\n| **Argument** | Warum soll das stimmen? | Pausen sollen der Erholung dienen, Kurzvideos lenken weiter ab (Z. 4–6) |\n| **Beleg / Beispiel** | Woran sieht man das? | „Lehrkräfte berichten“ (Z. 7) von ruhigeren Klassen |\n| **Gegenargument (Einwand)** | Was spricht dagegen? | „Was ist im Notfall?“ (Z. 18) |\n| **Widerlegung** | Warum gilt der Einwand nicht? | Sekretariat erreichbar, Telefonieren mit Erlaubnis (Z. 19–20) |\n\n**Typische Argumentationsstrukturen**\n- **steigernd (linear):** vom schwächsten zum stärksten Argument – das stärkste bleibt im Gedächtnis.\n- **dialektisch:** erst Pro-, dann Contra-Argumente (oder umgekehrt), am Ende Abwägung.\n- **Einwand-Widerlegung („Ja, aber …“):** ein Gegenargument wird vorweggenommen, teilweise zugestanden und dann entkräftet. So wirkt die Verfasserin **fair und überlegt** und nimmt Kritikern den Wind aus den Segeln.\n\nIm Übungstext: zwei Pro-Argumente → zwei Einwände mit Widerlegung → **Einschränkung** (Z. 22–25) → zugespitzter Schluss. Die Einwände werden gesteigert: „Ein weiterer Einwand wiegt schwerer“ (Z. 18).\n\n**Konzession (Zugeständnis):** Signalwörter wie *natürlich, zwar, zugegeben, das stimmt* leiten ein Zugeständnis ein, *aber, doch, dennoch* die Widerlegung: „Das stimmt – aber nur halb.“ (Z. 15)\n\n**Fragen, die du immer beantworten solltest**\n1. Wo steht die These – am Anfang, versteckt oder erst am Schluss?\n2. Welche Argumente werden genannt, in welcher Reihenfolge – und warum?\n3. Wie werden sie gestützt? Sind die Belege überprüfbar oder nur behauptet?\n4. Wie geht der Text mit Gegenpositionen um?\n5. Ist die Argumentation **überzeugend**? (Lücken, Verallgemeinerungen, fehlende Quellen?)"
+    },
+    {
+      "id": "argumenttypen",
+      "title": "Argumenttypen und Überzeugungsstrategien",
+      "content": "Argumente lassen sich danach unterscheiden, **womit** sie überzeugen wollen.\n\n| Argumenttyp | stützt sich auf … | Beispiel im Text | Wirkung |\n|---|---|---|---|\n| **Faktenargument** | überprüfbare Tatsachen, Zahlen, Studien | (kommt nicht vor – siehe unten) | objektiv, schwer zu bestreiten |\n| **Erfahrungs-/Beobachtungsargument** | Erfahrungen von Menschen | „Lehrkräfte berichten“ (Z. 7) | anschaulich, aber nicht verallgemeinerbar |\n| **Autoritätsargument** | Aussage einer Fachperson | Zitat der Schulleiterin (Z. 11–12) | glaubwürdig durch Amt/Erfahrung |\n| **Analogieargument** | Vergleich mit einem ähnlichen Fall | „Wer Fahrradfahren lernt, übt auch nicht zuerst auf der Autobahn.“ (Z. 15) | einleuchtend, leicht vorstellbar |\n| **normatives Argument** | Werte und Normen | „Die Pause gehört den Schülerinnen und Schülern.“ (Z. 26) | spricht Gerechtigkeitsgefühl an |\n| **Plausibilitätsargument** | allgemeine Logik, „leuchtet ein“ | Pause soll Kopf frei machen, nicht füllen (Z. 4–5) | wirkt selbstverständlich |\n\n**Kritischer Blick:** Der Text enthält **keine Zahlen und keine Studien**. Er überzeugt eher durch Beobachtungen, Vergleiche und Werte. Das darfst (und sollst) du in der Analyse benennen – sachlich: *Die Argumentation wirkt anschaulich, ist aber nicht durch Daten belegt.*\n\n**Überzeugungsstrategien** (wie wird der Leser angesprochen?)\n- **sachlich-rational:** Gründe, Belege, logischer Aufbau\n- **emotional:** Bilder, die Gefühle wecken (der stille Schulhof, Z. 8–10)\n- **Glaubwürdigkeit:** fairer Umgang mit Einwänden, eigene Einschränkung (Z. 22–25)\n- **Leserbezug:** die Verfasserin nimmt die Sicht der Jugendlichen ernst (Z. 2, Z. 23–26) und gewinnt so gerade die Kritiker"
+    },
+    {
+      "id": "sprache",
+      "title": "Sprache und Wirkung analysieren",
+      "content": "Sprachliche Mittel analysierst du **nie als Liste**, sondern immer im Dreischritt:\n\n> **Mittel benennen** + **Textbeleg** → **Wirkung** → **Funktion** für die Absicht des Textes\n\n**1. Wortwahl**\n- Wertende Wörter: „Bevormundung“ (Z. 2) (Sicht der Jugendlichen), „Misstrauensvotum“ (Z. 23)\n- Fach- und Fremdwörter wirken kompetent: „Algorithmen, Werbung und Datenschutz“ (Z. 16)\n- Umgangssprachliches/Anschauliches wirkt nah: „allein vor sich hin wischt“ (Z. 17)\n- Inklusive Formen sprechen alle an: „jede und jeder“ (Z. 9)\n\n**2. Satzbau**\n- Kurze Sätze setzen Akzente: „Das stimmt – aber nur halb.“ (Z. 15)\n- Gedankenstriche erzeugen eine Pause vor der Pointe: „verliert wenig – und gewinnt vielleicht ein Gespräch“ (Z. 27)\n- Doppelpunkte kündigen das Wichtige an: „erkennt: Das Verbot“ (Z. 3)\n\n**3. Rhetorische Mittel**\n\n| Mittel | Beleg | Wirkung |\n|---|---|---|\n| **Antithese** (Gegensatz) | „weniger Strafe als Chance“ (Z. 3) | deutet das Verbot positiv um, prägt sich ein |\n| **Metapher** | „gedanklich noch im Feed“ (Z. 6) | zeigt anschaulich, dass der Kopf nicht abschaltet |\n| **Aufzählung** | „Gespräche, Spiele, auch Streit und Versöhnung“ (Z. 10) | zeigt, wie viel Gemeinschaft verloren geht |\n| **Vergleich / Analogie** | „übt auch nicht zuerst auf der Autobahn“ (Z. 15) | macht den Einwand bildhaft unsinnig |\n| **Frage** (Einwand als Frage) | „Was ist im Notfall?“ (Z. 18) | greift die Sorge der Leser direkt auf |\n| **Parallelismus** | „Wird es einfach von oben verordnet“ (Z. 23) / „Wird es dagegen gemeinsam“ (Z. 24) (Z. 23–24) | stellt zwei Wege übersichtlich gegenüber |\n| **Wiederholung / Wortspiel** | „gehört den Schülerinnen“ (Z. 26) – „nicht dem Bildschirm gehören“ (Z. 26) | pointierter, einprägsamer Schluss |\n\n**Wirkungs-Wörter** (statt immer „Das wirkt spannend“): *veranschaulicht, betont, hebt hervor, spitzt zu, wertet ab/auf, emotionalisiert, schafft Nähe, wirkt glaubwürdig/kompetent/eindringlich, lenkt den Blick auf …*"
+    },
+    {
+      "id": "textbelege",
+      "title": "Textbelege und Zitiertechnik",
+      "content": "Jede Behauptung über den Text braucht einen **Beleg** – sonst ist sie nur eine Meinung.\n\n**Drei Arten zu belegen**\n1. **Wörtliches Zitat** – exakt, in Anführungszeichen, mit Zeile:\n   Die Verfasserin bezeichnet das Verbot als „weniger Strafe als Chance“ (Z. 3).\n2. **Eingebautes Zitat** – grammatisch in den eigenen Satz eingefügt; Anpassungen in eckigen Klammern:\n   Wer in der Pause Videos schaut, sei danach nur körperlich anwesend, aber „gedanklich noch im Feed“ (Z. 6).\n3. **Verweis (sinngemäß)** – eigene Worte + „vgl.“:\n   Die Verfasserin verweist auf die Beobachtungen von Lehrkräften (vgl. Z. 7).\n\n**Regeln**\n- Zitate **wortgenau** übernehmen – auch Rechtschreibung und Satzzeichen.\n- **Auslassungen** mit […]: „Medienkompetenz entsteht im Unterricht, wo über […] Datenschutz gesprochen wird“ (Z. 16 f.).\n- Zeilen: *Z. 7* – eine Zeile; *Z. 16 f.* – diese und die folgende; *Z. 13–17* – Bereich.\n- Ein Zitat **im Zitat** bekommt halbe Anführungszeichen: ‚…‘\n- **Kein Zitat ohne Erklärung:** Nach dem Zitat folgt immer, was es zeigt.\n\n**Der Beleg-Dreischritt (Behauptung – Beleg – Erläuterung)**\n> Die Verfasserin nimmt Einwände ernst, gibt ihnen aber nur teilweise recht. **(Behauptung)** So schreibt sie: „Das stimmt – aber nur halb.“ (Z. 15) **(Beleg)** Durch das Zugeständnis wirkt sie fair; das „aber“ leitet sofort die Widerlegung ein, sodass ihre Position am Ende gestärkt ist. **(Erläuterung)**"
+    },
+    {
+      "id": "schluss",
+      "title": "Der Schluss: Fazit und Stellungnahme",
+      "content": "Der Schluss rundet die Analyse ab. Er bringt **nichts völlig Neues** aus dem Text, sondern bündelt.\n\n**Bausteine**\n1. **Ergebnis zusammenfassen:** Mit welchen Mitteln versucht der Text zu überzeugen?\n2. **Hypothese überprüfen:** Hat sich deine Annahme aus der Einleitung bestätigt?\n3. **Wirkung beurteilen:** Ist der Text überzeugend? Für wen? Wo sind Schwächen?\n4. **Stellungnahme** (nur, wenn die Aufgabe sie verlangt): eigene Meinung zum *Thema*, **begründet** – mit mindestens einem eigenen Argument.\n\n**Formulierungshilfen**\n> Insgesamt zeigt sich, dass die Verfasserin ihre These vor allem durch … stützt.\n> Besonders überzeugend wirkt …, weil … . Weniger überzeugend ist …, da … .\n> Meine Hypothese, dass …, hat sich bestätigt / muss ergänzt werden: … .\n\n**Beispiel**\n> Insgesamt überzeugt der Kommentar weniger durch Fakten als durch anschauliche Beobachtungen, einen fairen Umgang mit Einwänden und eine pointierte Sprache. Gerade dass die Verfasserin ihre Forderung selbst einschränkt (Z. 22–25), macht sie für jugendliche Leser glaubwürdig. Eine Schwäche ist, dass keine überprüfbaren Zahlen genannt werden.\n\n**Achtung:** „Analysiere“ heißt *nicht* „Nimm Stellung“. Wenn nur eine Analyse verlangt ist, bleibt deine Meinung zum Handyverbot draußen – du beurteilst nur, **wie gut** der Text argumentiert."
+    }
+  ],
+  "examples": [
+    {
+      "id": "einleitung-schreiben",
+      "title": "Eine Einleitung schreiben",
+      "task": "Schreibe die Einleitung zur Analyse des Kommentars „Zwanzig Minuten ohne Bildschirm“ (Übungstext in der Notiz „Den Text erschließen“).",
+      "steps": [
+        {
+          "step": "TATTE sammeln: Titel „Zwanzig Minuten ohne Bildschirm“, Autorin Lena Brandt, Textsorte Kommentar, erschienen 2026 in der Schülerzeitung „Pausenhof“.",
+          "why": "Diese Angaben stehen über dem Text und gehören in jede Einleitung. Die Textsorte „Kommentar“ erkennt man daran, dass eine Meinung mit Argumenten begründet wird."
+        },
+        {
+          "step": "Thema allgemein formulieren: das Handyverbot in Schulpausen.",
+          "why": "Das Thema ist das Problem, über das der Text spricht – nicht schon die Meinung und nicht der ganze Inhalt."
+        },
+        {
+          "step": "These finden: „Das Verbot ist weniger Strafe als Chance.“ (Z. 3)",
+          "why": "Die These steht hier nach einem kurzen Einstieg in Z. 3, eingeleitet durch „Doch wer genauer hinsieht, erkennt:“ – der Doppelpunkt kündigt die zentrale Aussage an."
+        },
+        {
+          "step": "These in eigenen Worten wiedergeben: Das Handyverbot sei sinnvoll, weil es Konzentration und Gemeinschaft fördere – allerdings nur, wenn es gemeinsam mit den Schülern entwickelt werde.",
+          "why": "In der Einleitung zitierst du nicht, sondern zeigst, dass du die Kernaussage verstanden hast. Die Einschränkung aus Z. 22–25 gehört zur Position dazu."
+        },
+        {
+          "step": "Hypothese zur Wirkung formulieren: Der Text versucht, besonders skeptische Jugendliche zu überzeugen, indem er ihre Einwände aufgreift.",
+          "why": "Eine Hypothese gibt der Analyse eine Richtung. Sie wird im Hauptteil überprüft – Hinweise sind Z. 2 („Bevormundung“) und die vorweggenommenen Einwände."
+        }
+      ],
+      "result": "In dem Kommentar „Zwanzig Minuten ohne Bildschirm“ von Lena Brandt, erschienen 2026 in der Schülerzeitung „Pausenhof“, setzt sich die Verfasserin mit dem Handyverbot in Schulpausen auseinander. Sie vertritt die These, ein solches Verbot sei keine Strafe, sondern eine Chance für Konzentration und Gemeinschaft – vorausgesetzt, es werde gemeinsam mit den Schülerinnen und Schülern entwickelt. Vermutlich will der Text vor allem skeptische Jugendliche überzeugen, indem er ihre Einwände ernst nimmt und entkräftet."
+    },
+    {
+      "id": "argumentation-abschnitt",
+      "title": "Einwand und Widerlegung analysieren (Z. 13–17)",
+      "task": "Analysiere, wie die Verfasserin in Z. 13–17 mit dem Einwand umgeht, Jugendliche müssten den Umgang mit dem Handy selbst lernen. Schreibe einen zusammenhängenden Absatz.",
+      "steps": [
+        {
+          "step": "Einwand erkennen: „Natürlich lässt sich einwenden“ (Z. 13) – Jugendliche müssten lernen, selbst mit dem Handy umzugehen.",
+          "why": "„Natürlich“ und „einwenden“ sind Signalwörter für ein Zugeständnis: Die Verfasserin gibt eine Gegenposition wieder, die nicht ihre eigene ist."
+        },
+        {
+          "step": "Wiedergabe der Kritik im Konjunktiv bemerken: „nehme ihnen genau diese Übung weg“ (Z. 14).",
+          "why": "Der Konjunktiv I („nehme“) zeigt indirekte Rede – die Verfasserin distanziert sich damit von der Aussage, ohne sie schon zu bewerten."
+        },
+        {
+          "step": "Teilweises Zugeständnis: „Das stimmt – aber nur halb.“ (Z. 15)",
+          "why": "Der kurze Satz gibt dem Einwand zunächst recht (fair, glaubwürdig). Der Gedankenstrich erzeugt eine Pause, das „aber“ leitet die Widerlegung ein."
+        },
+        {
+          "step": "Analogieargument bestimmen: „Wer Fahrradfahren lernt, übt auch nicht zuerst auf der Autobahn.“ (Z. 15)",
+          "why": "Ein vertrauter Fall wird mit dem Problem verglichen: Wie beim Fahrradfahren lernt man auch Medienumgang besser in einem geschützten Rahmen. Der Vergleich ist bildhaft und leicht einleuchtend."
+        },
+        {
+          "step": "Gegenvorschlag erkennen: Medienkompetenz entstehe im Unterricht, nicht in der Pause (Z. 16 f.).",
+          "why": "Die Verfasserin widerlegt nicht nur, sie bietet eine Alternative an. Dadurch wirkt ihre Position konstruktiv statt nur verbietend."
+        },
+        {
+          "step": "Sprache am Ende deuten: „allein vor sich hin wischt“ (Z. 17).",
+          "why": "Das abwertende, umgangssprachliche Bild zeigt Handynutzung als gedankenlos und einsam – ein deutlicher Gegensatz zum Lernen „im Unterricht“."
+        },
+        {
+          "step": "Funktion für den ganzen Text benennen.",
+          "why": "Eine Analyse endet nicht beim Mittel, sondern erklärt, wozu es dient: Hier stärkt das Ja-aber-Muster die Glaubwürdigkeit und damit die These."
+        }
+      ],
+      "result": "Im dritten Abschnitt greift die Verfasserin einen naheliegenden Einwand auf: Jugendliche müssten den Umgang mit dem Handy selbst lernen (Z. 13). Die Kritik gibt sie im Konjunktiv wieder – ein Verbot „nehme ihnen genau diese Übung weg“ (Z. 14) – und distanziert sich so von ihr. Mit dem knappen Satz „Das stimmt – aber nur halb.“ (Z. 15) räumt sie dem Einwand zunächst teilweise recht ein, was sie fair und überlegt wirken lässt. Unmittelbar danach entkräftet sie ihn durch ein Analogieargument: Wer Fahrradfahren lerne, übe „auch nicht zuerst auf der Autobahn“ (Z. 15). Der alltägliche Vergleich macht anschaulich, dass man Medienkompetenz besser in einem geschützten Rahmen erwirbt. Diesen Rahmen benennt sie anschließend selbst: den Unterricht, in dem über „Algorithmen, Werbung und Datenschutz“ (Z. 16) gesprochen werde. Das abwertende Bild von Jugendlichen, die in der Pause „allein vor sich hin wisch[en]“ (Z. 17), unterstreicht den Gegensatz. Durch dieses Ja-aber-Muster nimmt die Verfasserin Kritikern den Wind aus den Segeln und stärkt ihre These, das Verbot sei eine Chance."
+    },
+    {
+      "id": "sprache-deuten",
+      "title": "Sprachliche Mittel analysieren und deuten",
+      "task": "Untersuche drei sprachliche Mittel aus dem Anfang und dem Schluss des Kommentars und erkläre ihre Wirkung und Funktion.",
+      "steps": [
+        {
+          "step": "Mittel 1 bestimmen: Antithese „weniger Strafe als Chance“ (Z. 3).",
+          "why": "Zwei gegensätzliche Begriffe werden gegenübergestellt. Das Wort „Strafe“ greift die Sicht der Kritiker auf, „Chance“ setzt die eigene Deutung dagegen."
+        },
+        {
+          "step": "Wirkung und Funktion von Mittel 1 erklären.",
+          "why": "Die Antithese deutet das Verbot positiv um und prägt sich als Kernaussage ein. Weil sie an der Stelle der These steht, lenkt sie das Verständnis des ganzen Textes."
+        },
+        {
+          "step": "Mittel 2 bestimmen: Metapher „gedanklich noch im Feed“ (Z. 6), verbunden mit dem Gegensatz „zwar am Platz, … aber“ (Z. 6).",
+          "why": "„Feed“ ist eigentlich der Nachrichtenstrom einer App; dass man gedanklich „darin“ ist, ist ein Bild – also eine Metapher. Das Wort stammt aus der Lebenswelt der Jugendlichen."
+        },
+        {
+          "step": "Wirkung und Funktion von Mittel 2 erklären.",
+          "why": "Das Bild macht das Argument der fehlenden Konzentration vorstellbar und spricht die Zielgruppe in ihrer eigenen Sprache an – das schafft Nähe."
+        },
+        {
+          "step": "Mittel 3 bestimmen: Wiederholung von „gehört/gehören“ in Z. 26 und Antithese im letzten Satz „verliert wenig – und gewinnt vielleicht ein Gespräch“ (Z. 27).",
+          "why": "Das Verb „gehören“ kehrt in gegensätzlicher Bedeutung wieder (Schüler vs. Bildschirm). Im letzten Satz stehen „verliert“ und „gewinnt“ gegeneinander, getrennt durch einen Gedankenstrich."
+        },
+        {
+          "step": "Wirkung und Funktion von Mittel 3 erklären.",
+          "why": "Der Schluss wird pointiert und einprägsam. „vielleicht“ macht die Aussage vorsichtig und sympathisch statt belehrend. Der Satz wirkt wie ein leiser Appell, das Handy wegzulegen."
+        },
+        {
+          "step": "Gemeinsamkeit benennen und zu einem Ergebnis verbinden.",
+          "why": "Gute Sprachanalysen zeigen einen Zusammenhang: Alle drei Mittel arbeiten mit Gegensätzen und stellen den Verzicht als Gewinn dar."
+        }
+      ],
+      "result": "Bereits in ihrer These verwendet die Verfasserin eine Antithese: Das Verbot sei „weniger Strafe als Chance“ (Z. 3). Indem sie den Begriff der Kritiker aufgreift und ihm einen positiven gegenüberstellt, deutet sie das Verbot um; die knappe Formel prägt sich als Kernaussage ein. Im ersten Argument veranschaulicht die Metapher, man sei nach dem Videoschauen „gedanklich noch im Feed“ (Z. 6), die fehlende Konzentration. Der Ausdruck stammt aus der Lebenswelt der Jugendlichen und schafft Nähe zur Zielgruppe. Der Schluss ist durch die Wiederholung des Verbs „gehören“ (Z. 26) und die Antithese „verliert wenig – und gewinnt vielleicht ein Gespräch“ (Z. 27) besonders pointiert. Das abschwächende „vielleicht“ lässt die Aussage nicht belehrend, sondern einladend wirken. Alle drei Mittel arbeiten mit Gegensätzen und stellen den Verzicht auf das Handy als Gewinn dar – genau das ist die Absicht des Kommentars."
+    }
+  ],
+  "keyTerms": [
+    {
+      "term": "Sachtext",
+      "definition": "Nicht-literarischer Text, der sich auf die wirkliche Welt bezieht (informiert, argumentiert, appelliert oder anleitet).",
+      "example": "Nachricht, Kommentar, Lexikonartikel"
+    },
+    {
+      "term": "Kommentar",
+      "definition": "Meinungsbetonte journalistische Textsorte: Die Verfasserin bezieht Stellung und begründet ihre Meinung mit Argumenten.",
+      "example": "„Zwanzig Minuten ohne Bildschirm“"
+    },
+    {
+      "term": "Nachricht / Bericht",
+      "definition": "Informierende Textsorten, die sachlich und ohne eigene Meinung über ein Ereignis berichten; der Bericht ist ausführlicher."
+    },
+    {
+      "term": "These",
+      "definition": "Zentrale Behauptung, die bewiesen oder begründet werden soll.",
+      "example": "„Das Verbot ist weniger Strafe als Chance.“ (Z. 3)"
+    },
+    {
+      "term": "Argument",
+      "definition": "Begründung, die eine These stützen soll.",
+      "example": "Eine Pause soll den Kopf frei machen (Z. 4)."
+    },
+    {
+      "term": "Beleg / Beispiel",
+      "definition": "Stützt ein Argument durch Fakten, Erfahrungen, Zitate oder einen konkreten Fall.",
+      "example": "„Lehrkräfte berichten …“ (Z. 7)"
+    },
+    {
+      "term": "Gegenargument / Einwand",
+      "definition": "Argument, das gegen die eigene These spricht.",
+      "example": "„Was ist im Notfall?“ (Z. 18)"
+    },
+    {
+      "term": "Konzession (Zugeständnis)",
+      "definition": "Die Verfasserin gibt einem Einwand teilweise recht, bevor sie ihn entkräftet; Signalwörter: natürlich, zwar, zugegeben.",
+      "example": "„Das stimmt – aber nur halb.“ (Z. 15)"
+    },
+    {
+      "term": "Widerlegung (Entkräftung)",
+      "definition": "Zeigt, dass ein Gegenargument nicht oder nur eingeschränkt gilt.",
+      "example": "Sekretariat ist erreichbar (Z. 19)."
+    },
+    {
+      "term": "Faktenargument",
+      "definition": "Stützt sich auf überprüfbare Tatsachen, Zahlen oder Studien.",
+      "example": "„Laut einer Umfrage …“ – kommt im Übungstext nicht vor."
+    },
+    {
+      "term": "Autoritätsargument",
+      "definition": "Beruft sich auf die Aussage einer anerkannten oder fachkundigen Person.",
+      "example": "Zitat der Schulleiterin (Z. 11 f.)"
+    },
+    {
+      "term": "Analogieargument",
+      "definition": "Überträgt einen bekannten, ähnlichen Fall auf das Problem.",
+      "example": "Fahrradfahren lernt man nicht auf der Autobahn (Z. 15)."
+    },
+    {
+      "term": "Antithese",
+      "definition": "Gegenüberstellung gegensätzlicher Begriffe oder Gedanken.",
+      "example": "„weniger Strafe als Chance“ (Z. 3)"
+    },
+    {
+      "term": "Metapher",
+      "definition": "Bildhafter Ausdruck ohne Vergleichswort; ein Wort wird in übertragener Bedeutung verwendet.",
+      "example": "„gedanklich noch im Feed“ (Z. 6)"
+    },
+    {
+      "term": "Appell",
+      "definition": "Direkte oder indirekte Aufforderung an die Leser, etwas zu tun oder zu denken.",
+      "example": "Schluss: Handy für zwanzig Minuten weglegen (Z. 27)"
+    },
+    {
+      "term": "Konjunktiv I (indirekte Rede)",
+      "definition": "Verbform, mit der man fremde Aussagen neutral wiedergibt.",
+      "example": "„Ein Verbot … nehme ihnen genau diese Übung weg.“ (Z. 14)"
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "type": "multiple-choice",
+      "prompt": "Woran erkennst du, dass „Zwanzig Minuten ohne Bildschirm“ ein Kommentar und keine Nachricht ist?",
+      "options": [
+        "Er ist kurz und beantwortet die W-Fragen.",
+        "Die Verfasserin vertritt eine Meinung und begründet sie mit Argumenten.",
+        "Er enthält ein Zitat.",
+        "Er ist im Präsens geschrieben."
+      ],
+      "correct": 1,
+      "explanation": "Ein Kommentar ist meinungsbetont: These + Argumente + Umgang mit Einwänden. Eine Nachricht informiert sachlich ohne Meinung.",
+      "difficulty": "easy",
+      "exam": true,
+      "optionExplanations": [
+        "Das ist ein Merkmal der Nachricht.",
+        "Richtig – genau das macht einen Kommentar aus.",
+        "Zitate gibt es in vielen Textsorten, auch in Nachrichten.",
+        "Das Tempus sagt nichts über die Textsorte aus."
+      ]
+    },
+    {
+      "id": "q2",
+      "type": "multiple-choice",
+      "prompt": "Welcher Satz ist die These des Kommentars?",
+      "options": [
+        "„Seit diesem Schuljahr gilt an vielen Schulen: Das Handy bleibt in der Pause in der Tasche.“ (Z. 1)",
+        "„Das Verbot ist weniger Strafe als Chance.“ (Z. 3)",
+        "„Lehrkräfte berichten, dass Klassen nach handyfreien Pausen ruhiger in den Unterricht starten.“ (Z. 7)",
+        "„Ein weiterer Einwand wiegt schwerer: Was ist im Notfall?“ (Z. 18)"
+      ],
+      "correct": 1,
+      "explanation": "Die These ist die zentrale Behauptung, die der Text begründet. Z. 1 nennt nur die Ausgangslage, Z. 7 ist ein Beleg, Z. 18 leitet einen Einwand ein.",
+      "difficulty": "easy",
+      "exam": true
+    },
+    {
+      "id": "q3",
+      "type": "multiple-choice",
+      "prompt": "Um welchen Argumenttyp handelt es sich bei „Wer Fahrradfahren lernt, übt auch nicht zuerst auf der Autobahn.“ (Z. 15)?",
+      "options": [
+        "Faktenargument",
+        "Autoritätsargument",
+        "Analogieargument",
+        "normatives Argument"
+      ],
+      "correct": 2,
+      "explanation": "Ein bekannter, ähnlicher Fall (Fahrradfahren lernen) wird auf das Problem (Medienumgang lernen) übertragen – das ist ein Analogieargument.",
+      "difficulty": "medium",
+      "exam": true,
+      "optionExplanations": [
+        "Es werden keine überprüfbaren Zahlen oder Studien genannt.",
+        "Es wird keine Fachperson zitiert.",
+        "Richtig – Übertragung eines Vergleichsfalls.",
+        "Es geht nicht um Werte, sondern um einen Vergleich."
+      ]
+    },
+    {
+      "id": "q4",
+      "type": "multiple-choice",
+      "prompt": "Welche Aussage über Z. 13–15 trifft am besten zu?",
+      "options": [
+        "Die Verfasserin ändert ihre Meinung.",
+        "Die Verfasserin nimmt einen Einwand vorweg, gibt ihm teilweise recht und entkräftet ihn.",
+        "Die Verfasserin zitiert eine Expertin.",
+        "Die Verfasserin fasst ihre Argumente zusammen."
+      ],
+      "correct": 1,
+      "explanation": "„Natürlich lässt sich einwenden“ leitet einen Einwand ein, „Das stimmt – aber nur halb.“ ist ein Zugeständnis mit anschließender Widerlegung (Konzession).",
+      "difficulty": "medium",
+      "exam": true
+    },
+    {
+      "id": "q5",
+      "type": "true-false",
+      "prompt": "In einer Sachtextanalyse schreibst du über „den Erzähler“ des Textes.",
+      "correct": false,
+      "explanation": "Falsch. Einen Erzähler gibt es nur in literarischen Texten. Bei Sachtexten sprichst du von der Verfasserin bzw. dem Verfasser (oder Autor/in).",
+      "difficulty": "easy",
+      "exam": true
+    },
+    {
+      "id": "q6",
+      "type": "true-false",
+      "prompt": "Der Kommentar stützt seine These durch Zahlen und Studien.",
+      "correct": false,
+      "explanation": "Falsch. Der Text nennt keine Zahlen oder Studien. Er argumentiert mit Beobachtungen (Z. 7), einem Zitat (Z. 11 f.), Vergleichen (Z. 15) und Werten (Z. 26). Das kann man in der Analyse als Schwäche benennen.",
+      "difficulty": "medium",
+      "exam": true
+    },
+    {
+      "id": "q7",
+      "type": "true-false",
+      "prompt": "„Ein Verbot, so die Kritik, nehme ihnen genau diese Übung weg.“ (Z. 14) – Der Konjunktiv zeigt, dass die Verfasserin eine fremde Meinung wiedergibt.",
+      "correct": true,
+      "explanation": "Wahr. „nehme“ ist Konjunktiv I, die Form der indirekten Rede. Die Verfasserin gibt die Position der Kritiker wieder und macht deutlich, dass es nicht ihre eigene ist.",
+      "difficulty": "medium",
+      "exam": true
+    },
+    {
+      "id": "q8",
+      "type": "open",
+      "prompt": "Benenne das sprachliche Mittel in „Das Verbot ist weniger Strafe als Chance.“ (Z. 3) und erkläre seine Wirkung.",
+      "solution": "Antithese: „Strafe“ und „Chance“ werden gegenübergestellt. Die Verfasserin greift die negative Sicht der Kritiker auf und setzt ihre positive Deutung dagegen. Die knappe Formel prägt sich ein und lenkt als These das Verständnis des ganzen Textes.",
+      "explanation": "Volle Punktzahl gibt es für drei Teile: richtiger Fachbegriff (Antithese/Gegensatz), Beleg (die beiden Gegenbegriffe) und Wirkung bzw. Funktion für die Absicht. Nur „Antithese“ zu schreiben reicht nicht.",
+      "difficulty": "easy",
+      "exam": true,
+      "keywords": [
+        "Antithese",
+        "Gegensatz",
+        "Strafe",
+        "Chance"
+      ]
+    },
+    {
+      "id": "q9",
+      "type": "open",
+      "prompt": "Beschreibe den Aufbau der Argumentation des Kommentars (Abschnitte mit Zeilenangaben und Funktion).",
+      "solution": "Z. 1–3: Ausgangslage und These. Z. 4–7: Argument 1 (Konzentration) mit Beobachtung der Lehrkräfte. Z. 8–12: Argument 2 (Miteinander) mit Beispiel und Zitat der Schulleiterin. Z. 13–17: Einwand „selbst lernen“ + Widerlegung durch Analogie. Z. 18–21: gesteigerter Einwand „Notfall“ + Widerlegung. Z. 22–25: Einschränkung – Verbot nur gemeinsam mit der Schülervertretung. Z. 26–27: zugespitzter Schluss mit indirektem Appell. Insgesamt: Pro-Argumente, dann Einwand-Widerlegung, dann Einschränkung.",
+      "explanation": "Wichtig ist nicht nur der Inhalt, sondern die Funktion jedes Abschnitts (These, Argument, Einwand, Widerlegung, Einschränkung, Schluss) und Verben wie „führt an“, „räumt ein“, „entkräftet“.",
+      "difficulty": "medium",
+      "exam": true,
+      "hints": [
+        "Wo steht die These?",
+        "Wo wechselt der Text von eigenen Argumenten zu Gegenargumenten?",
+        "Was passiert in Z. 22–25?"
+      ]
+    },
+    {
+      "id": "q10",
+      "type": "open",
+      "prompt": "Schreibe einen Analyse-Absatz zur Frage: Wie versucht die Verfasserin in Z. 18–25, besonders skeptische Leserinnen und Leser zu überzeugen? Nutze mindestens zwei Zitate mit Zeilenangabe.",
+      "solution": "Musterabsatz: In Z. 18 greift die Verfasserin den Einwand auf, den sie selbst als gewichtigsten bezeichnet: „Ein weiterer Einwand wiegt schwerer: Was ist im Notfall?“ (Z. 18). Indem sie die Sorge als Frage formuliert, spricht sie Eltern und Jugendliche direkt an. Sie entkräftet sie mit praktischen Lösungen – das Sekretariat sei „jederzeit erreichbar“ (Z. 19), Telefonieren sei mit Erlaubnis möglich – und schließt mit der verallgemeinernden Beruhigung, niemand sei „von der Welt abgeschnitten“ (Z. 21). Danach schränkt sie ihre eigene Position ein: Entscheidend sei, „wie ein solches Verbot eingeführt wird“ (Z. 22). Der Parallelismus „Wird es einfach von oben verordnet …“ / „Wird es dagegen gemeinsam …“ (Z. 23 f.) stellt zwei Wege gegenüber; die Metapher „Misstrauensvotum gegen die Jugend“ (Z. 23) übernimmt sogar die Perspektive der Kritiker. Durch diese Einschränkung wirkt die Verfasserin nicht wie eine Verbotsbefürworterin um jeden Preis, sondern wie jemand, der die Jugendlichen ernst nimmt – das macht sie gerade für Skeptiker glaubwürdig.",
+      "explanation": "Bewertet werden: richtige Beobachtungen (Einwand als Frage, Widerlegung, Einschränkung), korrekt zitierte Belege mit Zeilenangabe, Erklärung der Wirkung und der Bezug zur Leitfrage (Skeptiker überzeugen). Ein Absatz ohne Bezug zur Wirkung bleibt eine Inhaltsangabe.",
+      "difficulty": "hard",
+      "exam": true,
+      "hints": [
+        "Welche Sorge wird in Z. 18 aufgegriffen – und wie?",
+        "Warum schränkt die Verfasserin ihre eigene Forderung ein?"
+      ]
+    }
+  ],
+  "flashcards": [
+    {
+      "front": "Was ist ein Sachtext?",
+      "back": "Ein nicht-literarischer Text, der sich auf die wirkliche Welt bezieht."
+    },
+    {
+      "front": "Die vier Textfunktionen",
+      "back": "informieren · argumentieren/überzeugen · appellieren · instruieren"
+    },
+    {
+      "front": "Kommentar vs. Nachricht",
+      "back": "Kommentar: Meinung + Argumente. Nachricht: sachliche Information ohne Meinung."
+    },
+    {
+      "front": "Was gehört in die Einleitung?",
+      "back": "TATTE (Titel, Autor/in, Textsorte, Thema, Erscheinungsjahr/Quelle) + Kernaussage/These, evtl. Hypothese"
+    },
+    {
+      "front": "Bausteine einer Argumentation",
+      "back": "These → Argument → Beleg/Beispiel (+ Gegenargument und Widerlegung)"
+    },
+    {
+      "front": "Konzession",
+      "back": "Zugeständnis an einen Einwand, bevor er entkräftet wird (natürlich … aber; zwar … doch)"
+    },
+    {
+      "front": "Analogieargument",
+      "back": "Ein ähnlicher, bekannter Fall wird auf das Problem übertragen."
+    },
+    {
+      "front": "Autoritätsargument",
+      "back": "Berufung auf eine fachkundige oder anerkannte Person."
+    },
+    {
+      "front": "Dreischritt der Sprachanalyse",
+      "back": "Mittel + Beleg → Wirkung → Funktion für die Absicht"
+    },
+    {
+      "front": "Wie kennzeichnest du eine Auslassung im Zitat?",
+      "back": "Mit eckigen Klammern: […]"
+    },
+    {
+      "front": "Welches Tempus in der Analyse?",
+      "back": "Präsens (Vorzeitiges im Perfekt)."
+    },
+    {
+      "front": "Wann gehört deine Meinung in die Analyse?",
+      "back": "Nur im Schluss und nur, wenn die Aufgabe eine Stellungnahme verlangt."
+    }
+  ],
+  "exercises": [
+    {
+      "id": "u1",
+      "level": "easy",
+      "prompt": "Ordne zu: Nachricht, Kommentar, Reportage, Gebrauchsanweisung – welche Hauptfunktion hat jede Textsorte?",
+      "solution": "Nachricht: informieren · Kommentar: argumentieren/überzeugen · Reportage: informieren (anschaulich, mit Eindrücken) · Gebrauchsanweisung: instruieren",
+      "explanation": "Die Hauptfunktion ergibt sich aus der Absicht: Wer berichtet, informiert; wer eine Meinung begründet, argumentiert; wer anleitet, instruiert. Die Reportage informiert, wirkt aber durch Szenen und Eindrücke lebendiger."
+    },
+    {
+      "id": "u2",
+      "level": "easy",
+      "prompt": "Finde im Übungstext je ein Signalwort für (a) ein neues Argument, (b) ein Zugeständnis, (c) eine Widerlegung.",
+      "solution": "(a) „Hinzu kommt“ (Z. 8) · (b) „Natürlich lässt sich einwenden“ (Z. 13) · (c) „Doch auch hier“ (Z. 19) oder „aber nur halb“ (Z. 15)",
+      "explanation": "Signalwörter zeigen die Gliederung des Gedankengangs. Wer sie beim Lesen markiert, findet die Sinnabschnitte schneller. Auch „Zunächst“ (Z. 4) wäre für (a) richtig."
+    },
+    {
+      "id": "u3",
+      "level": "medium",
+      "prompt": "Bestimme den Argumenttyp in Z. 7 und Z. 11–12 und beurteile, wie überzeugend die beiden Belege sind.",
+      "solution": "Z. 7: Erfahrungs-/Beobachtungsargument („Lehrkräfte berichten“). Z. 11–12: Autoritätsargument (Zitat einer Schulleiterin). Beide wirken anschaulich und glaubwürdig, sind aber nicht überprüfbar: Es werden keine Zahlen, Namen oder Studien genannt, und es bleibt offen, wie viele Lehrkräfte das beobachtet haben.",
+      "explanation": "Zu einer Argumentationsanalyse gehört auch die Bewertung der Belege. „Überzeugend“ heißt nicht „wahr“ – ein Beleg kann anschaulich, aber trotzdem schwach sein.",
+      "steps": [
+        "Wer spricht? (Lehrkräfte bzw. Schulleiterin)",
+        "Welcher Typ? (Erfahrung bzw. Autorität)",
+        "Was fehlt? (Zahlen, Quelle, Verallgemeinerbarkeit)"
+      ]
+    },
+    {
+      "id": "u4",
+      "level": "medium",
+      "prompt": "Gib den Einwand aus Z. 13–14 in indirekter Rede mit Konjunktiv I wieder und erkläre, warum die Verfasserin selbst den Konjunktiv verwendet.",
+      "solution": "Kritiker meinen, Jugendliche müssten lernen, selbst mit dem Handy umzugehen; ein Verbot nehme ihnen genau diese Übung weg. – Die Verfasserin nutzt den Konjunktiv („nehme“, Z. 14), um deutlich zu machen, dass sie eine fremde Meinung wiedergibt, von der sie sich distanziert.",
+      "explanation": "„müssten“ ist hier Konjunktiv II als Ersatzform, weil der Konjunktiv I („müssen“) mit dem Indikativ gleich lautet. Der Konjunktiv kennzeichnet Aussagen als fremd – wichtig für das Verständnis von Einwänden."
+    },
+    {
+      "id": "u5",
+      "level": "hard",
+      "prompt": "Analysiere die Sprache des Schlusses (Z. 26–27) in einem Absatz: mindestens zwei Mittel, mit Zitat, Wirkung und Funktion.",
+      "solution": "Im Schluss spitzt die Verfasserin ihre Position zu. Das Verb „gehört“ (Z. 26) wird wiederholt und in gegensätzlicher Bedeutung verwendet: Die Pause gehöre den Schülern, gerade deshalb solle sie „nicht dem Bildschirm gehören“. Dieses Wortspiel greift das Argument der Kritiker (Bevormundung) auf und dreht es um: Das Verbot erscheint nicht als Einschränkung, sondern als Schutz der Freiheit der Jugendlichen. Der letzte Satz enthält die Antithese „verliert wenig – und gewinnt vielleicht ein Gespräch“ (Z. 27); der Gedankenstrich schafft eine Pause vor der Pointe. Das vorsichtige „vielleicht“ wirkt einladend statt belehrend. So endet der Kommentar mit einem indirekten Appell, das Handy freiwillig wegzulegen.",
+      "explanation": "Ein guter Absatz benennt die Mittel genau, belegt sie wörtlich und erklärt, wozu sie im Gesamttext dienen – hier: das Verbot als Gewinn erscheinen zu lassen.",
+      "steps": [
+        "Mittel finden (Wiederholung/Wortspiel, Antithese, Gedankenstrich, „vielleicht“)",
+        "zitieren mit Zeilenangabe",
+        "Wirkung beschreiben",
+        "Funktion: Bezug zur These und zur Zielgruppe"
+      ]
+    },
+    {
+      "id": "u6",
+      "level": "hard",
+      "prompt": "Schreibe einen Schluss zur Analyse des Kommentars, der das Ergebnis bündelt und die Überzeugungskraft beurteilt (ohne eigene Meinung zum Handyverbot).",
+      "solution": "Insgesamt versucht die Verfasserin, ihre Leserinnen und Leser vor allem durch anschauliche Beobachtungen, einprägsame Vergleiche und einen fairen Umgang mit Gegenargumenten zu überzeugen. Ihre Sprache arbeitet durchgehend mit Gegensätzen, die den Verzicht auf das Handy als Gewinn darstellen. Besonders überzeugend wirkt, dass sie Einwände nicht übergeht, sondern teilweise zugesteht, und ihre eigene Forderung an die Beteiligung der Schülervertretung knüpft. Dadurch erscheint sie gerade jugendlichen Skeptikern glaubwürdig. Eine Schwäche ist, dass sie keine überprüfbaren Zahlen oder Studien nennt. Die Hypothese, der Text richte sich vor allem an skeptische Jugendliche, hat sich damit bestätigt.",
+      "explanation": "Der Schluss fasst zusammen, beurteilt Stärken und Schwächen der Argumentation und überprüft die Hypothese. Eine Meinung zum Thema (z. B. „Ich bin für das Verbot“) gehört nur hinein, wenn die Aufgabe eine Stellungnahme verlangt."
+    }
+  ],
+  "mistakes": [
+    {
+      "mistake": "Vom „Erzähler“ sprechen.",
+      "why": "Begriffe aus der Analyse literarischer Texte werden übertragen.",
+      "fix": "Bei Sachtexten: „die Verfasserin“, „der Autor“. Einen Erzähler gibt es nur in erfundenen Texten."
+    },
+    {
+      "mistake": "Den Inhalt nacherzählen statt den Gedankengang zu analysieren.",
+      "why": "„Was steht da?“ ist leichter als „Was macht der Abschnitt?“",
+      "fix": "Jeden Abschnitt mit seiner Funktion beschreiben: „führt als Argument an“, „räumt ein“, „entkräftet“."
+    },
+    {
+      "mistake": "Stilmittel nur auflisten („In Z. 3 ist eine Antithese.“).",
+      "why": "Man glaubt, das Finden sei schon die Analyse.",
+      "fix": "Immer der Dreischritt: Mittel + Beleg → Wirkung → Funktion für die Absicht des Textes."
+    },
+    {
+      "mistake": "Ungenaue oder falsch belegte Zitate.",
+      "why": "Aus dem Gedächtnis zitiert oder Zeile verrutscht.",
+      "fix": "Wortgenau abschreiben, Auslassungen mit […] kennzeichnen, Zeilen prüfen (Z. 7, Z. 16 f., Z. 13–17)."
+    },
+    {
+      "mistake": "Die eigene Meinung zum Thema in die Analyse schreiben („Ich finde Handyverbote doof.“).",
+      "why": "Das Thema betrifft einen selbst – man will mitdiskutieren.",
+      "fix": "In der Analyse nur beurteilen, *wie gut* argumentiert wird. Eigene Meinung nur im Schluss, wenn eine Stellungnahme verlangt ist."
+    },
+    {
+      "mistake": "Die Meinung der Kritiker als Meinung der Verfasserin ausgeben.",
+      "why": "Einwände werden im Text ausführlich wiedergegeben und beim schnellen Lesen für die Position gehalten.",
+      "fix": "Auf Signalwörter (natürlich, so die Kritik) und den Konjunktiv achten; prüfen, ob danach ein „aber/doch“ folgt."
+    },
+    {
+      "mistake": "Wechsel ins Präteritum („Die Autorin schrieb …“).",
+      "why": "Gewohnheit aus Erzählungen und Berichten.",
+      "fix": "Durchgehend Präsens: „Die Autorin schreibt / führt an / betont …“."
+    },
+    {
+      "mistake": "Wirkungsbeschreibungen bleiben leer („Das wirkt interessant.“).",
+      "why": "Es fehlen passende Wörter für Wirkungen.",
+      "fix": "Genau benennen: veranschaulicht, betont, wertet ab, schafft Nähe, wirkt glaubwürdig – und sagen, *bei wem* und *wozu*."
+    }
+  ],
+  "summary": "**Sachtextanalyse – das Wichtigste auf einen Blick**\n\n- **Sachtext** = bezieht sich auf die Wirklichkeit; Hauptfunktion bestimmen (informieren, argumentieren, appellieren, instruieren). Verfasser/in statt Erzähler.\n- **Vorbereitung:** markieren (These, Argumente, Einwände), Sinnabschnitte mit Signalwörtern, Kernaussage in einem Satz.\n- **Einleitung:** TATTE + These, evtl. Hypothese zur Wirkung. Kein Zitat, keine Meinung.\n- **Hauptteil 1 – Gedankengang:** Abschnitte mit Funktion (*führt an, räumt ein, entkräftet, schränkt ein*), fremde Aussagen im Konjunktiv I.\n- **Hauptteil 2 – Argumentation:** These → Argument → Beleg; Argumenttypen (Fakten, Erfahrung, Autorität, Analogie, Norm); Struktur (steigernd, dialektisch, Einwand-Widerlegung); Belege kritisch prüfen.\n- **Hauptteil 3 – Sprache:** Wortwahl, Satzbau, rhetorische Mittel – immer **Mittel + Beleg → Wirkung → Funktion**.\n- **Textbelege:** wortgenau, Zeilenangabe, Auslassung […], nach jedem Zitat erklären.\n- **Schluss:** Ergebnis bündeln, Hypothese prüfen, Überzeugungskraft beurteilen; Stellungnahme nur auf Nachfrage.\n- **Tempus:** Präsens. **Stil:** sachlich, eigene Worte.\n\n**Übungstext in einem Satz:** Lena Brandt hält das Handyverbot in Pausen für eine Chance („weniger Strafe als Chance“ (Z. 3)), stützt das mit Konzentration und Miteinander, entkräftet zwei Einwände und knüpft das Verbot an die Mitwirkung der Schülervertretung.",
+  "exam": {
+    "title": "Übungstest: Sachtextanalyse (Klasse 9)",
+    "timeLimitMinutes": 45,
+    "questionIds": [
+      "q1",
+      "q2",
+      "q3",
+      "q4",
+      "q5",
+      "q6",
+      "q7",
+      "q8",
+      "q9",
+      "q10"
+    ]
+  }
+}

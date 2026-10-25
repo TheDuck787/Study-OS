@@ -1,4 +1,5 @@
 import exampleText from '../../public/lernpakete/deutsch-textanalyse-klasse-9.json?raw'
+import sachtextText from '../../public/lernpakete/deutsch-sachtextanalyse-klasse-9.json?raw'
 import templateText from '../../docs/lernpakete/vorlage.json?raw'
 import schemaText from '../../docs/lernpakete/lernpaket.schema.json?raw'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -23,6 +24,27 @@ let n = 0
 beforeEach(() => {
   useTestDatabase(`pkg-${++n}`)
   clearUndo()
+})
+
+describe('package: Deutsch → Sachtextanalyse, Klasse 9', () => {
+  it('is valid, has exactly the requested content and imports completely with a 45-minute exam', async () => {
+    const r = parsePackageJson(sachtextText)
+    expect(r.errors).toEqual([])
+    expect(r.warnings).toEqual([])
+    const p = r.pkg!
+    const c = countPackage(p)
+    expect([p.notes!.length, p.examples!.length, p.keyTerms!.length, c.questions, c.flashcards, p.exercises!.length, p.mistakes!.length]).toEqual([10, 3, 16, 10, 12, 6, 8])
+    expect(p.exercises!.map((e) => e.level).sort()).toEqual(['easy', 'easy', 'hard', 'hard', 'medium', 'medium'])
+    expect(p.exam).toMatchObject({ timeLimitMinutes: 45 })
+    expect(p.summary).toBeTruthy()
+    const s = await importPackage(p, { subject: { create: 'Deutsch' }, topic: { create: 'Sachtextanalyse' } }, { termsAsCards: false })
+    expect(s.created.questions).toBe(10)
+    expect(s.created.exercises).toBe(6)
+    expect(s.created.flashcards).toBe(12)
+    expect(s.examQuestionIds).toHaveLength(10)
+    const attempt = await startTopicExam(s.topicId)
+    expect(attempt).toBeTruthy()
+  })
 })
 
 describe('example package: Deutsch → Textanalyse, Klasse 9', () => {

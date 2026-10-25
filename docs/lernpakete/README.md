@@ -7,6 +7,7 @@ Ein **Lernpaket** enthält alles, was du zu **einem Thema eines Fachs** brauchst
 | `docs/lernpakete/lernpaket.schema.json` | JSON Schema (Draft 2020-12) – für Editoren mit Autovervollständigung |
 | `docs/lernpakete/vorlage.json` | leere, gültige Vorlage mit einem Eintrag pro Abschnitt |
 | `public/lernpakete/deutsch-textanalyse-klasse-9.json` | vollständiges Beispiel: Deutsch → Textanalyse, Klasse 9 |
+| `public/lernpakete/deutsch-sachtextanalyse-klasse-9.json` | Deutsch → Sachtextanalyse, Klasse 9 (Kommentar „Zwanzig Minuten ohne Bildschirm“, 45-Minuten-Übungstest) |
 | `scripts/build-example-package.py` | Quelle des Beispielpakets (erzeugt die JSON-Datei) |
 
 ## Importieren
