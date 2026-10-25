@@ -1,0 +1,136 @@
+{
+  "$schema": "./lernpaket.schema.json",
+  "format": "studyos-learning-package",
+  "version": 1,
+  "id": "fach-thema-klasse",
+  "title": "Thema – Klasse X",
+  "subject": "Fach",
+  "topic": "Thema",
+  "level": "Klasse 9",
+  "grade": 9,
+  "language": "de",
+  "description": "Ein bis zwei Sätze: Worum geht es in diesem Thema?",
+  "objectives": [
+    "Ich kann … erklären.",
+    "Ich kann … anwenden."
+  ],
+  "notes": [
+    {
+      "id": "grundlagen",
+      "title": "Grundlagen",
+      "content": "Ausführliche Erklärung in **Markdown**. Formeln mit $a^2 + b^2 = c^2$."
+    }
+  ],
+  "examples": [
+    {
+      "id": "beispiel-1",
+      "title": "Musterbeispiel",
+      "task": "Die Aufgabe.",
+      "steps": [
+        {
+          "step": "Erster Schritt.",
+          "why": "Warum dieser Schritt richtig ist."
+        }
+      ],
+      "result": "Das Ergebnis."
+    }
+  ],
+  "keyTerms": [
+    {
+      "term": "Fachbegriff",
+      "definition": "Kurze, genaue Definition.",
+      "example": "Ein Beispiel."
+    }
+  ],
+  "questions": [
+    {
+      "id": "f1",
+      "type": "multiple-choice",
+      "prompt": "Frage?",
+      "options": [
+        "Antwort A",
+        "Antwort B",
+        "Antwort C"
+      ],
+      "correct": 1,
+      "explanation": "Warum B richtig ist (und A/C nicht).",
+      "difficulty": "easy"
+    },
+    {
+      "id": "f2",
+      "type": "true-false",
+      "prompt": "Eine Aussage.",
+      "correct": false,
+      "explanation": "Warum die Aussage falsch ist.",
+      "difficulty": "easy"
+    },
+    {
+      "id": "f3",
+      "type": "open",
+      "prompt": "Offene Frage?",
+      "solution": "Musterlösung.",
+      "explanation": "Worauf es bei der Antwort ankommt.",
+      "difficulty": "medium",
+      "exam": true
+    },
+    {
+      "id": "f4",
+      "type": "number",
+      "prompt": "Rechenaufgabe?",
+      "answer": 12.5,
+      "unit": "cm",
+      "tolerance": 0.1,
+      "explanation": "Rechenweg und Begründung.",
+      "difficulty": "medium"
+    }
+  ],
+  "flashcards": [
+    {
+      "front": "Vorderseite (Frage)",
+      "back": "Rückseite (Antwort)"
+    }
+  ],
+  "exercises": [
+    {
+      "id": "u1",
+      "level": "easy",
+      "prompt": "Leichte Aufgabe.",
+      "solution": "Lösung.",
+      "explanation": "Erklärung."
+    },
+    {
+      "id": "u2",
+      "level": "medium",
+      "prompt": "Mittlere Aufgabe.",
+      "solution": "Lösung.",
+      "explanation": "Erklärung."
+    },
+    {
+      "id": "u3",
+      "level": "hard",
+      "prompt": "Schwere Aufgabe.",
+      "solution": "Lösung.",
+      "explanation": "Erklärung.",
+      "steps": [
+        "Schritt 1",
+        "Schritt 2"
+      ]
+    }
+  ],
+  "mistakes": [
+    {
+      "mistake": "Typischer Fehler.",
+      "why": "Warum er passiert.",
+      "fix": "Wie du ihn vermeidest."
+    }
+  ],
+  "summary": "- Wichtigster Punkt 1\n- Wichtigster Punkt 2",
+  "exam": {
+    "title": "Prüfung: Thema",
+    "timeLimitMinutes": 20,
+    "questionIds": [
+      "f1",
+      "f2"
+    ]
+  }
+}

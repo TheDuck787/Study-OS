@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ArrowLeft, BookOpen, CalendarClock, FileText, FileUp, Layers, LayoutGrid, ListChecks, MessagesSquare, MoreHorizontal, NotebookPen, Pencil, Play, RotateCcw, Trash2 } from 'lucide-react'
+import { ArrowLeft, BookOpen, CalendarClock, FileText, FileUp, Layers, LayoutGrid, ListChecks, MessagesSquare, MoreHorizontal, NotebookPen, Package, Pencil, Play, RotateCcw, Trash2 } from 'lucide-react'
 import { db } from '@/db/index'
 import { deleteSubject, subjectDeletionImpact } from '@/db/repo'
 import { useExams, useOpenMistakes, useTopicStats } from '@/hooks/data'
@@ -85,7 +85,7 @@ export default function SubjectWorkspace() {
         actions={
           <>
             <ButtonLink to={`/quiz/neu?subject=${subject.id}`} variant="primary" icon={Play}>Üben</ButtonLink>
-            <Menu label="Fach-Aktionen" icon={MoreHorizontal} items={[{ label: 'Umbenennen / Farbe', icon: Pencil, onSelect: () => setEditOpen(true) }, { label: 'Fach löschen', icon: Trash2, danger: true, onSelect: remove }]} />
+            <Menu label="Fach-Aktionen" icon={MoreHorizontal} items={[{ label: 'Umbenennen / Farbe', icon: Pencil, onSelect: () => setEditOpen(true) }, { label: 'Lernpaket importieren', icon: Package, onSelect: () => navigate(`/bibliothek/lernpaket?fach=${subject.id}`) }, { label: 'Fach löschen', icon: Trash2, danger: true, onSelect: remove }]} />
           </>
         }
       />

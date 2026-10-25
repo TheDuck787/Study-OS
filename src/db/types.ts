@@ -168,7 +168,8 @@ export interface CardReview {
 }
 
 export type QuestionType = 'mc' | 'tf' | 'text' | 'numeric' | 'math' | 'vocab'
-export type QuestionSource = 'library' | 'user' | 'generator' | 'material' | 'ai'
+/** "import" = from a learning package (Lernpaket). */
+export type QuestionSource = 'library' | 'user' | 'generator' | 'material' | 'ai' | 'import'
 
 export interface Question {
   id: ID

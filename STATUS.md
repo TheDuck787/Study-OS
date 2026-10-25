@@ -20,6 +20,7 @@ Plan und Architekturentscheidungen: `docs/PLAN.md`. Setup & Nutzung: `README.md`
 | 8 | Qualitätssicherung | erledigt – siehe „Tests“ |
 | 11 | Google-Anmeldung & Synchronisierung (Supabase Auth, `sync_records` mit RLS) | erledigt – Vercel-Variablen gesetzt, `/api/config` liefert die Supabase-Konfiguration, Tabelle `sync_records` mit RLS angelegt (geprüft 25.10.2026) |
 | 10 | Kalender & Planer (Ansichten, Aufgaben, Prüfungsvorbereitung, Planer, Mein Tag, Wochenplanung) | erledigt – Details unten, Plan: `docs/CALENDAR.md` |
+| 14 | Lernpakete: Import/Export (JSON, Markdown, TXT), Schema, Vorlage, KI-Prompt, Beispiel Deutsch → Textanalyse Kl. 9 | erledigt – Details unten, Format: `docs/lernpakete/README.md` |
 | 13 | Design & Bewegung (Motion-System, geschichtete Flächen, Mikro-Interaktionen, Skeletons, Erfolgs-Feedback) | erledigt – Details unten |
 | 12 | Stundenplan im WebUntis-Stil (Woche/Tag/Liste, Entfall/Vertretung, Hausaufgaben, Prüfungen, CSV/ICS) | erledigt – Details unten |
 
@@ -47,10 +48,10 @@ Plan und Architekturentscheidungen: `docs/PLAN.md`. Setup & Nutzung: `README.md`
 |---|---|
 | `npm run typecheck` | 0 Fehler |
 | `npm run lint` | 0 Fehler, 0 Warnungen |
-| `npm test` (Vitest) | 217 Tests bestanden (davon Stundenplan 15 + 1 Sync) – Lernlogik, Mathe-Generatoren, Fragenbibliothek, Datenbank-Flows, **Kalender & Planer (30)** und API: Zugangscode-Pflicht, Sperre auf Vercel ohne `APP_ACCESS_TOKEN`, Validierung, SSE-Streaming, Rate-Limit, 404, Pfad-Wiederherstellung der Vercel Function |
+| `npm test` (Vitest) | 237 Tests bestanden (davon Lernpakete 19 + 1 Sync, Stundenplan 15 + 1 Sync) – Lernlogik, Mathe-Generatoren, Fragenbibliothek, Datenbank-Flows, **Kalender & Planer (30)** und API: Zugangscode-Pflicht, Sperre auf Vercel ohne `APP_ACCESS_TOKEN`, Validierung, SSE-Streaming, Rate-Limit, 404, Pfad-Wiederherstellung der Vercel Function |
 | `npm run build` | erfolgreich; Geheimnis-Prüfung von `dist/` bestanden |
 | `vercel build` (lokal, Vercel CLI) | erfolgreich: statische Ausgabe + Function `api/index` (Node 22); kompilierte Function direkt aufgerufen: `/api/health` 200, Status, 404, Sperre ohne Zugangscode |
-| `npm run test:e2e` (Dev-Server, 25.10.2026 nach Design-Überarbeitung) | 21/21 bestanden (3 nur im Produktions-Build sinnvolle Tests übersprungen); gegen den Produktions-Build zusätzlich Deploy- und Stundenplan-Tests 5/5 |
+| `npm run test:e2e` (Dev-Server, 25.10.2026 nach Lernpaketen) | 24/24 bestanden (3 nur im Produktions-Build sinnvolle Tests übersprungen); gegen den Produktions-Build zusätzlich Deploy- und Stundenplan-Tests 5/5 |
 | `npm run test:e2e:prod` (Produktions-Build, vor dem Stundenplan) | 15/15 – Definition-of-Done-Ablauf, Mathe, Demo-Trennung, leerer Start, Installierbarkeit, Offline-Start, Zugangscode, **6 Kalender-Abläufe** und **2 Android-Abläufe (Pixel 7)** |
 | `npm run test:sql` | Migrationen 0001 + 0002 laufen, RLS trennt Nutzer (auch Termine/Aufgaben), Constraints greifen |
 
@@ -126,6 +127,19 @@ Nicht getestet: echtes Deployment auf Vercel (kein Vercel-Konto in dieser Umgebu
 **In der QA gefunden und behoben:** Dropdown-Menüs wurden von der nächsten Seiten-Sektion überdeckt (bleibende Stapel-Kontexte durch `fill-mode: both`); Glas-Effekt hinter einfliegenden Toasts und 126 einzeln animierte Kalender-Kacheln kosteten auf langsamen Geräten Bilder (jetzt feste Fläche bzw. eine Animation pro Spalte).
 
 **Tests:** neuer E2E-Test `tests/e2e/motion.spec.ts` (Toast mit Schließen, Konfetti erscheint und räumt sich auf, Umschalter-Markierung gleitet, Dialog öffnet/schließt, reduzierte Bewegung: keine Animationszeit, kein Konfetti); alle bestehenden Tests unverändert grün.
+
+## Lernpakete (25.10.2026)
+**Format** `studyos-learning-package` Version 1 – ein Paket = ein Thema eines Fachs, für jedes Fach und jede Sprache: Lernziele, Erklärungen, Musterbeispiele mit Begründung je Schritt, Fachbegriffe, Fragen (Auswahl, Wahr/Falsch, offen, Zahl – jeweils mit Erklärung), Karteikarten, Übungen leicht/mittel/schwer, typische Fehler, Lernzettel, Prüfungsmodus. Doku `docs/lernpakete/README.md`, JSON Schema `docs/lernpakete/lernpaket.schema.json`, Vorlage `docs/lernpakete/vorlage.json`, **Beispiel `public/lernpakete/deutsch-textanalyse-klasse-9.json`** (Quelle `scripts/build-example-package.py`).
+
+**Code:** `src/lib/packages/` (Typen `schema.ts`, Prüfung mit deutschen Meldungen `validate.ts`, Markdown/TXT lesen und schreiben `markdown.ts`, Export/Vorlage/KI-Prompt `build.ts`), `src/db/packages.ts` (Import in die normalen Datensätze, Duplikat-Schutz, Register, Prüfungsmodus), `src/features/packages/` (Seite `/bibliothek/lernpaket`, Themen-Export). Einstieg: Bibliothek → „Lernpaket“, Fach → ⋯ → „Lernpaket importieren“, Themenseite → ⋯ → „Als Lernpaket exportieren“ und „Prüfungsmodus“.
+
+**Integration ohne Migration:** Notizen, Fragen, Kartenstapel/Karten, Themen und Fächer sind die vorhandenen Datensätze (Quelle „Lernpaket“), daher funktionieren Quiz, Fehler wiederholen, Karteikarten mit Wiederholungsplan, Themen-Fortschritt, Lernplaner (optional Zuordnung zu einer Prüfung), Sicherung und Google-Synchronisierung wie gewohnt. Register importierter Pakete in `meta.learningPackages`.
+
+**Sicherheit der Daten:** Prüfung vor dem Speichern; Fehler (fehlende Pflichtfelder, ungültiges JSON mit Zeile/Spalte, falscher Antwort-Index, fehlende Erklärung, doppelte IDs, zu lange Texte) blockieren den Import; Umwandlungen werden als Hinweis gezeigt; unbekannte Felder und Abschnitte werden als Notiz aufbewahrt – nichts wird still verworfen oder gekürzt. Feste IDs aus Paket-ID + Eintrag plus Inhaltsvergleich im Ziel-Thema: erneuter Import legt nichts doppelt an, neue Paketfassungen ergänzen nur Neues, eigene Änderungen bleiben. Import in einer Transaktion, danach „Rückgängig“.
+
+**Tests:** `tests/unit/packages.test.ts` (19: Beispiel gültig und vollständig, **jedes Zitat mit Zeilenangabe wird gegen den Originaltext geprüft**, Fehlermeldungen, Umwandlungen, Extras, Markdown-Rundreise, handgeschriebenes TXT, Import mit Zählung/Reihenfolge, kein Duplikat bei Wiederholung, bestehendes Thema + Prüfungszuordnung, Rückgängig, Prüfungsmodus, Export → Re-Import, Vorlage = Datei, Schema = Importer, KI-Prompt), Sync-Test (Paket kommt auf dem zweiten Gerät an), E2E `tests/e2e/packages.spec.ts` (Beispiel importieren, Neuladen, Prüfungsmodus, erneuter Import, fehlerhafte Dateien, Markdown in bestehendes Fach, Export) und `tests/e2e/packages-mobile.spec.ts` (Android).
+
+**In der QA gefunden und behoben:** drei ungenaue Zitate im Beispiel (Auslassungen ohne […], Großschreibung) – vom Zitat-Test gefunden; erneuter Import ins selbe Thema hätte die erzeugten Notizen „Überblick“/„Übungsaufgaben“ verdoppelt.
 
 ## Bekannte Grenzen / offen
 - Kalender: Ziehen und Größe ändern mit Maus/Stift; am Touchscreen über „Verschieben“ und den Editor (bewusst, weil Ziehen dort unzuverlässig ist). Rückgängig gilt bis zum Neuladen der Seite. Schulferien/Feiertage werden nicht automatisch eingetragen (als ganztägiger Eintrag mit „nicht lernen“ möglich).

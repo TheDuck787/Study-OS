@@ -1,16 +1,18 @@
 import { useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { ArrowLeft, Copy, Dumbbell, MessagesSquare, Pencil, Play, Plus, RotateCcw, Sigma, Sparkles, Trash2 } from 'lucide-react'
+import { ArrowLeft, Copy, Dumbbell, FileDown, FileJson, GraduationCap, MessagesSquare, MoreHorizontal, Package, Pencil, Play, Plus, RotateCcw, Sigma, Sparkles, Trash2 } from 'lucide-react'
 import { db } from '@/db/index'
 import type { Question } from '@/db/types'
-import { deleteQuestion, saveQuestion, updateTopic } from '@/db/repo'
+import { deleteQuestion, saveQuestion, updateTopic, ValidationError } from '@/db/repo'
+import { startTopicExam } from '@/db/packages'
+import { exportTopicPackage } from '@/features/packages/exportTopic'
 import { computeTopicStats, LEVEL_LABELS } from '@/lib/mastery'
 import { openMistakes } from '@/lib/mistakes'
 import { formatDayLong, relativeDay } from '@/lib/dates'
 import { SKILLS } from '@/lib/mathgen'
 import { CURRICULUM_NOTICE } from '@/content/curriculum'
-import { Badge, Button, ButtonLink, Card, Checkbox, Dialog, EmptyState, IconButton, LoadingBlock, Notice, ProgressBar, SectionHeader, Select, Textarea, useConfirm, useToast } from '@/components/ui'
+import { Badge, Button, ButtonLink, Card, Checkbox, Dialog, EmptyState, IconButton, LoadingBlock, Menu, Notice, ProgressBar, SectionHeader, Select, Textarea, useConfirm, useToast } from '@/components/ui'
 import { Markdown } from '@/components/Markdown'
 import { useAi } from '@/hooks/data'
 import { QuestionEditor } from '@/features/quiz/QuestionEditor'
@@ -18,12 +20,13 @@ import { AiPracticeDialog } from '@/features/quiz/AiPracticeDialog'
 import { TYPE_LABELS } from '@/features/quiz/QuestionView'
 import { NotesList } from '@/features/notes/NotesList'
 
-const SOURCE_LABEL: Record<Question['source'], string> = { library: 'Beispiel', user: 'Eigene', generator: 'Generiert', material: 'Aus Material', ai: 'KI-erstellt' }
+const SOURCE_LABEL: Record<Question['source'], string> = { library: 'Beispiel', user: 'Eigene', generator: 'Generiert', material: 'Aus Material', ai: 'KI-erstellt', import: 'Lernpaket' }
 
 export default function TopicPage() {
   const { topicId = '' } = useParams()
   const ai = useAi()
   const toast = useToast()
+  const navigate = useNavigate()
   const confirm = useConfirm()
   const topic = useLiveQuery(async () => (await db.topics.get(topicId)) ?? null, [topicId])
   const subject = useLiveQuery(() => (topic ? db.subjects.get(topic.subjectId) : undefined), [topic?.subjectId])
@@ -77,6 +80,20 @@ export default function TopicPage() {
           {stats.challengeReady && <ButtonLink to={`/quiz/neu?topic=${topic.id}&preset=challenge`} icon={Dumbbell}>Herausforderung</ButtonLink>}
           <ButtonLink to={`/tutor?subject=${topic.subjectId}&topic=${topic.id}`} icon={MessagesSquare}>Tutor fragen</ButtonLink>
           {skills.length > 0 && <ButtonLink to="/mathe" icon={Sigma}>Mathe-Modus</ButtonLink>}
+          {questions.some((q) => q.tags?.includes('pruefung')) && (
+            <Button icon={GraduationCap} onClick={async () => {
+              try {
+                navigate(`/quiz/${await startTopicExam(topic.id)}`)
+              } catch (e) {
+                toast({ title: e instanceof ValidationError ? e.message : 'Das hat nicht geklappt', tone: 'danger' })
+              }
+            }}>Prüfungsmodus</Button>
+          )}
+          <Menu label="Weitere Aktionen zum Thema" icon={MoreHorizontal} align="left" items={[
+            { label: 'Als Lernpaket exportieren (JSON)', icon: FileJson, onSelect: () => void exportTopicPackage(topic.id, 'json').then(() => toast({ title: 'Lernpaket exportiert', description: 'Die JSON-Datei kann auf jedem Gerät wieder importiert werden.', tone: 'success' })) },
+            { label: 'Als Lernpaket exportieren (Markdown)', icon: FileDown, onSelect: () => void exportTopicPackage(topic.id, 'markdown').then(() => toast({ title: 'Lernpaket als Markdown exportiert', tone: 'success' })) },
+            { label: 'Lernpaket importieren …', icon: Package, onSelect: () => navigate(`/bibliothek/lernpaket?fach=${topic.subjectId}`) },
+          ]} />
         </div>
       </header>
 

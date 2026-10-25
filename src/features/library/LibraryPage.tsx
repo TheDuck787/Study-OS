@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams, Navigate } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { FileText, FileUp, NotebookPen, Search } from 'lucide-react'
+import { FileText, FileUp, NotebookPen, Package, Search } from 'lucide-react'
 import { db } from '@/db/index'
 import type { Material } from '@/db/types'
 import { searchScore, excerpt } from '@/lib/text'
@@ -79,6 +79,7 @@ export default function LibraryPage() {
         actions={
           <>
             <ButtonLink to="/bibliothek/notiz/neu" icon={NotebookPen}>Notiz</ButtonLink>
+            <ButtonLink to="/bibliothek/lernpaket" icon={Package}>Lernpaket</ButtonLink>
             <ButtonLink to="/bibliothek/import" variant="primary" icon={FileUp}>Importieren</ButtonLink>
           </>
         }

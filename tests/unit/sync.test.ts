@@ -3,6 +3,9 @@ import { db, useTestDatabase as selectTestDb } from '@/db/index'
 import * as repo from '@/db/repo'
 import * as cal from '@/db/calendar'
 import * as tt from '@/db/timetable'
+import exampleText from '../../public/lernpakete/deutsch-textanalyse-klasse-9.json?raw'
+import { importPackage, getPackageRegistry } from '@/db/packages'
+import { parsePackageJson } from '@/lib/packages/validate'
 import { buildItems } from '@/lib/calendar/items'
 import { countMeaningful, runSync, SyncGuardError, type PushRow, type RemoteRow, type RemoteStore, type SyncMode } from '@/lib/sync/engine'
 import { dexieLocalStore, getSyncDb, getSyncState, resetSyncState, setSyncState, selectTestSyncDb } from '@/lib/sync/local'
@@ -266,5 +269,22 @@ describe('sync between PC and phone', () => {
     on('pc')
     await sync(cloud)
     expect((await items()).every((i) => !i.cancelled)).toBe(true)
+  })
+
+  it('an imported learning package arrives on the other device (topic, notes, questions, cards, registry)', async () => {
+    const cloud = new FakeCloud()
+    on('pc')
+    const pkg = parsePackageJson(exampleText).pkg!
+    const s = await importPackage(pkg, { subject: { create: 'Deutsch' }, topic: { create: 'Textanalyse' } }, { termsAsCards: false })
+    const pc = { notes: await db.notes.count(), questions: await db.questions.count(), cards: await db.cards.count() }
+    await sync(cloud, 'merge')
+    on('phone')
+    await sync(cloud, 'useCloud')
+    expect((await db.topics.get(s.topicId))?.name).toBe('Textanalyse')
+    expect({ notes: await db.notes.count(), questions: await db.questions.count(), cards: await db.cards.count() }).toEqual(pc)
+    expect((await getPackageRegistry())[pkg.id]?.topicId).toBe(s.topicId)
+    // importing the same package on the phone again creates nothing twice
+    const again = await importPackage(pkg, { subject: { id: s.subjectId }, topic: { id: s.topicId } }, { termsAsCards: false })
+    expect(again.created).toEqual({ notes: 0, questions: 0, exercises: 0, flashcards: 0 })
   })
 })

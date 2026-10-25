@@ -1,0 +1,618 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://study-os-ebon.vercel.app/lernpakete/lernpaket.schema.json",
+  "title": "Study OS Lernpaket (Version 1)",
+  "description": "Ein Lernpaket enthält alles zu einem Thema eines Fachs. Dokumentation: docs/lernpakete/README.md",
+  "type": "object",
+  "required": [
+    "format",
+    "version",
+    "id",
+    "title",
+    "subject",
+    "topic"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "format": {
+      "const": "studyos-learning-package"
+    },
+    "version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "maxLength": 80,
+      "description": "Feste Paket-ID – erkennt erneute Importe."
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "subject": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 60,
+      "description": "Fach, z. B. Deutsch, Mathematik, Biologie."
+    },
+    "topic": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120,
+      "description": "Thema, z. B. Textanalyse."
+    },
+    "level": {
+      "type": "string",
+      "maxLength": 60,
+      "description": "z. B. „Klasse 9“."
+    },
+    "grade": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 13
+    },
+    "language": {
+      "type": "string",
+      "description": "BCP-47, z. B. de, en."
+    },
+    "description": {
+      "type": "string"
+    },
+    "author": {
+      "type": "string"
+    },
+    "createdAt": {
+      "type": "string"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "objectives": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Lernziele."
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "content"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Markdown, Formeln mit $…$."
+          }
+        }
+      }
+    },
+    "examples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "task": {
+            "type": "string"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "step"
+              ],
+              "properties": {
+                "step": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "why": {
+                  "type": "string",
+                  "description": "Warum der Schritt richtig ist."
+                }
+              }
+            }
+          },
+          "result": {
+            "type": "string"
+          },
+          "content": {
+            "type": "string"
+          }
+        },
+        "anyOf": [
+          {
+            "required": [
+              "task"
+            ]
+          },
+          {
+            "required": [
+              "steps"
+            ]
+          },
+          {
+            "required": [
+              "result"
+            ]
+          },
+          {
+            "required": [
+              "content"
+            ]
+          }
+        ]
+      }
+    },
+    "keyTerms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "term",
+          "definition"
+        ],
+        "properties": {
+          "term": {
+            "type": "string",
+            "minLength": 1
+          },
+          "definition": {
+            "type": "string",
+            "minLength": 1
+          },
+          "example": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "prompt",
+              "options",
+              "correct",
+              "explanation"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 80,
+                "description": "Eindeutig im Paket; hält die Frage bei erneutem Import stabil."
+              },
+              "prompt": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000,
+                "description": "Frage bzw. Aussage (Markdown)."
+              },
+              "explanation": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Begründung der Lösung – nie nur die Antwort."
+              },
+              "difficulty": {
+                "enum": [
+                  "easy",
+                  "medium",
+                  "hard"
+                ],
+                "description": "Schwierigkeit"
+              },
+              "hints": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "exam": {
+                "type": "boolean",
+                "description": "Auch im Prüfungsmodus verwenden."
+              },
+              "type": {
+                "const": "multiple-choice"
+              },
+              "options": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 10,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "correct": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Index der richtigen Antwort (ab 0)."
+              },
+              "optionExplanations": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "description": "Eine Erklärung pro Antwort."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "prompt",
+              "correct",
+              "explanation"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 80,
+                "description": "Eindeutig im Paket; hält die Frage bei erneutem Import stabil."
+              },
+              "prompt": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000,
+                "description": "Frage bzw. Aussage (Markdown)."
+              },
+              "explanation": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Begründung der Lösung – nie nur die Antwort."
+              },
+              "difficulty": {
+                "enum": [
+                  "easy",
+                  "medium",
+                  "hard"
+                ],
+                "description": "Schwierigkeit"
+              },
+              "hints": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "exam": {
+                "type": "boolean",
+                "description": "Auch im Prüfungsmodus verwenden."
+              },
+              "type": {
+                "const": "true-false"
+              },
+              "correct": {
+                "type": "boolean"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "prompt",
+              "solution",
+              "explanation"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 80,
+                "description": "Eindeutig im Paket; hält die Frage bei erneutem Import stabil."
+              },
+              "prompt": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000,
+                "description": "Frage bzw. Aussage (Markdown)."
+              },
+              "explanation": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Begründung der Lösung – nie nur die Antwort."
+              },
+              "difficulty": {
+                "enum": [
+                  "easy",
+                  "medium",
+                  "hard"
+                ],
+                "description": "Schwierigkeit"
+              },
+              "hints": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "exam": {
+                "type": "boolean",
+                "description": "Auch im Prüfungsmodus verwenden."
+              },
+              "type": {
+                "const": "open"
+              },
+              "solution": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Musterlösung."
+              },
+              "keywords": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                },
+                "description": "Optional: automatische Prüfung – jede Gruppe muss mit einer Alternative vorkommen."
+              },
+              "steps": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "prompt",
+              "answer",
+              "explanation"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 80,
+                "description": "Eindeutig im Paket; hält die Frage bei erneutem Import stabil."
+              },
+              "prompt": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4000,
+                "description": "Frage bzw. Aussage (Markdown)."
+              },
+              "explanation": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Begründung der Lösung – nie nur die Antwort."
+              },
+              "difficulty": {
+                "enum": [
+                  "easy",
+                  "medium",
+                  "hard"
+                ],
+                "description": "Schwierigkeit"
+              },
+              "hints": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "exam": {
+                "type": "boolean",
+                "description": "Auch im Prüfungsmodus verwenden."
+              },
+              "type": {
+                "const": "number"
+              },
+              "answer": {
+                "type": "number"
+              },
+              "unit": {
+                "type": "string"
+              },
+              "tolerance": {
+                "type": "number",
+                "minimum": 0
+              },
+              "steps": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "flashcards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "front",
+          "back"
+        ],
+        "properties": {
+          "front": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "back": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "example": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "exercises": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "level",
+          "prompt",
+          "solution",
+          "explanation"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "level": {
+            "enum": [
+              "easy",
+              "medium",
+              "hard"
+            ],
+            "description": "Schwierigkeit"
+          },
+          "prompt": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4000
+          },
+          "solution": {
+            "type": "string",
+            "minLength": 1
+          },
+          "explanation": {
+            "type": "string",
+            "minLength": 1
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "answer": {
+            "type": "number",
+            "description": "Für Rechenaufgaben: automatisch prüfbares Ergebnis."
+          },
+          "unit": {
+            "type": "string"
+          },
+          "tolerance": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "mistakes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mistake",
+          "fix"
+        ],
+        "properties": {
+          "mistake": {
+            "type": "string",
+            "minLength": 1
+          },
+          "why": {
+            "type": "string"
+          },
+          "fix": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "string",
+      "description": "Lernzettel (Markdown)."
+    },
+    "exam": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "timeLimitMinutes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 300
+        },
+        "questionIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "extra": {
+      "type": "object",
+      "description": "Freie Zusatzdaten – werden als Notiz aufbewahrt."
+    }
+  },
+  "additionalProperties": true
+}

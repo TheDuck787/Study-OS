@@ -35,6 +35,7 @@ const MyDayPage = lazy(() => import('./features/calendar/MyDayPage'))
 const WeekPlanPage = lazy(() => import('./features/calendar/WeekPlanPage'))
 const TasksPage = lazy(() => import('./features/tasks/TasksPage'))
 const TimetablePage = lazy(() => import('./features/timetable/TimetablePage'))
+const PackageImportPage = lazy(() => import('./features/packages/PackageImportPage'))
 
 /** Runs once per page load – React StrictMode mounts effects twice, so the work must not run twice (demo seeding is not idempotent). */
 let bootPromise: Promise<void> | null = null
@@ -112,6 +113,7 @@ export function App() {
                           <Route path="/pruefungen/:examId" element={<ExamDetail />} />
                           <Route path="/bibliothek" element={<LibraryPage />} />
                           <Route path="/bibliothek/import" element={<ImportPage />} />
+                          <Route path="/bibliothek/lernpaket" element={<PackageImportPage />} />
                           <Route path="/bibliothek/notiz/:noteId" element={<NotePage />} />
                           <Route path="/bibliothek/material/:materialId" element={<MaterialPage />} />
                           <Route path="/fortschritt" element={<ProgressPage />} />
