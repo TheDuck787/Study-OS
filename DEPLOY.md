@@ -13,7 +13,7 @@ It takes about 20 minutes. You don't need to type any commands unless you want t
 | **GitHub account** (github.com) | yes | free | Stores the code and keeps track of versions. |
 | **Vercel account** (vercel.com, "Hobby" plan) | yes | free for personal use | Builds the code and hosts the website. It updates the site on its own every time the code on GitHub changes. |
 | **Anthropic API key** (console.anthropic.com) | only for the AI tutor | pay per use (prepaid credit) | Lets the server talk to Claude. A Claude Pro subscription does **not** include API use. |
-| Supabase | **no** | – | Not used. See section 8. |
+| Supabase (project „Study OAS“) | only for Google sign-in + sync | free tier is enough | Google sign-in and syncing between PC and phone. See section 8. |
 
 Everything except the AI works without an API key: quizzes, flashcards, adaptive learning,
 exam plans, math mode, PDF import, text recognition (OCR) and backups.
@@ -156,13 +156,60 @@ Every time new code reaches the `main` branch on GitHub, Vercel builds and publi
 automatically within about two minutes. If a build fails, the previous version stays online. The
 installed app on your phone loads the new version the next time you open it with internet.
 
-## 8. Do I need Supabase? No.
+## 8. Google sign-in and sync (Supabase project „Study OAS“)
 
-Study OS stores everything in the browser. There are no accounts, no server-side database and no
-logins, so there is nothing to set up. Supabase would only be useful for **automatic sync between
-devices**, and that feature is **not built yet**. The file `supabase/migrations/0001_init.sql` is a
-prepared database schema with row-level security for a possible future sync. Until then, the
-backup file is how you move data between devices.
+Without sign-in Study OS works exactly as before (data only in this browser). For sign-in and sync between
+PC and phone, these settings are needed once. Replace `https://YOUR-SITE.vercel.app` with the address
+from Vercel → your project → **Domains**.
+
+**Already done in code / database:** sign-in button, sessions, sync, first-login choice, RLS policies.
+The table `public.sync_records` comes from `supabase/migrations/20261025120000_sync_records.sql`
+(apply it once – see A).
+
+### A. Database table (once)
+Supabase Dashboard → project **Study OAS** → **SQL Editor** → New query → paste the content of
+`supabase/migrations/20261025120000_sync_records.sql` → **Run**. Running it twice is harmless.
+Check: **Table Editor** shows `sync_records` with the label "RLS enabled".
+
+### B. Google Cloud Console (OAuth client)
+1. https://console.cloud.google.com → select or create a project (e.g. "Study OS").
+2. **Google Auth Platform → Branding**: app name "Study OS", your e-mail as support and developer contact.
+3. **Audience**: User type **External**. While the status is "Testing", add your own Google address under
+   **Test users** (or click **Publish app** – the basic scopes need no review).
+4. **Data Access (Scopes)**: `openid`, `.../auth/userinfo.email`, `.../auth/userinfo.profile`.
+5. **Clients → Create client → Web application**, name "Study OS":
+   - **Authorized JavaScript origins**: `https://YOUR-SITE.vercel.app` (for local testing also `http://localhost:5173`)
+   - **Authorized redirect URIs**: `https://kqxxrnfoshqenewczguv.supabase.co/auth/v1/callback`
+6. Create → copy **Client ID** and **Client secret** (the secret is only shown once).
+
+### C. Supabase Dashboard (Auth)
+1. **Authentication → Sign In / Providers → Google**: enable, paste Client ID and Client secret, Save.
+2. **Authentication → URL Configuration**:
+   - **Site URL**: `https://YOUR-SITE.vercel.app`
+   - **Redirect URLs**: `https://YOUR-SITE.vercel.app/**` and, for local testing, `http://localhost:5173/**`
+3. Make sure **Allow new users to sign up** is on (otherwise your first Google sign-in is rejected).
+
+### D. Vercel environment variables
+Vercel → project → **Settings → Environment Variables**. If the Supabase integration already created
+`SUPABASE_URL` and `SUPABASE_ANON_KEY` (or `NEXT_PUBLIC_…`), nothing is needed. Otherwise add:
+
+| Key | Value |
+|---|---|
+| `SUPABASE_URL` | `https://kqxxrnfoshqenewczguv.supabase.co` |
+| `SUPABASE_PUBLISHABLE_KEY` | the **publishable** key from Supabase → Project Settings → API Keys (starts with `sb_publishable_`) |
+
+Never add a `VITE_` prefix to secrets and never use the `service_role` / `sb_secret_` key – Study OS
+does not need it, and the server refuses to hand it to the browser. Then **Redeploy**.
+
+### E. Test
+1. Open `https://YOUR-SITE.vercel.app/api/config` – it must show your project URL and the publishable key
+   (`"supabase": {...}`), not `null`.
+2. PC: Einstellungen → **Mit Google anmelden** → choose your account → back in Study OS: decide how to combine
+   your data (upload/merge) → status "Synchronisiert …".
+3. Phone: open the site → on the welcome screen **Mit Google anmelden** → your data appears.
+4. Change something on the phone, wait a few seconds (or "Jetzt synchronisieren") → it appears on the PC.
+
+Files (PDFs, photos) stay on the device where you imported them; their extracted text syncs.
 
 ## 9. Troubleshooting
 
@@ -175,6 +222,10 @@ backup file is how you move data between devices.
 | "Zu viele Anfragen oder Guthaben aufgebraucht" | Add credit in the Anthropic console, or wait a minute. |
 | Data is missing | You may be on a different address (a preview URL), in a different browser, or in a private window. Restore it from your backup file. |
 | No "App installieren" in the menu | Use Chrome, open the site via `https://`, and wait a few seconds after it loads. "Zum Startbildschirm hinzufügen" always works. |
+| "Die Anmeldung mit Google ist … noch nicht aktiviert" | Step 8 C1 (Google provider in Supabase). |
+| After Google you land on an error page from Supabase / "redirect_uri_mismatch" | The redirect URI in Google (8 B5) must be exactly `https://kqxxrnfoshqenewczguv.supabase.co/auth/v1/callback`; the site address must be in Supabase Redirect URLs (8 C2). |
+| "Die Cloud-Datenbank ist noch nicht eingerichtet" | Step 8 A (SQL migration). |
+| "Synchronisierung nicht verfügbar" in the settings | Step 8 D (Vercel variables), then Redeploy. |
 | Photo transcription says the images are too large | Choose fewer pages at once. The app shrinks photos automatically, but Vercel allows at most about 4.5 MB per request. |
 
 ## 10. Running it on your own computer instead (optional)

@@ -11,6 +11,8 @@ import { loadAiSettings, saveAiSettings, detectAi, serverStatus, testServer, typ
 import { applyTheme, loadTheme } from '@/lib/theme'
 import { checkBackup, exportBackup, restoreBackup, wipeDatabase, type BackupCheck } from '@/lib/backup'
 import { saveFile } from '@/lib/download'
+import { AccountSection } from '@/features/account/AccountSection'
+import { useCloud } from '@/features/account/CloudProvider'
 import { toCsv } from '@/lib/csv'
 import { dayKey, WEEKDAYS_SHORT, formatDateTime } from '@/lib/dates'
 import { percentToGrade, validateScale } from '@/lib/grading'
@@ -47,6 +49,9 @@ export default function SettingsPage() {
   return (
     <div className="flex flex-col gap-8">
       <PageHeader eyebrow="Einstellungen" title="Einstellungen" description="Änderungen werden sofort gespeichert." />
+      <Section id="konto" title="Konto & Synchronisierung" description="Mit Google anmelden, um deine Daten zwischen PC und Handy abzugleichen. Ohne Anmeldung bleibt alles nur auf diesem Gerät.">
+        <AccountSection />
+      </Section>
       {profile && <ProfileSection profile={profile} update={update} />}
       {profile && <LearningSection profile={profile} update={update} />}
       <AppearanceSection />
@@ -61,7 +66,7 @@ export default function SettingsPage() {
 function ProfileSection({ profile, update }: { profile: Profile; update: (p: Partial<Profile>) => void }) {
   const [name, setName] = useState(profile.name)
   return (
-    <Section id="profil" title="Profil" description="Bleibt auf diesem Gerät. Es gibt kein Konto und keinen Server, der deine Daten sieht.">
+    <Section id="profil" title="Profil" description="Liegt auf diesem Gerät – mit Google-Anmeldung zusätzlich nur in deinem eigenen Konto. Niemand sonst kann deine Daten sehen.">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Name oder Spitzname" htmlFor="st-name">
           <Input id="st-name" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => name !== profile.name && update({ name })} maxLength={60} />
@@ -327,6 +332,8 @@ function DataSection() {
   const [persisted, setPersisted] = useState<boolean | null>(null)
   const [wipeOpen, setWipeOpen] = useState(false)
   const [wipeText, setWipeText] = useState('')
+  const [wipeCloud, setWipeCloud] = useState(false)
+  const cloud = useCloud()
   const [seedKeys, setSeedKeys] = useState<string[]>([])
   const usage = useLiveQuery(async () => ({ answers: await db.answers.count(), cards: await db.cards.count(), materials: await db.materials.count(), lastExport: (await db.meta.get('lastExport'))?.value as string | undefined }), [])
   useEffect(() => {
@@ -357,19 +364,22 @@ function DataSection() {
   const restore = async () => {
     if (!pending?.backup) return
     await restoreBackup(pending.backup)
+    // signed in: the restored state is not pushed blindly – the next sync asks how to combine it with the account
+    if (activeKind === 'main') await cloud.afterLocalReplaced()
     setPending(null)
-    toast({ title: 'Sicherung wiederhergestellt', tone: 'success' })
+    toast({ title: 'Sicherung wiederhergestellt', description: cloud.phase === 'signedIn' ? 'Study OS fragt gleich, wie sie mit deinem Konto zusammengeführt werden soll.' : undefined, tone: 'success' })
     setTimeout(() => location.reload(), 600)
   }
   const wipe = async () => {
-    await wipeDatabase()
+    if (cloud.phase === 'signedIn' && activeKind === 'main') await cloud.wipeEverything(wipeCloud)
+    else await wipeDatabase()
     setWipeOpen(false)
     location.hash = '#/'
     location.reload()
   }
 
   return (
-    <Section id="daten" title="Daten & Sicherung" description="Alles liegt lokal in diesem Browser. Wenn du Browserdaten löschst oder das Gerät wechselst, brauchst du eine Sicherung.">
+    <Section id="daten" title="Daten & Sicherung" description={cloud.phase === 'signedIn' ? 'Deine Daten liegen in diesem Browser und werden mit deinem Konto abgeglichen. Eine eigene Sicherungsdatei ist trotzdem sinnvoll.' : 'Alles liegt lokal in diesem Browser. Ohne Anmeldung wird nichts zwischen Geräten abgeglichen – zum Übertragen brauchst du eine Sicherung.'}>
       <Card className="flex flex-col gap-3 p-4">
         <div className="flex items-start gap-3">
           <HardDrive className="mt-0.5 size-5 text-fg-muted" />
@@ -446,6 +456,11 @@ function DataSection() {
       </Dialog>
       <Dialog open={wipeOpen} onClose={() => setWipeOpen(false)} title="Wirklich alles löschen?" size="sm" footer={<><Button onClick={() => setWipeOpen(false)}>Abbrechen</Button><Button variant="danger" disabled={wipeText !== 'LÖSCHEN'} onClick={wipe}>Endgültig löschen</Button></>}>
         <div className="flex flex-col gap-3 text-sm text-fg-muted">
+          {cloud.phase === 'signedIn' && activeKind === 'main' && (
+            <div className="flex flex-col gap-2 rounded-md border border-border p-3">
+              <Checkbox checked={wipeCloud} onChange={setWipeCloud} label="Auch alle Daten in meinem Konto löschen" description={wipeCloud ? 'Betrifft alle Geräte. Vorher wird eine Sicherheitskopie gespeichert.' : 'Nur dieses Gerät: Du wirst abgemeldet, dein Konto behält die Daten.'} />
+            </div>
+          )}
           <p>Tippe <strong className="text-fg">LÖSCHEN</strong> ein, um zu bestätigen.</p>
           <Input value={wipeText} onChange={(e) => setWipeText(e.target.value)} aria-label="Bestätigung" autoComplete="off" />
         </div>

@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, FlaskConical, Info, UserRound } from 'lucide-react'
+import { ArrowLeft, ArrowRight, FlaskConical, Info, RefreshCcw, UserRound } from 'lucide-react'
 import { CURRICULUM, CURRICULUM_NOTICE } from '@/content/curriculum'
 import { saveProfile, createSubject, saveExam, ValidationError } from '@/db/repo'
 import { seedLibrary, subjectIdFor } from '@/db/seed'
@@ -9,6 +9,9 @@ import type { ExplanationMode } from '@/db/types'
 import { Button, Card, Checkbox, cn, Field, Input, Notice, Segmented, Select, useToast } from '@/components/ui'
 import { EXPLANATION_MODES } from '@/shared/ai'
 import { addDays, dayKey } from '@/lib/dates'
+import { useProfile } from '@/hooks/data'
+import { useCloud } from '@/features/account/CloudProvider'
+import { GoogleButton } from '@/features/account/GoogleButton'
 
 const REGIONS = ['Mecklenburg-Vorpommern', 'Baden-Württemberg', 'Bayern', 'Berlin', 'Brandenburg', 'Bremen', 'Hamburg', 'Hessen', 'Niedersachsen', 'Nordrhein-Westfalen', 'Rheinland-Pfalz', 'Saarland', 'Sachsen', 'Sachsen-Anhalt', 'Schleswig-Holstein', 'Thüringen']
 const SCHOOL_TYPES = ['Gesamtschule', 'Regionale Schule', 'Gymnasium', 'Realschule', 'Oberschule', 'Gemeinschaftsschule', 'Sonstige']
@@ -17,6 +20,12 @@ export function Onboarding() {
   const navigate = useNavigate()
   const toast = useToast()
   const [step, setStep] = useState(0)
+  const cloud = useCloud()
+  const existingProfile = useProfile()
+  // signed in on a second device: as soon as the profile arrives from the account, the app is ready
+  useEffect(() => {
+    if (existingProfile && step === 0) navigate('/', { replace: true })
+  }, [existingProfile, step, navigate])
   const [name, setName] = useState('')
   const [grade, setGrade] = useState(9)
   const [region, setRegion] = useState('Mecklenburg-Vorpommern')
@@ -73,10 +82,25 @@ export function Onboarding() {
             <div>
               <h1 className="text-2xl font-semibold">Lernen mit Plan – und in deinem Tempo.</h1>
               <p className="mt-3 text-fg-muted">
-                Study OS merkt sich, was du schon kannst und was noch wackelt, und schlägt dir jeden Tag konkrete Aufgaben vor. Deine Daten bleiben auf diesem Gerät.
+                Study OS merkt sich, was du schon kannst und was noch wackelt, und schlägt dir jeden Tag konkrete Aufgaben vor. Deine Daten bleiben auf diesem Gerät – mit Google-Anmeldung zusätzlich in deinem Konto, damit PC und Handy denselben Stand haben.
               </p>
             </div>
             <div className="grid gap-3">
+              {cloud.phase === 'signedOut' && (
+                <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
+                  <span>
+                    <span className="block font-semibold">Schon auf einem anderen Gerät eingerichtet?</span>
+                    <span className="block text-sm text-fg-muted">Melde dich an – deine Fächer, Karten, Termine und dein Lernstand werden auf dieses Gerät geladen.</span>
+                  </span>
+                  <GoogleButton onClick={cloud.signIn} className="self-start" />
+                </div>
+              )}
+              {cloud.phase === 'signedIn' && (
+                <div className="flex items-center gap-3 rounded-lg border border-accent/40 bg-accent-soft p-4 text-sm" aria-live="polite">
+                  <RefreshCcw className={cn('size-5 text-accent', cloud.sync.state === 'syncing' && 'animate-spin')} />
+                  <span>Angemeldet als <strong>{cloud.user?.email}</strong>. {cloud.sync.state === 'syncing' ? 'Deine Daten werden geladen …' : cloud.sync.state === 'error' || cloud.sync.state === 'offline' ? cloud.sync.message : 'In deinem Konto sind noch keine Daten – richte dein Profil ein, es wird dann automatisch gesichert.'}</span>
+                </div>
+              )}
               <button type="button" onClick={() => setStep(1)} className="flex items-start gap-3 rounded-lg border border-accent/40 bg-accent-soft p-4 text-left cursor-pointer hover:border-accent">
                 <UserRound className="mt-0.5 size-5 text-accent" aria-hidden />
                 <span>

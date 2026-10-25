@@ -48,15 +48,16 @@ Lokal: `.env.example` nach `.env` kopieren. Vercel: dieselben Namen unter Projec
 | `STUDYOS_PUBLIC` | `true` sperrt die KI ohne Zugangscode auch auf selbst gehosteten, öffentlichen Servern |
 | `AI_RATE_LIMIT_PER_MIN` | KI-Anfragen pro Minute und Gerät (Standard 20) |
 | `ALLOWED_ORIGINS` | Nur nötig, wenn die Web-App von einer anderen Adresse geladen wird |
+| `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` | Google-Anmeldung und Synchronisierung (öffentliche Werte; alternativ `SUPABASE_ANON_KEY` / `NEXT_PUBLIC_…`). Werden über `/api/config` an den Browser gegeben – geheime Schlüssel werden abgelehnt |
 
 **Wichtig zu Abos:** Ein ChatGPT-Plus- oder Claude-Pro-Abo enthält keinen API-Zugang. API-Schlüssel werden nach Verbrauch abgerechnet. Schlüssel liegen nur auf dem Server und werden nie an den Browser geschickt. Ohne Schlüssel bleibt die KI aus, alle anderen Funktionen laufen normal.
 
 ## Datenbank
 
-Es ist **keine Datenbank-Einrichtung nötig**. Alle Daten liegen im Browser (IndexedDB). Echte Daten (`studyos-main`) und Demo-Daten (`studyos-demo`) sind zwei getrennte Datenbanken.
+Ohne Anmeldung ist **keine Datenbank-Einrichtung nötig**. Alle Daten liegen im Browser (IndexedDB). Echte Daten (`studyos-main`) und Demo-Daten (`studyos-demo`) sind zwei getrennte Datenbanken.
 
 - Sicherung: Einstellungen → „Sicherung herunterladen (JSON)“, Wiederherstellung über „Sicherung wiederherstellen“.
-- Migrationspfad: `supabase/migrations/0001_init.sql` enthält ein vollständiges PostgreSQL-Schema mit Row Level Security (jede Person sieht nur ihre Zeilen). Prüfung: `npm run test:sql` (läuft mit eingebettetem Postgres/PGlite). Die App ist **noch nicht** mit Supabase verbunden.
+- Cloud-Synchronisierung (optional, mit Google-Anmeldung): `supabase/migrations/20261025120000_sync_records.sql` – eine Tabelle `sync_records` (ein JSON-Dokument pro lokalem Datensatz, Server-Zeitstempel, Löschmarken) mit Row Level Security. Prüfung: `npm run test:sql` (PGlite). Frühere relationale Entwürfe liegen unbenutzt in `supabase/archive/`.
 
 ## Skripte
 
@@ -85,6 +86,7 @@ Es ist **keine Datenbank-Einrichtung nötig**. Alle Daten liegen im Browser (Ind
 - **Bibliothek:** PDF (Textebene), Bilder und gescannte PDFs (OCR, optional KI-Abschrift), Text/Markdown, eingefügter Text; Unvollständigkeit wird angezeigt, Text kann korrigiert werden; Volltextsuche, Schlagwörter, Fächer; Zusammenfassung, Karten und Fragen mit Prüfung vor dem Speichern; Quelle bleibt verknüpft.
 - **Tutor:** fünf Erklärmodi, trennt „Aus deinem Material“ und „Zusätzlich erklärt“, gibt Unsicherheit zu, Hinweise vor Lösungen. Ohne KI: ehrliche Meldung und Suche in den eigenen Materialien.
 - **Motivation ohne Druck:** Lern-XP nur für echtes Lernen, Lernserie mit Ruhetagen und Pausen, Wochenziel, Bestwerte, Abzeichen, Lernkalender.
+- **Konto & Synchronisierung (optional):** „Mit Google anmelden“ über Supabase Auth; Abgleich aller Lerndaten zwischen PC und Handy (Tabelle `sync_records` mit Row Level Security), offline weiterlernen, Änderungen werden nachgeholt. Beim ersten Anmelden entscheidest du, wie lokale und Konto-Daten zusammengeführt werden; vorher wird eine Sicherheitskopie gespeichert. Konflikte werden mit beiden Versionen aufbewahrt.
 - **Daten:** JSON-Sicherung (optional mit Originaldateien), Wiederherstellung mit Prüfung, CSV-Export der Antworten, Demo getrennt, alles löschen mit Bestätigung.
 
 ## So lernst du damit am besten

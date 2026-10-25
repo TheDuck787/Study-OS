@@ -9,6 +9,7 @@ import { CommandPalette } from './CommandPalette'
 import { useAchievementSync } from '@/features/progress/useAchievementSync'
 import { useReminders } from '@/features/settings/useReminders'
 import { useCalendarReminders } from '@/features/calendar/useCalendarReminders'
+import { SyncIndicator } from '@/features/account/SyncIndicator'
 
 function Brand() {
   return (
@@ -123,16 +124,19 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="min-h-0 flex-1 overflow-y-auto">
             <SideNav />
           </div>
-          {profile?.name && <div className="mt-4 truncate border-t border-border px-2.5 pt-3 text-xs text-fg-subtle">Angemeldet lokal als {profile.name}</div>}
+          <SyncIndicator variant="sidebar" localName={profile?.name} />
         </aside>
 
         <div className="flex min-w-0 flex-1 flex-col">
           {/* Mobile top bar */}
           <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-bg/95 py-2 backdrop-blur lg:hidden" style={{ paddingLeft: 'max(12px, env(safe-area-inset-left, 0px))', paddingRight: 'max(12px, env(safe-area-inset-right, 0px))' }}>
             <Brand />
+            <div className="flex items-center gap-1">
+            <SyncIndicator variant="icon" />
             <button type="button" aria-label="Suchen" onClick={() => setPaletteOpen(true)} className="flex size-9 items-center justify-center rounded-md text-fg-muted hover:bg-surface-2 cursor-pointer">
               <Search className="size-5" aria-hidden />
             </button>
+            </div>
           </header>
           <main id="main" tabIndex={-1} className={cn('min-h-0 flex-1 outline-none', fullBleed ? 'overflow-hidden' : 'overflow-y-auto')}>
             {fullBleed ? (

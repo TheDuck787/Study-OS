@@ -18,6 +18,7 @@ Plan und Architekturentscheidungen: `docs/PLAN.md`. Setup & Nutzung: `README.md`
 | 6 | Prüfungsvorbereitung (Prüfungen, Lernpläne, Probeklausur) | erledigt |
 | 7 | Dokumente (PDF, OCR, Struktur, Generierung mit Prüfschritt) | erledigt |
 | 8 | Qualitätssicherung | erledigt – siehe „Tests“ |
+| 11 | Google-Anmeldung & Synchronisierung (Supabase Auth, `sync_records` mit RLS) | Code fertig und getestet – **Einrichtung in Google/Supabase/Vercel durch dich ausstehend** (siehe unten) |
 | 10 | Kalender & Planer (Ansichten, Aufgaben, Prüfungsvorbereitung, Planer, Mein Tag, Wochenplanung) | erledigt – Details unten, Plan: `docs/CALENDAR.md` |
 
 ## Wichtige Pfade
@@ -33,7 +34,9 @@ Plan und Architekturentscheidungen: `docs/PLAN.md`. Setup & Nutzung: `README.md`
 - `src/lib/calendar/` – reine Kalender-Logik: Zeit, Wiederholungen, gemeinsame Eintragsliste (`items.ts`), Filter, Überlappungs-Layout, Planer (`planner.ts`), Prüfungsvorbereitung (`prep.ts`), Wochenauswertung (`review.ts`)
 - `src/db/calendar.ts` – Speichern/Validieren von Terminen, Aufgaben, eigenen Typen, Serien-Bearbeitung, Verschieben über alle Speicher, Rückgängig, Planer-Übernahme
 - `src/features/calendar/` – Kalender (Monat, Woche, Tag, Agenda, Halbjahr), Editor, Detailbereich, Seitenleiste, Planer-Dialog, Mein Tag, Wochenplanung, Erinnerungen; `src/features/tasks/` – Aufgaben
-- `supabase/migrations/0001_init.sql`, `0002_calendar.sql` – Migrationspfad mit RLS (nicht angebunden)
+- `supabase/migrations/20261025120000_sync_records.sql` – Cloud-Tabelle für die Synchronisierung (RLS); `supabase/archive/` – alte, nie angewendete relationale Entwürfe
+- `src/lib/sync/` – Sync-Engine (`engine.ts`, rein und getestet), IndexedDB-Anbindung und Sync-Zustand (`local.ts`); `src/lib/cloud/` – Konfiguration, Supabase-Client (PKCE), Remote-Speicher
+- `src/features/account/` – Anmeldung, Sync-Steuerung, Erst-Anmelde-Dialog, Konto-Bereich, Statusanzeige; `server/publicConfig.ts` – `/api/config` (nur öffentliche Werte)
 - `tests/unit`, `tests/server` (Vitest), `tests/e2e` (Playwright)
 
 ## Tests (Stand 25.10.2026, alle grün)
@@ -65,6 +68,28 @@ Nicht getestet: echtes Deployment auf Vercel (kein Vercel-Konto in dieser Umgebu
 - Mehrere Darstellungsdetails (Fokusrahmen, Eingabefeldhöhe im Tutor, Zahlenabstände).
 - Website-Umstellung: Fotos für die KI-Abschrift werden vor dem Hochladen verkleinert (Vercel-Grenze ~4,5 MB); öffentliche Server ohne Zugangscode sperren die KI.
 
+## Google-Anmeldung & Synchronisierung (25.10.2026)
+**Bestand geprüft (über den Supabase-Connector, nur lesend):** Projekt „Study OAS“ (`kqxxrnfoshqenewczguv`, eu-west-1, aktiv). Schema `public` leer, keine Migrationen, 0 Auth-Nutzer, keine Storage-Buckets, Sicherheits-Advisor ohne Befund. Im Code gab es noch keine Supabase-Anbindung (nur unbenutzte Migrationsentwürfe). Die Auth-Einstellungen (Google-Provider, Redirect-URLs) und die Vercel-Variablen kann ich von hier nicht einsehen – der Container darf `*.supabase.co` und `*.vercel.app` nicht erreichen.
+
+**Umgesetzt:**
+- Supabase Auth (wiederverwendet, nichts Neues angelegt): „Mit Google anmelden“ per `signInWithOAuth` mit PKCE (laut aktueller Supabase-Doku), Rückkehr zur Ausgangsseite, Fehlermeldungen auf Deutsch, dauerhafte Sitzung (automatische Erneuerung), Abmelden mit Wahl „Daten behalten“ oder „von diesem Gerät entfernen“.
+- Datenbank: eine Tabelle `public.sync_records` statt 20+ Einzeltabellen – ein JSON-Dokument pro lokalem Datensatz, Server-Zeitstempel (Trigger), Löschmarken, Größen- und Tabellennamen-Prüfung. RLS erzwungen (`force`), Policies nur für `authenticated` mit `auth.uid() = user_id`, `anon` ohne jedes Recht, Besitzer nicht änderbar. Alte relationale Entwürfe archiviert (nie angewendet → keine Duplikate).
+- Synchronisierung: lokal bleibt IndexedDB die Arbeitsgrundlage (offline voll nutzbar). Abgleich bei Anmeldung, beim Zurückkehren zur App, wenn wieder online, nach Änderungen (4 s) und jede Minute; Upload zuerst, dann Download; seitenweise; geräteübergreifend gesperrt (Web Locks). Konflikte: neuere Version gewinnt, Bearbeiten schlägt Löschen, die andere Version bleibt als Kopie und kann wiederhergestellt werden. Schutz: ungewöhnlich viele Löschungen stoppen den Sync vor dem Schreiben.
+- Erste Anmeldung: leeres Gerät lädt automatisch; sonst Dialog „Hochladen/Zusammenführen“, „Nur Konto-Daten“, „Nur Gerät-Daten“ (Letzteres nur mit getipptem ERSETZEN). Vor jeder Variante wird automatisch eine Sicherheitskopie gespeichert (herunterladbar, wie jede Sicherung wiederherstellbar). Nach „Sicherung wiederherstellen“ fragt der nächste Sync erneut; „Alles löschen“ fragt, ob auch das Konto geleert werden soll (sonst Abmeldung, Konto bleibt).
+- Konfiguration ohne neues Deployment: `/api/config` liest die Variablen der Vercel-Supabase-Integration (`SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`/`SUPABASE_ANON_KEY`, auch `NEXT_PUBLIC_…`) und gibt nur URL + öffentlichen Schlüssel heraus; geheime/service_role-Schlüssel werden verweigert. Offline wird die letzte Konfiguration genutzt. Demo-Modus synchronisiert nie.
+- Sicherheit: Build bricht ab bei geheimen `VITE_`-Variablen; Prüfung von `dist/` jetzt auch auf `sb_secret_`, service_role-JWTs und Werte der Supabase-/Postgres-Geheimnisse. PDF.js auf 6.4 aktualisiert (behebt eine **hohe** Lücke: Code-Ausführung beim Öffnen präparierter PDFs; PDF-Import per E2E-Test geprüft). Verbleibend: KaTeX, niedrige Schwere, Fix nur per Major-Update (0.19) – nicht ausgenutzt, solange KaTeX ohne `trust`-Option läuft (so in Study OS).
+
+**Tests (alle ausgeführt, alle grün):** `npm test` 201 Tests (davon 11 Sync-Engine mit zwei simulierten Geräten: Hoch-/Herunterladen, Bearbeiten und Löschen in beide Richtungen, gleichzeitige Offline-Änderungen mit Konfliktkopie, Bearbeiten schlägt Löschen, Zusammenführen ohne Löschen, „Nur Gerät-Daten“, Lösch-Schutz, Wiederherstellen, Dateien bleiben lokal, inkrementeller Abgleich; 2 Konfig-Tests: geheime Schlüssel werden nie ausgegeben). `npm run test:sql` (Migration zweimal angewendet, RLS-Isolation, kein anonymer Zugriff, kein Fälschen des Besitzers, Server-Zeitstempel, Constraints). E2E 19/19 im Produktions-Build, darunter 3 Anmelde-/Sync-Abläufe gegen ein **simuliertes** Supabase (echter PKCE-Redirect mit Code-Austausch, Rückkehr zur Seite, Erst-Anmelde-Dialog, zweites Gerät lädt Daten, Änderung vom Handy erscheint am PC, Neuladen behält die Sitzung, Abmelden behält Daten, Zusammenführen ohne Datenverlust, Fehlermeldungen) und der PDF-Import. `vercel build` lokal erfolgreich; kompilierte Function liefert unter `/api/config` nur URL + publishable Key, auch wenn ein Service-Role-Schlüssel gesetzt ist. Screenshots geprüft (Einstellungen abgemeldet/angemeldet, Erst-Anmelde-Dialog, Handy-Start).
+
+**Nicht verifiziert (braucht deinen Zugang):** echter Google-Login, Google-Provider in Supabase, Redirect-URLs, Vercel-Variablen, die angewendete Tabelle im echten Projekt.
+
+### Was du noch tun musst (Schritt für Schritt in `DEPLOY.md`, Abschnitt 8)
+1. **Datenbank-Tabelle anlegen:** Der Supabase-Connector hat beim Anwenden der Migration um deine Bestätigung gebeten; die Anfrage lief ohne Antwort ab, es wurde **nichts** geändert. Entweder mir die Ausführung erlauben oder `supabase/migrations/20261025120000_sync_records.sql` im SQL-Editor von „Study OAS“ ausführen.
+2. **Google Cloud Console:** OAuth-Client (Web) anlegen – JavaScript-Ursprung `https://<deine-adresse>.vercel.app`, Redirect-URI `https://kqxxrnfoshqenewczguv.supabase.co/auth/v1/callback`; Zielgruppe „Extern“, dich als Testnutzer eintragen oder App veröffentlichen.
+3. **Supabase → Authentication:** Google-Provider aktivieren (Client-ID + Secret), Site URL und Redirect-URL `https://<deine-adresse>.vercel.app/**` eintragen.
+4. **Vercel:** prüfen, ob `SUPABASE_URL` und `SUPABASE_ANON_KEY`/`SUPABASE_PUBLISHABLE_KEY` existieren; sonst anlegen (Werte in `DEPLOY.md`), dann Redeploy. Kontrolle: `https://<deine-adresse>.vercel.app/api/config`.
+5. Danach am PC anmelden und hochladen, am Handy anmelden – Tests in `DEPLOY.md` 8 E.
+
 ## Kalender & Planer – Umsetzung (25.10.2026)
 **Datenmodell (eine Quelle je Information):** neue Tabellen `events` (Termine, Unterricht, Lernblöcke, Karteikarten-Blöcke, Praktika, Pausen, eigene Typen – mit Wiederholung, Ausnahmen, Checkliste, Erinnerung), `tasks` (Hausaufgaben, Projekte, To-dos mit Teilaufgaben) und `eventCategories`. Prüfungen bleiben in `exams` (neu: Uhrzeit, Raum, Selbsteinschätzung je Thema, geschätzte Vorbereitungszeit), ihre Lerneinheiten in `exam.plan` (neu: Uhrzeit, „von dir festgelegt“). Geplante Arbeitszeit für eine Aufgabe ist ein Termin mit `taskId` – die Aufgabe wird nie kopiert. Der Kalender berechnet daraus zur Laufzeit eine Liste; alle Ansichten lesen dieselben Daten live. Schema-Version 2, Sicherung Version 2 (alte Sicherungen bleiben lesbar), Supabase-Migration 0002.
 
@@ -83,7 +108,7 @@ Nicht getestet: echtes Deployment auf Vercel (kein Vercel-Konto in dieser Umgebu
 ## Bekannte Grenzen / offen
 - Kalender: Ziehen und Größe ändern mit Maus/Stift; am Touchscreen über „Verschieben“ und den Editor (bewusst, weil Ziehen dort unzuverlässig ist). Rückgängig gilt bis zum Neuladen der Seite. Schulferien/Feiertage werden nicht automatisch eingetragen (als ganztägiger Eintrag mit „nicht lernen“ möglich).
 - Die KI wird vom Planer nicht verwendet; der Planer arbeitet vollständig lokal.
-- Keine Cloud-Synchronisation: Daten liegen nur im jeweiligen Browser (Sicherung per JSON-Export). Supabase-Schema liegt bereit, Sync ist nicht implementiert.
+- Synchronisierung nur mit Anmeldung; ohne Anmeldung bleiben Daten im jeweiligen Browser (Sicherung per JSON-Export). Originaldateien (PDFs, Fotos) werden nicht synchronisiert, nur ihr erkannter Text. Kein Echtzeit-Push zwischen Geräten (Abgleich nach Änderungen, beim Öffnen und minütlich).
 - OCR (tesseract.js) lädt Sprachdaten beim ersten Einsatz aus dem Internet.
 - Rate-Limit auf Vercel nur pro Function-Instanz (grober Schutz; der Zugangscode ist der eigentliche Schutz).
 - Erinnerungen nur bei geöffneter App (kein Push-Server).
@@ -91,6 +116,6 @@ Nicht getestet: echtes Deployment auf Vercel (kein Vercel-Konto in dieser Umgebu
 - Keine Word-Dokumente (.docx) – Hinweis in der App: als PDF speichern.
 
 ## Nächste Schritte (Vorschläge)
-1. Optional Supabase-Sync implementieren (Repository-Schicht in `src/db/repo.ts` ist die einzige Stelle mit Schreibzugriffen).
+1. Optional: Originaldateien über Supabase Storage synchronisieren (Bucket mit RLS pro Nutzer).
 2. Mehr Aufgaben für Deutsch/Gesellschaftsfächer ergänzen oder mit KI generieren und prüfen.
 3. Lehrplan mit dem Unterricht abgleichen und Themen als „abgeglichen“ markieren.

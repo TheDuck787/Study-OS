@@ -29,10 +29,25 @@ function serviceWorker(): Plugin {
   }
 }
 
+/** Public by design (protected by Row Level Security) – allowed, but their value is checked below. */
+const PUBLIC_KEY_VARS = ['VITE_SUPABASE_PUBLISHABLE_KEY', 'VITE_SUPABASE_ANON_KEY']
+
+const jwtRole = (v: string) => {
+  try {
+    return JSON.parse(Buffer.from(v.split('.')[1] ?? '', 'base64').toString('utf8')).role as string | undefined
+  } catch {
+    return undefined
+  }
+}
+
 /** VITE_* variables end up in the public JavaScript – refuse anything that looks like a secret. */
 function guardPublicEnv(mode: string) {
   const env = loadEnv(mode, process.cwd(), 'VITE_')
-  const risky = Object.keys(env).filter((k) => /KEY|SECRET|TOKEN|PASSWORD/i.test(k))
+  for (const k of PUBLIC_KEY_VARS) {
+    const v = env[k]
+    if (v && (v.startsWith('sb_secret_') || (jwtRole(v) && jwtRole(v) !== 'anon'))) throw new Error(`${k} enthält einen GEHEIMEN Supabase-Schlüssel. Verwende den öffentlichen „publishable“- bzw. „anon“-Schlüssel.`)
+  }
+  const risky = Object.keys(env).filter((k) => /KEY|SECRET|TOKEN|PASSWORD/i.test(k) && !PUBLIC_KEY_VARS.includes(k))
   if (risky.length) throw new Error(`Diese Variablen würden im Browser landen und dürfen kein Geheimnis enthalten: ${risky.join(', ')}. API-Schlüssel gehören ohne VITE_-Präfix in die Server-Umgebung.`)
 }
 

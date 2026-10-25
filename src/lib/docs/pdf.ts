@@ -23,7 +23,9 @@ async function loadPdfJs() {
 
 export async function extractPdfText(data: ArrayBuffer, onProgress?: (done: number, total: number) => void): Promise<PdfExtraction> {
   const pdfjs = await loadPdfJs()
-  const doc = await pdfjs.getDocument({ data: new Uint8Array(data) }).promise
+  // pdf.js 6: the loading task owns the worker and is destroyed when done
+  const task = pdfjs.getDocument({ data: new Uint8Array(data) })
+  const doc = await task.promise
   const pages: PdfPageText[] = []
   const emptyPages: number[] = []
   for (let i = 1; i <= doc.numPages; i++) {
@@ -44,14 +46,15 @@ export async function extractPdfText(data: ArrayBuffer, onProgress?: (done: numb
     pages.push({ page: i, text })
     onProgress?.(i, doc.numPages)
   }
-  await doc.destroy()
+  await task.destroy()
   return { pages, pageCount: pages.length, emptyPages }
 }
 
 /** Renders a PDF page to a PNG blob (for OCR or AI vision). */
 export async function renderPdfPage(data: ArrayBuffer, pageNumber: number, scale = 2): Promise<Blob> {
   const pdfjs = await loadPdfJs()
-  const doc = await pdfjs.getDocument({ data: new Uint8Array(data) }).promise
+  const task = pdfjs.getDocument({ data: new Uint8Array(data) })
+  const doc = await task.promise
   const page = await doc.getPage(pageNumber)
   const viewport = page.getViewport({ scale })
   const canvas = document.createElement('canvas')
@@ -61,7 +64,7 @@ export async function renderPdfPage(data: ArrayBuffer, pageNumber: number, scale
   if (!ctx) throw new Error('Canvas wird von diesem Browser nicht unterstützt.')
   await page.render({ canvasContext: ctx, viewport, canvas }).promise
   const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, 'image/png'))
-  await doc.destroy()
+  await task.destroy()
   if (!blob) throw new Error('Seite konnte nicht als Bild gerendert werden.')
   return blob
 }

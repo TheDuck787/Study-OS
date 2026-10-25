@@ -8,6 +8,7 @@ import { ensureGradingScales, getMeta } from './db/repo'
 import { useProfile } from './hooks/data'
 import { Dashboard } from './features/dashboard/Dashboard'
 import { Onboarding } from './features/onboarding/Onboarding'
+import { CloudProvider } from './features/account/CloudProvider'
 
 const SubjectsPage = lazy(() => import('./features/subjects/SubjectsPage'))
 const SubjectWorkspace = lazy(() => import('./features/subjects/SubjectWorkspace'))
@@ -83,6 +84,7 @@ export function App() {
       <ToastProvider>
         <ConfirmProvider>
           <Bootstrap>
+            <CloudProvider>
             <Gate>
               <Routes>
                 <Route path="/onboarding" element={<Onboarding />} />
@@ -126,6 +128,7 @@ export function App() {
                 />
               </Routes>
             </Gate>
+            </CloudProvider>
           </Bootstrap>
         </ConfirmProvider>
       </ToastProvider>

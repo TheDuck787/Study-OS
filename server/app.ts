@@ -4,6 +4,7 @@ import { bodyLimit } from 'hono/body-limit'
 import { timingSafeEqual } from 'node:crypto'
 import { z } from 'zod'
 import { providerFromEnv, ProviderError, type ImageInput, type LlmProvider } from './providers.js'
+import { publicConfig } from './publicConfig.js'
 import { tutorRequestSchema, tutorSystemPrompt, generateRequestSchema, generatePrompt, OUTPUT_SCHEMAS, extractJson, OCR_PROMPT, type AiStatusInfo } from '../src/shared/ai.js'
 
 /**
@@ -81,6 +82,10 @@ export function createApp(opts: AppOptions = {}) {
   }
 
   app.get('/api/health', (c) => c.json({ ok: true }))
+
+  // Public browser config (Supabase URL + publishable key). Never contains secrets – see publicConfig.ts.
+  const cfg = publicConfig(env)
+  app.get('/api/config', (c) => c.json(cfg))
 
   // Status is readable without the access code so the app can say *why* AI is unavailable.
   app.get('/api/ai/status', (c) => {

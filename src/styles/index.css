@@ -37,6 +37,8 @@
   --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.28);
   --s0: #7b93ff; --s1: #e38c5f; --s2: #52c58e; --s3: #c77fd8; --s4: #d8b24c;
   --s5: #5bb9d8; --s6: #e46f8f; --s7: #9aa5bd; --s8: #84c46f; --s9: #c09673;
+  /* Google sign-in button (Google branding: dark variant) */
+  --gbtn-bg: #131314; --gbtn-fg: #e3e3e3; --gbtn-border: #8e918f; --gbtn-hover: #1f1f20;
   --font-display: 'Schibsted Grotesk Variable', 'Segoe UI', system-ui, sans-serif;
   --font-body: 'Atkinson Hyperlegible Next Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, monospace;
@@ -52,6 +54,7 @@
     --danger: #c43d2c; --danger-soft: rgb(196 61 44 / 0.09); --overlay: rgb(20 24 32 / 0.38);
     --shadow: 0 1px 2px rgb(20 24 32 / 0.06), 0 8px 24px rgb(20 24 32 / 0.08);
     --s0: #3550d8; --s1: #c4632f; --s2: #18834f; --s3: #9a4fb0; --s4: #a07a10; --s5: #1f86a8; --s6: #c23d62; --s7: #5d6880; --s8: #4a8a33; --s9: #8c6440;
+    --gbtn-bg: #ffffff; --gbtn-fg: #1f1f1f; --gbtn-border: #747775; --gbtn-hover: #f2f2f2;
   }
 }
 
@@ -64,6 +67,7 @@
   --danger: #c43d2c; --danger-soft: rgb(196 61 44 / 0.09); --overlay: rgb(20 24 32 / 0.38);
   --shadow: 0 1px 2px rgb(20 24 32 / 0.06), 0 8px 24px rgb(20 24 32 / 0.08);
   --s0: #3550d8; --s1: #c4632f; --s2: #18834f; --s3: #9a4fb0; --s4: #a07a10; --s5: #1f86a8; --s6: #c23d62; --s7: #5d6880; --s8: #4a8a33; --s9: #8c6440;
+  --gbtn-bg: #ffffff; --gbtn-fg: #1f1f1f; --gbtn-border: #747775; --gbtn-hover: #f2f2f2;
 }
 
 :root[data-theme='dark'] {
