@@ -1,0 +1,11 @@
+node_modules
+dist
+dist-server
+test-results
+playwright-report
+.vercel
+.env
+.env*.local
+*.local
+*.zip
+.DS_Store

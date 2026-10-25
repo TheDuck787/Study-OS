@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="de" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Study OS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="Persönliche Lernplattform: Quiz, Karteikarten, Lernpläne, Mathe-Modus und Tutor – local-first." />
+    <meta name="theme-color" content="#0d0f13" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f6f7f9" media="(prefers-color-scheme: light)" />
+    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Study OS" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="application-name" content="Study OS" />
+    <meta name="format-detection" content="telephone=no" />
+    <style>
+      /* Shown before the app has loaded – uses the same dark ground as the app. */
+      html, body { background: #0d0f13; }
+      html[data-theme='light'] body { background: #f6f7f9; }
+      #boot { font: 15px system-ui, sans-serif; color: #a3a9b7; display: flex; height: 100vh; align-items: center; justify-content: center; }
+    </style>
+  </head>
+  <body>
+    <div id="root"><div id="boot">Study OS wird geladen …</div></div>
+    <noscript>Study OS braucht JavaScript.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
