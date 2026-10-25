@@ -78,3 +78,65 @@ export async function seedLibrary(subjectKeys: string[], opts: { includeTopics?:
   await setMeta('librarySeededAt', now)
   return added
 }
+
+/**
+ * Removes the example content again: library questions (with their answers), unchanged example
+ * vocabulary cards and example topics. Everything the student made stays. An example topic that
+ * still holds own notes, cards, questions, materials or own subtopics is kept (and marked as own).
+ */
+export async function removeExampleContent() {
+  const removed = { topics: 0, questions: 0, cards: 0, decks: 0, keptTopics: 0 }
+  const tables = [db.topics, db.questions, db.answers, db.decks, db.cards, db.cardReviews, db.notes, db.materials, db.exams]
+  await db.transaction('rw', tables, async () => {
+    const libIds = (await db.questions.where('source').equals('library').primaryKeys()) as string[]
+    await db.answers.where('questionId').anyOf(libIds).delete()
+    await db.questions.bulkDelete(libIds)
+    removed.questions = libIds.length
+
+    for (const vd of VOCAB_DECKS) {
+      const deck = await db.decks.get(vd.key)
+      if (!deck) continue
+      const exampleCards = await db.cards.where('deckId').equals(vd.key).filter((c) => c.id.startsWith(`${vd.key}-`)).primaryKeys()
+      await db.cards.bulkDelete(exampleCards as string[])
+      await db.cardReviews.where('cardId').anyOf(exampleCards as string[]).delete()
+      removed.cards += exampleCards.length
+      if ((await db.cards.where('deckId').equals(vd.key).count()) === 0) {
+        await db.decks.delete(vd.key)
+        removed.decks++
+      }
+    }
+
+    const examples = (await db.topics.toArray()).filter((t) => t.curriculum === 'example-unverified')
+    const remaining = new Set(examples.map((t) => t.id))
+    // deepest topics first, so a parent only goes once its subtopics are gone
+    const depth = (id: string | null, d = 0): number => (id ? depth(examples.find((t) => t.id === id)?.parentId ?? null, d + 1) : d)
+    for (const t of [...examples].sort((a, b) => depth(b.parentId) - depth(a.parentId))) {
+      const [questions, notes, cards, decks, materials, children] = await Promise.all([
+        db.questions.where('topicId').equals(t.id).count(),
+        db.notes.where('topicId').equals(t.id).count(),
+        db.cards.where('topicId').equals(t.id).count(),
+        db.decks.where('topicId').equals(t.id).count(),
+        db.materials.where('topicId').equals(t.id).count(),
+        db.topics.where('parentId').equals(t.id).filter((c) => remaining.has(c.id) || c.curriculum !== 'example-unverified').count(),
+      ])
+      if (questions + notes + cards + decks + materials + children > 0) {
+        await db.topics.update(t.id, { curriculum: 'own' })
+        remaining.delete(t.id)
+        removed.keptTopics++
+        continue
+      }
+      await db.answers.where('topicId').equals(t.id).delete()
+      await db.topics.delete(t.id)
+      remaining.delete(t.id)
+      removed.topics++
+    }
+    const gone = new Set(examples.map((t) => t.id).filter((id) => !remaining.has(id)))
+    const kept = await db.topics.toArray()
+    for (const t of kept) if (t.prerequisiteIds.some((p) => gone.has(p))) await db.topics.update(t.id, { prerequisiteIds: t.prerequisiteIds.filter((p) => !gone.has(p)) })
+    await db.exams.toCollection().modify((e) => {
+      e.topicIds = e.topicIds.filter((id) => !gone.has(id))
+      e.plan = e.plan.map((p) => ({ ...p, topicIds: p.topicIds.filter((id) => !gone.has(id)) }))
+    })
+  })
+  return removed
+}

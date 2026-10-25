@@ -27,6 +27,7 @@ export function Dashboard() {
   const due = useDueCards()
   const exams = useExams()
   const decks = useLiveQuery(() => db.decks.toArray(), [])
+  const questionCount = useLiveQuery(() => db.questions.count(), []) ?? 0
   const xp = useLiveQuery(() => db.xpEvents.toArray(), [])
   const sessions = useLiveQuery(() => db.sessions.toArray(), [])
   const attempts = useLiveQuery(() => db.attempts.toArray(), [])
@@ -75,14 +76,15 @@ export function Dashboard() {
             {profile?.name ? `, ${profile.name.replace(/\s*\(Demo\)$/, '')}` : ''}
           </h1>
         </div>
-        <div className="flex flex-wrap gap-2">
+        {/* Quiz shortcuts only make sense once there are questions to ask. */}
+        {questionCount > 0 && <div className="flex flex-wrap gap-2">
           <ButtonLink to="/quiz/neu?preset=quick" variant="primary" icon={Timer}>
             5-Minuten-Runde
           </ButtonLink>
           <ButtonLink to={nextExam && nextExam.topicIds.length ? `/quiz/neu?preset=mock&exam=${nextExam.id}` : '/quiz/neu?mode=exam'} icon={ClipboardCheck}>
             Prüfung simulieren
           </ButtonLink>
-        </div>
+        </div>}
       </header>
 
       {/* Was soll ich heute lernen? */}
@@ -93,12 +95,12 @@ export function Dashboard() {
           description={tasks.length ? `Vorschlag für etwa ${formatMinutes(taskMinutes)} – dein Tagesziel sind ${profile?.dailyGoalMinutes ?? 20} Min. Begründung steht bei jeder Aufgabe.` : undefined}
         />
         {!hasHistory ? (
-          <StartHere hasSubjects={subjects.length > 0} />
+          <StartHere hasSubjects={subjects.length > 0} hasTopics={(topics?.length ?? 0) > 0} hasQuestions={questionCount > 0} />
         ) : tasks.length === 0 ? (
           hasHistory ? (
             <EmptyState icon={Sparkles} title="Für heute ist nichts fällig" description="Keine offenen Fehler, keine fälligen Karten, keine dringenden Themen. Du kannst dir eine Pause gönnen oder ein neues Thema anfangen." action={<ButtonLink to="/faecher">Thema auswählen</ButtonLink>} />
           ) : (
-            <StartHere hasSubjects={subjects.length > 0} />
+            <StartHere hasSubjects={subjects.length > 0} hasTopics={(topics?.length ?? 0) > 0} hasQuestions={questionCount > 0} />
           )
         ) : (
           <ol className="flex flex-col gap-2">
@@ -199,12 +201,16 @@ export function Dashboard() {
   )
 }
 
-function StartHere({ hasSubjects }: { hasSubjects: boolean }) {
-  const steps = [
-    { icon: BookOpen, title: hasSubjects ? 'Fächer und Themen prüfen' : 'Ein Fach anlegen', text: hasSubjects ? 'Passe den Beispiel-Lehrplan an deinen Unterricht an.' : 'Lege das Fach an, für das du gerade lernst.', to: '/faecher' },
-    { icon: Timer, title: '5-Minuten-Runde machen', text: 'Ein paar Fragen zeigen, wo du stehst. Danach werden die Empfehlungen persönlich.', to: '/quiz/neu?preset=quick' },
-    { icon: CalendarPlus, title: 'Nächste Prüfung eintragen', text: 'Study OS plant deine Lerneinheiten bis zum Termin.', to: '/pruefungen?neu=1' },
-  ]
+function StartHere({ hasSubjects, hasTopics, hasQuestions }: { hasSubjects: boolean; hasTopics: boolean; hasQuestions: boolean }) {
+  const first = !hasSubjects
+    ? { icon: BookOpen, title: 'Ein Fach anlegen', text: 'Lege das Fach an, für das du gerade lernst.', to: '/faecher' }
+    : !hasTopics
+      ? { icon: BookOpen, title: 'Themen eintragen', text: 'Deine Fächer sind noch leer. Trage die Themen aus deinem Unterricht ein.', to: '/faecher' }
+      : { icon: BookOpen, title: 'Fächer und Themen prüfen', text: 'Ergänze Themen, Notizen und Material aus deinem Unterricht.', to: '/faecher' }
+  const second = hasQuestions
+    ? { icon: Timer, title: '5-Minuten-Runde machen', text: 'Ein paar Fragen zeigen, wo du stehst. Danach werden die Empfehlungen persönlich.', to: '/quiz/neu?preset=quick' }
+    : { icon: Layers, title: 'Karteikarten oder Aufgaben erstellen', text: 'Schreib eigene Karten oder Fragen zu einem Thema – oder lass sie aus deinem Material erzeugen.', to: '/karteikarten' }
+  const steps = [first, second, { icon: CalendarPlus, title: 'Nächste Prüfung eintragen', text: 'Study OS plant deine Lerneinheiten bis zum Termin.', to: '/pruefungen?neu=1' }]
   return (
     <div className="grid gap-3 sm:grid-cols-3">
       {steps.map((s, i) => (

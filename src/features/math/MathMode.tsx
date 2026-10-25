@@ -119,7 +119,7 @@ function SkillPractice() {
         </Notice>
       )}
       {topics.length === 0 ? (
-        <EmptyState title="Noch keine Themen" description="Lege ein Fach „Mathematik“ mit Themen an oder übernimm den Beispiel-Lehrplan in den Einstellungen." />
+        <EmptyState title="Noch keine Themen" description="Lege unter Fächer → Mathematik deine Themen an. Die Übungen werden dann einem Thema zugeordnet." />
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {SKILLS.map((s) => {

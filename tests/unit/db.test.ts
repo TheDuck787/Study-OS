@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { useTestDatabase, db } from '@/db/index'
 import * as repo from '@/db/repo'
-import { seedLibrary, subjectIdFor } from '@/db/seed'
+import { removeExampleContent, seedLibrary, subjectIdFor } from '@/db/seed'
 import { seedDemo } from '@/db/demo'
 import { ALL_LIBRARY_QUESTIONS } from '@/content/questions'
 import { CURRICULUM, flattenTopics } from '@/content/curriculum'
@@ -55,6 +55,47 @@ describe('seeding', () => {
     expect((await db.subjects.toArray()).filter((s) => s.name === 'Mathematik')).toHaveLength(1)
   })
 })
+
+describe('removing example content', () => {
+  it('deletes example topics, questions and vocab but keeps everything the student made', async () => {
+    await seedLibrary(['ma', 'en'])
+    const sid = subjectIdFor('ma')
+    const exampleTopics = await db.topics.where('subjectId').equals(sid).toArray()
+    const leaf = exampleTopics.find((t) => !exampleTopics.some((c) => c.parentId === t.id))!
+    const ownTopic = await repo.createTopic(sid, 'Mein eigenes Thema')
+    await repo.saveNote({ title: 'Meine Notiz', content: 'Text', subjectId: sid, topicId: leaf.id })
+    const deck = (await db.decks.toArray())[0]
+    await repo.addCards(deck.id, [{ front: 'eigene Karte', back: 'own card' }])
+    const ownDeck = await repo.saveDeck({ name: 'Mein Stapel', subjectId: sid })
+    await repo.addCards(ownDeck, [{ front: 'a', back: 'b' }])
+
+    const r = await removeExampleContent()
+    expect(r.topics).toBeGreaterThan(5)
+    expect(r.questions).toBeGreaterThan(10)
+    expect(r.keptTopics).toBeGreaterThanOrEqual(1)
+
+    expect(await db.questions.where('source').equals('library').count()).toBe(0)
+    expect(await db.subjects.count()).toBe(2) // subjects stay
+    const enTopics = await db.topics.where('subjectId').equals(subjectIdFor('en')).toArray()
+    // kept: the topic with the own note, the example deck's topic (it still holds an own card), their parents, the own topic
+    const expected = new Set([ownTopic, ...collectParents(exampleTopics, leaf.id), ...(deck.topicId ? collectParents(enTopics, deck.topicId) : [])])
+    const left = await db.topics.toArray()
+    expect(left.map((t) => t.id).sort()).toEqual([...expected].sort())
+    expect(left.every((t) => t.curriculum === 'own')).toBe(true)
+    expect(left.flatMap((t) => t.prerequisiteIds).every((p) => left.some((t) => t.id === p))).toBe(true)
+    // the example deck survives only because of the student's own card
+    expect((await db.cards.where('deckId').equals(deck.id).toArray()).map((c) => c.front)).toEqual(['eigene Karte'])
+    expect(await db.cards.where('deckId').equals(ownDeck).count()).toBe(1)
+    expect(await db.notes.count()).toBe(1)
+    // running it again changes nothing
+    expect(await removeExampleContent()).toEqual({ topics: 0, questions: 0, cards: 0, decks: 0, keptTopics: 0 })
+  })
+})
+
+function collectParents(topics: { id: string; parentId: string | null }[], id: string): string[] {
+  const t = topics.find((x) => x.id === id)
+  return t ? [id, ...(t.parentId ? collectParents(topics, t.parentId) : [])] : []
+}
 
 describe('subjects and topics', () => {
   it('validates names and prevents duplicates', async () => {

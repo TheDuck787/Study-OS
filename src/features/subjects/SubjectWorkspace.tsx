@@ -96,7 +96,9 @@ export default function SubjectWorkspace() {
           <div className="flex flex-col gap-6 lg:col-span-3">
             <section>
               <SectionHeader title="Als Nächstes in diesem Fach" description="Aus deinen Antworten, Fehlern und Prüfungsterminen berechnet." />
-              {recs.length === 0 ? (
+              {topics.length === 0 ? (
+                <EmptyState compact title="Dieses Fach ist noch leer" description="Lege deine Themen an, z. B. die aus deinem Unterricht. Danach kannst du Notizen, Karteikarten und Aufgaben dazu erstellen." action={<Button variant="primary" onClick={() => setTab('topics')}>Erstes Thema anlegen</Button>} />
+              ) : recs.length === 0 ? (
                 <EmptyState compact title={practiced.length ? 'Gerade nichts Dringendes' : 'Noch keine Lerndaten'} description={practiced.length ? 'Alles im grünen Bereich. Du kannst ein neues Thema anfangen.' : 'Übe ein Thema – dann erscheinen hier begründete Empfehlungen.'} action={<Button onClick={() => setTab('topics')}>Themen ansehen</Button>} />
               ) : (
                 <div className="flex flex-col gap-2">
@@ -124,7 +126,7 @@ export default function SubjectWorkspace() {
                     </Link>
                   )
                 })}
-                {topics.length === 0 && <p className="px-4 py-3 text-sm text-fg-muted">Noch keine Themen.</p>}
+                {topics.length === 0 && <p className="px-4 py-3 text-sm text-fg-muted">Noch keine Themen – über „Bearbeiten“ legst du sie an.</p>}
               </Card>
             </section>
           </div>

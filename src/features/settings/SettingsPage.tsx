@@ -4,7 +4,7 @@ import { AlertTriangle, CheckCircle2, CircleDashed, Download, FlaskConical, Hard
 import { db, activeKind, switchDatabase } from '@/db/index'
 import type { ExplanationMode, GradeThreshold, Profile, ThemePref } from '@/db/types'
 import { deleteGradingScale, saveGradingScale, saveProfile, ValidationError } from '@/db/repo'
-import { seedLibrary } from '@/db/seed'
+import { removeExampleContent, seedLibrary } from '@/db/seed'
 import { CURRICULUM, CURRICULUM_NOTICE } from '@/content/curriculum'
 import { EXPLANATION_MODES } from '@/shared/ai'
 import { loadAiSettings, saveAiSettings, detectAi, serverStatus, testServer, type AiChoice, type AiAvailability } from '@/lib/ai/client'
@@ -394,13 +394,25 @@ function DataSection() {
       </div>
 
       <div className="flex flex-col gap-2 rounded-lg border border-border p-4">
-        <div className="text-sm font-semibold">Beispiel-Lehrplan nachladen</div>
-        <p className="text-sm text-fg-muted">Fügt fehlende Beispielthemen, Aufgaben und Vokabeln hinzu. Vorhandenes wird nicht überschrieben. {CURRICULUM_NOTICE}</p>
-        <div className="grid gap-x-4 sm:grid-cols-3">
-          {CURRICULUM.map((c) => <Checkbox key={c.key} checked={seedKeys.includes(c.key)} onChange={(v) => setSeedKeys((ks) => (v ? [...ks, c.key] : ks.filter((k) => k !== c.key)))} label={c.name} />)}
-        </div>
-        <Button size="sm" className="self-start" disabled={seedKeys.length === 0} onClick={async () => { const r = await seedLibrary(seedKeys); toast({ title: 'Beispielinhalte ergänzt', description: `${r.subjects} Fächer, ${r.topics} Themen, ${r.questions} Fragen, ${r.cards} Karten neu.`, tone: 'success' }); setSeedKeys([]) }}>Hinzufügen</Button>
+        <div className="text-sm font-semibold">Beispielinhalte entfernen</div>
+        <p className="text-sm text-fg-muted">Löscht die vorgegebenen Beispielthemen, Beispielaufgaben und Beispielvokabeln. Deine Fächer und alles, was du selbst angelegt hast, bleiben erhalten. Ein Beispielthema, in dem schon eigene Notizen, Karten oder Aufgaben stecken, bleibt ebenfalls und gilt dann als dein eigenes.</p>
+        <Button size="sm" className="self-start" icon={Trash2} onClick={async () => {
+          if (!(await confirm({ title: 'Beispielinhalte entfernen?', message: 'Die vorgegebenen Themen, Aufgaben und Vokabeln werden gelöscht. Deine eigenen Inhalte bleiben.', confirmLabel: 'Entfernen' }))) return
+          const r = await removeExampleContent()
+          toast({ title: 'Beispielinhalte entfernt', description: `${r.topics} Themen, ${r.questions} Aufgaben und ${r.cards} Karten gelöscht.${r.keptTopics ? ` ${r.keptTopics} Themen mit eigenen Inhalten behalten.` : ''}`, tone: 'success' })
+        }}>Beispielinhalte entfernen</Button>
       </div>
+
+      <details className="rounded-lg border border-border p-4">
+        <summary className="cursor-pointer text-sm font-semibold">Beispiel-Lehrplan nachladen (optional)</summary>
+        <div className="mt-2 flex flex-col gap-2">
+          <p className="text-sm text-fg-muted">Fügt Beispielthemen, Aufgaben und Vokabeln für Klasse 9 hinzu. Vorhandenes wird nicht überschrieben. {CURRICULUM_NOTICE}</p>
+          <div className="grid gap-x-4 sm:grid-cols-3">
+            {CURRICULUM.map((c) => <Checkbox key={c.key} checked={seedKeys.includes(c.key)} onChange={(v) => setSeedKeys((ks) => (v ? [...ks, c.key] : ks.filter((k) => k !== c.key)))} label={c.name} />)}
+          </div>
+          <Button size="sm" className="self-start" disabled={seedKeys.length === 0} onClick={async () => { const r = await seedLibrary(seedKeys); toast({ title: 'Beispielinhalte ergänzt', description: `${r.subjects} Fächer, ${r.topics} Themen, ${r.questions} Fragen, ${r.cards} Karten neu.`, tone: 'success' }); setSeedKeys([]) }}>Hinzufügen</Button>
+        </div>
+      </details>
 
       <div className="flex flex-col gap-2 rounded-lg border border-border p-4">
         <div className="flex items-center gap-2 text-sm font-semibold"><FlaskConical className="size-4" /> Demo</div>

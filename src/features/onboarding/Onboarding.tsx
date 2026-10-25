@@ -22,7 +22,7 @@ export function Onboarding() {
   const [region, setRegion] = useState('Mecklenburg-Vorpommern')
   const [schoolType, setSchoolType] = useState('Gesamtschule')
   const [subjectKeys, setSubjectKeys] = useState<string[]>(['ma', 'de', 'en', 'bio', 'ch', 'ph', 'geo', 'ge'])
-  const [useExample, setUseExample] = useState(true)
+  const [useExample, setUseExample] = useState(false)
   const [ownSubjects, setOwnSubjects] = useState('')
   const [goal, setGoal] = useState(20)
   const [mode, setMode] = useState<ExplanationMode>('normal')
@@ -127,7 +127,7 @@ export function Onboarding() {
           <Card className="flex flex-col gap-5 p-5">
             <div>
               <h1 className="text-xl font-semibold">Deine Fächer</h1>
-              <p className="mt-1 text-sm text-fg-muted">Wähle, wofür du lernen möchtest. Weitere Fächer kannst du jederzeit hinzufügen.</p>
+              <p className="mt-1 text-sm text-fg-muted">Wähle, wofür du lernen möchtest. Die Fächer starten leer – Themen, Notizen, Karten und Aufgaben legst du selbst an. Weitere Fächer kannst du jederzeit hinzufügen.</p>
             </div>
             <div className="grid gap-x-4 sm:grid-cols-2">
               {CURRICULUM.map((c) => (
@@ -140,8 +140,8 @@ export function Onboarding() {
             <Checkbox
               checked={useExample}
               onChange={setUseExample}
-              label="Beispiel-Lehrplan, Beispielaufgaben und Vokabeln übernehmen"
-              description={grade === 9 ? 'Empfohlen, damit du sofort loslegen kannst.' : 'Die Beispielinhalte sind für Klasse 9 gedacht.'}
+              label="Optional: Beispielthemen, Beispielaufgaben und Vokabeln übernehmen"
+              description="Normalerweise aus lassen. Die Beispiele lassen sich später in den Einstellungen wieder entfernen."
             />
             {useExample && (
               <Notice tone="warn" icon={Info} title="Nicht amtlich geprüft">

@@ -1,7 +1,7 @@
 import { expect, type Page } from '@playwright/test'
 
-/** Completes onboarding with the example curriculum for Mathematik + Englisch. */
-export async function onboard(page: Page, name = 'Mia') {
+/** Completes onboarding for Mathematik + Englisch – with the optional example content unless `example` is false. */
+export async function onboard(page: Page, name = 'Mia', example = true) {
   await page.goto('/')
   await expect(page.getByRole('heading', { name: /Lernen mit Plan/ })).toBeVisible()
   await page.getByRole('button', { name: /Eigenes Profil einrichten/ }).click()
@@ -12,6 +12,9 @@ export async function onboard(page: Page, name = 'Mia') {
     const box = page.getByLabel(s, { exact: true })
     if (await box.isChecked()) await box.uncheck()
   }
+  const exampleBox = page.getByLabel(/Beispielthemen, Beispielaufgaben und Vokabeln/)
+  await expect(exampleBox).not.toBeChecked() // subjects start empty by default
+  if (example) await exampleBox.check()
   await page.getByRole('button', { name: 'Weiter' }).click()
   await page.getByRole('button', { name: 'Weiter' }).click()
   await page.getByRole('button', { name: 'Fertig', exact: true }).click()
