@@ -2,6 +2,7 @@ import { useEffect, useId, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRightLeft, CalendarClock, Copy, GraduationCap, MapPin, NotebookPen, Pencil, Repeat, RotateCcw, Trash2, User } from 'lucide-react'
 import type { DayKey, ExamType, ID, LessonChangeType, Subject, TimetableSettings } from '@/db/types'
+import { success } from '@/lib/motion'
 import { deleteEvent, setTaskDone } from '@/db/calendar'
 import { addExamForLesson, addHomework, clearLessonChange, duplicateLesson, findNextLessonDate, setLessonChange } from '@/db/timetable'
 import { ValidationError } from '@/db/repo'
@@ -139,7 +140,7 @@ export function LessonSheet({ lesson, ctx, settings, subjects, onClose, onEdit }
             ))}
             {homework.map((t) => (
               <label key={t.id} className="flex cursor-pointer items-center gap-2 rounded-md bg-warn-soft px-2.5 py-1.5 text-sm">
-                <input type="checkbox" checked={t.status === 'done'} onChange={(e) => setTaskDone(t.id, e.target.checked)} className="size-4 accent-[var(--accent-solid)]" />
+                <input type="checkbox" checked={t.status === 'done'} onChange={(e) => { if (e.target.checked) success(e.currentTarget); void setTaskDone(t.id, e.target.checked) }} className="size-4 accent-[var(--accent-solid)]" />
                 <span className={cn('min-w-0 flex-1 truncate', t.status === 'done' && 'text-fg-muted line-through')}>{t.title}</span>
                 <span className="text-xs text-fg-muted">Hausaufgabe</span>
               </label>

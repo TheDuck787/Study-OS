@@ -167,7 +167,7 @@ export function PlannerDialog({ mode, onClose, subjects }: { mode: PlannerMode |
             {byDay.map(([day, list]) => (
               <section key={day}>
                 <h4 className="mb-1 text-sm font-semibold">{parseDay(day).toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}</h4>
-                <ul className="flex flex-col gap-1">
+                <ul className="stagger flex flex-col gap-1">
                   {list.map((c) => {
                     const M = ACTION_META[c.action]
                     const s = subjectOf(c.subjectId)

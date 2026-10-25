@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { CalendarPlus, Check, CheckCircle2, Flag, Inbox, ListTodo, MoreHorizontal, Pencil, Plus, Timer, Trash2 } from 'lucide-react'
 import { db } from '@/db/index'
 import type { DayKey, Task, TaskKind } from '@/db/types'
+import { success } from '@/lib/motion'
 import { deleteTask, quickAddTask, scheduleTask, setTaskDone, toggleSubtask } from '@/db/calendar'
 import { eventMinutes } from '@/lib/calendar/planner'
 import { ValidationError } from '@/db/repo'
@@ -104,13 +105,13 @@ export default function TasksPage() {
         key={t.id}
         draggable={t.status === 'open'}
         onDragStart={(e) => e.dataTransfer.setData(TASK_MIME, t.id)}
-        className="group flex items-start gap-3 rounded-lg border border-border bg-surface px-3 py-2.5"
+        className="group flex items-start gap-3 rounded-lg border border-border bg-surface px-3 py-2.5 transition-[border-color,background-color] duration-[var(--dur-2)] hover:border-border-strong"
         style={{ ['--c' as string]: s ? subjectColorVar(s.color) : M.color }}
       >
         <button type="button" role="checkbox" aria-checked={t.status === 'done'} aria-label={t.status === 'done' ? `„${t.title}“ wieder öffnen` : `„${t.title}“ erledigt`}
-          onClick={() => setTaskDone(t.id, t.status !== 'done').then(() => toast({ title: t.status === 'done' ? 'Wieder offen' : 'Erledigt', tone: 'success', action: undo }), fail)}
+          onClick={(e) => { if (t.status !== 'done') success(e.currentTarget); void setTaskDone(t.id, t.status !== 'done').then(() => toast({ title: t.status === 'done' ? 'Wieder offen' : 'Erledigt', tone: 'success', action: undo }), fail) }}
           className={cn('mt-0.5 flex size-5 shrink-0 cursor-pointer items-center justify-center rounded-md border-2 transition-colors', t.status === 'done' ? 'border-transparent bg-[var(--c)] text-[var(--bg)]' : 'border-[color-mix(in_oklab,var(--c)_70%,var(--fg-subtle))] hover:bg-[color-mix(in_oklab,var(--c)_20%,transparent)]')}>
-          {t.status === 'done' && <Check className="size-3.5" strokeWidth={3} />}
+          {t.status === 'done' && <Check className="pop-in size-3.5" strokeWidth={3} />}
         </button>
         <div className="min-w-0 flex-1">
           <button type="button" onClick={() => setEditor({ mode: 'edit', item: asItem(t) })} className={cn('block max-w-full cursor-pointer truncate text-left text-sm font-medium hover:text-accent', t.status === 'done' && 'text-fg-muted line-through')}>{t.title}</button>
@@ -203,7 +204,7 @@ export default function TasksPage() {
               return (
                 <section key={sid ?? 'none'} aria-label={s?.name ?? 'Ohne Fach'}>
                   <h2 className="mb-1.5 flex items-center gap-2 text-sm font-semibold"><span className="size-2.5 rounded-full" style={{ background: s ? subjectColorVar(s.color) : 'var(--fg-subtle)' }} />{s?.name ?? 'Ohne Fach'} <Badge>{ts.length}</Badge></h2>
-                  <ul className="flex flex-col gap-1.5">{ts.map(row)}</ul>
+                  <ul className="stagger flex flex-col gap-1.5">{ts.map(row)}</ul>
                 </section>
               )
             })}
@@ -214,7 +215,7 @@ export default function TasksPage() {
           title={{ inbox: 'Eingang ist leer', today: 'Für heute und morgen ist nichts fällig', upcoming: 'Keine anstehenden Aufgaben', overdue: 'Nichts überfällig', done: 'Noch nichts erledigt', subjects: '' }[view]}
           description={view === 'inbox' ? 'Aufgaben ohne Datum und ohne geplante Zeit landen hier.' : view === 'overdue' ? 'Sehr gut – alles im Plan.' : undefined} />
       ) : (
-        <ul className="flex flex-col gap-1.5">{list.slice(0, view === 'done' ? 50 : undefined).map(row)}</ul>
+        <ul className="stagger flex flex-col gap-1.5">{list.slice(0, view === 'done' ? 50 : undefined).map(row)}</ul>
       )}
 
       <Dialog open={!!schedule} onClose={() => setSchedule(null)} title="Arbeitszeit einplanen" description={schedule ? `„${schedule.task.title}“ – erscheint als Block im Kalender und bleibt mit der Aufgabe verbunden.` : undefined} size="sm"

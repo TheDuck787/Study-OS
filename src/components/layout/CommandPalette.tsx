@@ -116,8 +116,8 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   let lastGroup = ''
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[10vh]" role="dialog" aria-modal="true" aria-label="Suche und Befehle" onKeyDown={onKey}>
-      <button type="button" aria-label="Schließen" className="absolute inset-0 bg-[var(--overlay)] cursor-default" onClick={onClose} />
-      <div className="relative w-full max-w-xl overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow)]">
+      <button type="button" aria-label="Schließen" className="absolute inset-0 bg-[var(--overlay)] cursor-default backdrop-blur-[2px]" style={{ animation: 'fade-in var(--dur-2) ease both' }} onClick={onClose} />
+      <div className="pop-in relative w-full max-w-xl overflow-hidden rounded-xl border border-border bg-surface bg-[image:var(--surface-sheen)] shadow-[var(--shadow-lg)]">
         <div className="flex items-center gap-2 border-b border-border px-3">
           <Search className="size-4 text-fg-subtle" aria-hidden />
           <input

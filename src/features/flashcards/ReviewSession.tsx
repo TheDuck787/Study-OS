@@ -8,6 +8,7 @@ import { previewIntervals, selectDueCards } from '@/lib/srs'
 import { shuffle } from '@/lib/id'
 import { speak, speechAvailable } from '@/lib/speech'
 import { Button, ButtonLink, cn, EmptyState, IconButton, Kbd, LoadingBlock, ProgressBar } from '@/components/ui'
+import { Celebrate } from '@/components/motion'
 
 const RATINGS: { r: CardRating; label: string; key: string; cls: string }[] = [
   { r: 'again', label: 'Vergessen', key: '1', cls: 'border-warn/50 text-warn hover:bg-warn-soft' },
@@ -130,7 +131,8 @@ export default function ReviewSession() {
       )
     return (
       <div className="mx-auto flex max-w-xl flex-col items-center gap-5 py-10 text-center">
-        <CheckCircle2 className="size-10 text-success" aria-hidden />
+        <Celebrate anchor="#round-done" />
+        <span id="round-done" className="pop-in flex size-16 items-center justify-center rounded-full bg-success-soft"><CheckCircle2 className="size-9 text-success" aria-hidden /></span>
         <h1 className="text-xl font-semibold">Runde geschafft</h1>
         <p className="text-fg-muted">
           {done} Wiederholungen. Vergessen: {counts.again}, schwer: {counts.hard}, gut: {counts.good}, leicht: {counts.easy}.

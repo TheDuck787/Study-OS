@@ -20,6 +20,7 @@ Plan und Architekturentscheidungen: `docs/PLAN.md`. Setup & Nutzung: `README.md`
 | 8 | Qualitätssicherung | erledigt – siehe „Tests“ |
 | 11 | Google-Anmeldung & Synchronisierung (Supabase Auth, `sync_records` mit RLS) | erledigt – Vercel-Variablen gesetzt, `/api/config` liefert die Supabase-Konfiguration, Tabelle `sync_records` mit RLS angelegt (geprüft 25.10.2026) |
 | 10 | Kalender & Planer (Ansichten, Aufgaben, Prüfungsvorbereitung, Planer, Mein Tag, Wochenplanung) | erledigt – Details unten, Plan: `docs/CALENDAR.md` |
+| 13 | Design & Bewegung (Motion-System, geschichtete Flächen, Mikro-Interaktionen, Skeletons, Erfolgs-Feedback) | erledigt – Details unten |
 | 12 | Stundenplan im WebUntis-Stil (Woche/Tag/Liste, Entfall/Vertretung, Hausaufgaben, Prüfungen, CSV/ICS) | erledigt – Details unten |
 
 ## Wichtige Pfade
@@ -49,7 +50,7 @@ Plan und Architekturentscheidungen: `docs/PLAN.md`. Setup & Nutzung: `README.md`
 | `npm test` (Vitest) | 217 Tests bestanden (davon Stundenplan 15 + 1 Sync) – Lernlogik, Mathe-Generatoren, Fragenbibliothek, Datenbank-Flows, **Kalender & Planer (30)** und API: Zugangscode-Pflicht, Sperre auf Vercel ohne `APP_ACCESS_TOKEN`, Validierung, SSE-Streaming, Rate-Limit, 404, Pfad-Wiederherstellung der Vercel Function |
 | `npm run build` | erfolgreich; Geheimnis-Prüfung von `dist/` bestanden |
 | `vercel build` (lokal, Vercel CLI) | erfolgreich: statische Ausgabe + Function `api/index` (Node 22); kompilierte Function direkt aufgerufen: `/api/health` 200, Status, 404, Sperre ohne Zugangscode |
-| `npm run test:e2e` (Dev-Server, 25.10.2026 nach Stundenplan) | 19/19 bestanden (3 nur im Produktions-Build sinnvolle Tests übersprungen); gegen den Produktions-Build zusätzlich Deploy- und Stundenplan-Tests 5/5 |
+| `npm run test:e2e` (Dev-Server, 25.10.2026 nach Design-Überarbeitung) | 21/21 bestanden (3 nur im Produktions-Build sinnvolle Tests übersprungen); gegen den Produktions-Build zusätzlich Deploy- und Stundenplan-Tests 5/5 |
 | `npm run test:e2e:prod` (Produktions-Build, vor dem Stundenplan) | 15/15 – Definition-of-Done-Ablauf, Mathe, Demo-Trennung, leerer Start, Installierbarkeit, Offline-Start, Zugangscode, **6 Kalender-Abläufe** und **2 Android-Abläufe (Pixel 7)** |
 | `npm run test:sql` | Migrationen 0001 + 0002 laufen, RLS trennt Nutzer (auch Termine/Aufgaben), Constraints greifen |
 
@@ -114,6 +115,17 @@ Nicht getestet: echtes Deployment auf Vercel (kein Vercel-Konto in dieser Umgebu
 **In der Stundenplan-QA gefunden und behoben:** Editor konnte schnelle Eingaben mit dem nachgeladenen Stand überschreiben (Formular erscheint jetzt erst nach dem Laden); A/B-Einstellung bezog sich sonntags auf die vergangene statt die angezeigte Woche; Raster begann eine Stunde zu früh; „Lernzeiten vorschlagen“ am Handy doppelt.
 
 **Tests:** Unit `tests/unit/timetable.test.ts` (15: Raster, A/B, Kürzel, Serien, Entfall/Vertretung + Aufheben, „ab dieser Woche“ mit mitwandernden Änderungen, Duplizieren/Löschen, nächste Stunde, Hausaufgabe/Prüfung, Planer nutzt Entfall-Zeit, Schulzeiten, CSV-Rundreise + Formel-Schutz + Fehler je Zeile, Import ohne Duplikate + Rückgängig, ICS-Rundreise, WebUntis-ähnliche Einzeltermine, UTC/Zeilenumbruch) und `tests/unit/sync.test.ts` (Stundenplan inkl. Entfall PC → Handy → PC). E2E Desktop `tests/e2e/timetable.spec.ts` (2 komplette Abläufe inkl. Export/Import) und Android `tests/e2e/timetable-mobile.spec.ts` (Tag/Woche/Blatt ohne seitliches Scrollen, Wischen). Screenshots geprüft (Desktop dunkel, Pixel 7).
+
+## Design & Bewegung (25.10.2026)
+**Ohne neue Bibliothek** – CSS-Transforms/Opacity, `@starting-style` für Dialoge, Web Animations API für Konfetti. Presets an einer Stelle: Tokens `--ease-out`, `--ease-spring`, `--dur-1…4`, Schatten `--shadow-sm/md/lg`, `--surface-sheen`, `--glass` in `src/styles/index.css` (hell und dunkel), dieselben Werte in `src/lib/motion.ts`; React-Helfer in `src/components/motion.tsx` (`useMounted`, `useCountUp`, `AnimatedNumber`, `CountUpText`, `Celebrate`).
+
+**Umgesetzt:** gestaffelte Seiten-Einblendung (jede Seite automatisch, ≤ 0,5 s) und gestaffelte Listen; Dialoge blenden weich ein und aus, am Handy als Bottom-Sheet mit Griff; Menüs, Suche und „Mehr“-Blatt animiert; Toasts gleiten mit Symbol herein/heraus und lassen sich schließen; Tabs und Umschalter mit gleitender Markierung; Fortschrittsbalken (scaleX) und Ringe laufen beim Erscheinen hoch; Kennzahlen, Serie und XP zählen hoch; Lernkalender spaltenweise, Lernzeit-Balken wachsen; Skeletons statt Spinner (erst nach 140 ms, kein Flackern); animierte Checkboxen/Radios (weiter native Eingaben), Schalter mit Feder, aufklappbare Abschnitte mit Höhen-Animation und drehendem Pfeil, Tooltips für Symbol-Knöpfe (Maus und Tastatur-Fokus); Knöpfe mit Druck-Rückmeldung, Primär-Knopf mit Tiefe, anklickbare Karten heben sich an; geschichtete Flächen mit Lichtkante, dezenter Farbschimmer im Hintergrund, Glas-Kopf/-Fußleiste am Handy, Navigation mit Akzentstreifen bzw. Feder-Pille; Startseite mit Tagesziel-Ring, Serie und XP aus echten Daten; Erfolgs-Feedback (Pop, kleines Konfetti, kurze Vibration auf Android) beim Erledigen von Aufgaben/Hausaufgaben, Runde geschafft, Quiz ab 60 % (nur direkt nach dem Abschluss), neue Abzeichen, Tagesziel (einmal pro Tag); Quiz-Optionen reagieren, falsche Antwort schüttelt leicht.
+
+**Leistung & Barrierefreiheit:** nur Transform/Opacity, keine Dauer-Animationen (außer Skeleton während des Ladens), kein Blur auf bewegten Elementen; Einblend-Animationen enden ohne bleibenden Zustand (`fill-mode: backwards`), damit keine Stapel-Kontexte Dropdowns überdecken. `prefers-reduced-motion` schaltet alles ab (auch Konfetti, Zählen, Vibration). Messung auf emuliertem Pixel 7 mit 4-fach gedrosselter CPU: Abhaken mit Konfetti im Median 60 FPS; Ruckler beim Seitenaufbau stammen aus der Datenberechnung und bestanden schon vorher (Vergleichsmessung). Haupt-Bundle +≈ 3 KB gzip.
+
+**In der QA gefunden und behoben:** Dropdown-Menüs wurden von der nächsten Seiten-Sektion überdeckt (bleibende Stapel-Kontexte durch `fill-mode: both`); Glas-Effekt hinter einfliegenden Toasts und 126 einzeln animierte Kalender-Kacheln kosteten auf langsamen Geräten Bilder (jetzt feste Fläche bzw. eine Animation pro Spalte).
+
+**Tests:** neuer E2E-Test `tests/e2e/motion.spec.ts` (Toast mit Schließen, Konfetti erscheint und räumt sich auf, Umschalter-Markierung gleitet, Dialog öffnet/schließt, reduzierte Bewegung: keine Animationszeit, kein Konfetti); alle bestehenden Tests unverändert grün.
 
 ## Bekannte Grenzen / offen
 - Kalender: Ziehen und Größe ändern mit Maus/Stift; am Touchscreen über „Verschieben“ und den Editor (bewusst, weil Ziehen dort unzuverlässig ist). Rückgängig gilt bis zum Neuladen der Seite. Schulferien/Feiertage werden nicht automatisch eingetragen (als ganztägiger Eintrag mit „nicht lernen“ möglich).

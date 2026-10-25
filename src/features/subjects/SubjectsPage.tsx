@@ -60,14 +60,14 @@ export default function SubjectsPage() {
       {subjects.length === 0 ? (
         <EmptyState icon={BookOpen} title="Noch keine Fächer" description="Lege dein erstes Fach an oder übernimm den Beispiel-Lehrplan in den Einstellungen." action={<Button variant="primary" icon={Plus} onClick={() => setDialog({ open: true })}>Fach anlegen</Button>} />
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="stagger grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {subjects.map((s, i) => {
             const ts = topics.filter((t) => t.subjectId === s.id)
             const st = ts.map((t) => stats.get(t.id)).filter((x): x is NonNullable<typeof x> => !!x)
             const practiced = st.filter((x) => x.answers > 0)
             const nextExam = (exams ?? []).find((e) => e.subjectId === s.id && diffDays(today, e.date) >= 0)
             return (
-              <li key={s.id} className="flex flex-col rounded-lg border border-border bg-surface">
+              <li key={s.id} className="lift surface-raised flex flex-col rounded-lg border border-border bg-surface">
                 <div className="flex items-start gap-3 p-4">
                   <Ring value={averageMastery(practiced)} size={48} stroke={4} label={`Durchschnittlicher Stand in ${s.name}`}>
                     <span className="text-xs">{practiced.length ? Math.round(averageMastery(practiced) * 100) : '–'}</span>

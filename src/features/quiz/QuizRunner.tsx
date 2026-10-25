@@ -7,6 +7,7 @@ import type { Question } from '@/db/types'
 import { finishAttempt, recordAnswer, regradeAnswer, saveDraftAnswer, type AnswerInput as AnswerPayload } from '@/db/repo'
 import { checkAnswer, type CheckResult } from '@/lib/answerCheck'
 import { Badge, Button, Card, cn, LoadingBlock, Notice, ProgressBar, useConfirm, useToast } from '@/components/ui'
+import { haptic } from '@/lib/motion'
 import { Markdown } from '@/components/Markdown'
 import { AnswerInput, QuestionPrompt, TYPE_LABELS } from './QuestionView'
 import { QuizResult } from './QuizResult'
@@ -119,6 +120,7 @@ function PracticeRunner({ attemptId }: { attemptId: string }) {
     }
     setInputError(null)
     setCheck(r)
+    if (r.correct) haptic(10)
     if (r.status === 'self-assess') return // student judges first
     setBusy(true)
     try {
@@ -260,7 +262,7 @@ function PracticeRunner({ attemptId }: { attemptId: string }) {
         )}
 
         {check && check.status !== 'self-assess' && (
-          <div className="mt-5 flex flex-col gap-3" aria-live="polite">
+          <div className="pop-in mt-5 flex flex-col gap-3" aria-live="polite">
             <Notice tone={tone} icon={check.correct ? CheckCircle2 : CircleDashed} title={check.correct ? 'Richtig' : check.status === 'partial' ? 'Teilweise richtig' : 'Noch nicht richtig'}>
               <Markdown inline>{check.feedback}</Markdown>
             </Notice>

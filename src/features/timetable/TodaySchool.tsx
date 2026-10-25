@@ -56,7 +56,7 @@ export function TodaySchool({ compact }: { compact?: boolean }) {
       )}
 
       {view.list.length > 0 ? (
-        <ul className="flex flex-col gap-1">
+        <ul className="stagger flex flex-col gap-1">
           {view.list.slice(0, compact ? 5 : 12).map((l) => (
             <li key={l.key} className="flex items-center gap-2.5 text-sm">
               <span className="w-11 shrink-0 text-xs text-fg-muted tabular">{l.start}</span>

@@ -109,7 +109,7 @@ export default function ExamDetail() {
           {exam.plan.length === 0 ? (
             <EmptyState title="Noch kein Plan" description={d > 0 ? 'Berechne einen Lernplan auf Basis deiner verfügbaren Zeit.' : 'Für vergangene Prüfungen wird kein Plan erstellt.'} action={d > 0 && <Button variant="primary" icon={RefreshCcw} onClick={replan} loading={busy}>Lernplan erstellen</Button>} />
           ) : (
-            <ol className="flex flex-col gap-5">
+            <ol className="stagger flex flex-col gap-5">
               {byDay.map(([date, sessions]) => (
                 <li key={date}>
                   <div className={cn('mb-2 flex items-baseline gap-2 text-sm', date === today ? 'font-semibold text-accent' : 'text-fg-muted')}>

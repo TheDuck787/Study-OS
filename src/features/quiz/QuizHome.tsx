@@ -118,7 +118,7 @@ export default function QuizHome() {
 
 function QuickStart({ to, icon: Icon, title, text }: { to: string; icon: typeof Timer; title: string; text: string }) {
   return (
-    <Link to={to} className="group flex items-start gap-3 rounded-lg border border-border bg-surface p-4 transition-colors hover:border-border-strong">
+    <Link to={to} className="lift surface-raised group flex items-start gap-3 rounded-lg border border-border bg-surface p-4 transition-colors hover:border-border-strong">
       <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-accent-soft text-accent">
         <Icon className="size-4" aria-hidden />
       </span>

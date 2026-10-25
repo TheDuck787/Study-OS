@@ -121,13 +121,13 @@ function SkillPractice() {
       {topics.length === 0 ? (
         <EmptyState title="Noch keine Themen" description="Lege unter Fächer → Mathematik deine Themen an. Die Übungen werden dann einem Thema zugeordnet." />
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="stagger grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {SKILLS.map((s) => {
             const st = skillStats.get(s.key)
             const topic = topicFor(s)
             const acc = st && st.n > 0 ? st.correct / st.n : null
             return (
-              <li key={s.key} className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4">
+              <li key={s.key} className="lift surface-raised flex flex-col gap-2 rounded-lg border border-border bg-surface p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="font-medium">{s.name}</div>
                   {acc !== null && <Badge tone={acc >= 0.8 ? 'success' : acc >= 0.5 ? 'accent' : 'warn'}>{Math.round(acc * 100)} %</Badge>}
@@ -215,7 +215,7 @@ function StepChecker() {
         ) : (
           <>
             {result.info && <p className="text-sm text-fg-muted">{result.info}</p>}
-            <ol className="flex flex-col gap-2">
+            <ol className="stagger flex flex-col gap-2">
               {result.lines.map((l, i) => (
                 <li key={i} className={cn('rounded-lg border px-3.5 py-2.5', l.ok === true ? 'border-success/40 bg-success-soft' : l.ok === false ? (i === result.firstError ? 'border-warn/60 bg-warn-soft' : 'border-border') : 'border-border bg-surface-2')}>
                   <div className="flex items-center gap-2">

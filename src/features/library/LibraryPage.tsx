@@ -20,10 +20,10 @@ export const STATUS_LABEL: Record<Material['extraction']['status'], { label: str
 export function MaterialsList({ materials }: { materials: Material[] }) {
   if (materials.length === 0) return <EmptyState compact icon={FileText} title="Kein Material" description="Importiere Arbeitsblätter (PDF, Foto), Textdateien oder füge Text ein." action={<ButtonLink to="/bibliothek/import" size="sm" icon={FileUp}>Importieren</ButtonLink>} />
   return (
-    <ul className="grid gap-2 sm:grid-cols-2">
+    <ul className="stagger grid gap-2 sm:grid-cols-2">
       {materials.map((m) => (
         <li key={m.id}>
-          <Link to={`/bibliothek/material/${m.id}`} className="group flex h-full flex-col rounded-lg border border-border bg-surface p-3.5 hover:border-border-strong">
+          <Link to={`/bibliothek/material/${m.id}`} className="lift surface-raised group flex h-full flex-col rounded-lg border border-border bg-surface p-3.5 hover:border-border-strong">
             <span className="flex items-center gap-2">
               <FileText className="size-4 shrink-0 text-fg-subtle" aria-hidden />
               <span className="truncate font-medium group-hover:text-accent">{m.title}</span>
@@ -102,10 +102,10 @@ export default function LibraryPage() {
       {results ? (
         <section aria-label="Suchergebnisse">
           <p className="mb-3 text-sm text-fg-muted">{results.length} Treffer für „{q}“</p>
-          <ul className="flex flex-col gap-2">
+          <ul className="stagger flex flex-col gap-2">
             {results.map((r) => (
               <li key={r.id}>
-                <Link to={`/bibliothek/${r.kind === 'note' ? 'notiz' : 'material'}/${r.id}`} className="block rounded-lg border border-border bg-surface p-3.5 hover:border-border-strong">
+                <Link to={`/bibliothek/${r.kind === 'note' ? 'notiz' : 'material'}/${r.id}`} className="lift surface-raised block rounded-lg border border-border bg-surface p-3.5 hover:border-border-strong">
                   <span className="flex items-center gap-2 font-medium">
                     {r.kind === 'note' ? <NotebookPen className="size-4 text-fg-subtle" /> : <FileText className="size-4 text-fg-subtle" />}
                     {r.title}

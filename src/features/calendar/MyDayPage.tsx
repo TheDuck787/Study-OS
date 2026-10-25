@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { AlertTriangle, ArrowRight, CalendarDays, CheckCircle2, Clock, Coffee, GraduationCap, Layers, ListTodo, Moon, Play, Plus, Sun, Wand2 } from 'lucide-react'
 import { db } from '@/db/index'
 import { setItemDone } from '@/db/calendar'
+import { success } from '@/lib/motion'
 import { ValidationError } from '@/db/repo'
 import { sessionHref } from '@/features/exams/plan'
 import { Badge, Button, ButtonLink, Card, cn, Dialog, EmptyState, LoadingBlock, ProgressBar, Ring, SectionHeader, StatTile, useToast } from '@/components/ui'
@@ -140,7 +141,7 @@ export default function MyDayPage() {
         {N && (
           <div className="flex gap-2">
             {nLink && <ButtonLink to={nLink} variant="primary" icon={Play}>Jetzt starten</ButtonLink>}
-            <Button icon={CheckCircle2} variant={nLink ? 'secondary' : 'primary'} onClick={() => toggle(N, true)}>Erledigt</Button>
+            <Button icon={CheckCircle2} variant={nLink ? 'secondary' : 'primary'} onClick={(e) => { success(e.currentTarget); toggle(N, true) }}>Erledigt</Button>
             <Button variant="ghost" onClick={() => setSelected(N)}>Details</Button>
           </div>
         )}
@@ -198,7 +199,7 @@ export default function MyDayPage() {
           {nextExam && prep && (
             <section aria-labelledby="md-exam">
               <SectionHeader id="md-exam" title="Prüfungsvorbereitung" />
-              <Link to={`/pruefungen/${nextExam.id}`} className="flex items-center gap-4 rounded-lg border border-border bg-surface p-4 hover:border-border-strong">
+              <Link to={`/pruefungen/${nextExam.id}`} className="lift surface-raised flex items-center gap-4 rounded-lg border border-border bg-surface p-4 hover:border-border-strong">
                 <Ring value={prep.readiness ?? 0} size={56} stroke={5} label={`Vorbereitung ${nextExam.title}`}><span className="text-xs font-semibold tabular">{prep.readiness === null ? '–' : `${Math.round(prep.readiness * 100)}%`}</span></Ring>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2"><GraduationCap className="size-4 text-danger" /><span className="truncate font-semibold">{nextExam.title}</span></div>

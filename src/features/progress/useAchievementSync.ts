@@ -6,6 +6,7 @@ import { ACHIEVEMENTS, activeDays, countFixedMistakes, longestStreak, currentStr
 import { computeAllTopicStats } from '@/lib/mastery'
 import { dayKey, startOfWeek } from '@/lib/dates'
 import { useToast } from '@/components/ui'
+import { celebrate } from '@/lib/motion'
 
 /** Checks achievement conditions when learning data changes and announces new badges once. */
 export function useAchievementSync() {
@@ -38,7 +39,10 @@ export function useAchievementSync() {
       // On first load, unlock silently (e.g. after a restore); afterwards announce new badges.
       if (!first.current) for (const k of fresh) {
         const def = ACHIEVEMENTS.find((a) => a.key === k)
-        if (def) toast({ title: `Abzeichen: ${def.title}`, description: def.description, tone: 'success' })
+        if (def) {
+          toast({ title: `Abzeichen: ${def.title}`, description: def.description, tone: 'success' })
+          celebrate(null, { count: 30, spread: 1.6 })
+        }
       }
       first.current = false
     })()

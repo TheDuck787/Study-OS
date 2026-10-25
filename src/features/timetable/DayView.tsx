@@ -1,6 +1,7 @@
 import { CalendarCheck, Coffee, GraduationCap, NotebookPen, Plus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { DayKey, TimetablePeriod } from '@/db/types'
+import { success } from '@/lib/motion'
 import { setTaskDone } from '@/db/calendar'
 import { Badge, cn, ProgressBar } from '@/components/ui'
 import type { CalItem } from '@/lib/calendar/items'
@@ -68,7 +69,7 @@ export function DayView({ day, lessons, periods, ctx, today, onOpen, onAdd }: {
           </button>
         </div>
       ) : (
-        <ol className="flex flex-col gap-2" aria-label="Stunden des Tages">
+        <ol className="stagger flex flex-col gap-2" aria-label="Stunden des Tages">
           {rows.map((r, i) => {
             const prev = rows[i - 1]
             const gap = prev ? r.start - prev.end : 0
@@ -112,7 +113,7 @@ export function DayView({ day, lessons, periods, ctx, today, onOpen, onAdd }: {
           ))}
           {homework.map((t) => (
             <label key={t.id} className="flex cursor-pointer items-center gap-2 text-sm">
-              <input type="checkbox" checked={t.status === 'done'} onChange={(e) => setTaskDone(t.id, e.target.checked)} className="size-4 accent-[var(--accent-solid)]" />
+              <input type="checkbox" checked={t.status === 'done'} onChange={(e) => { if (e.target.checked) success(e.currentTarget); void setTaskDone(t.id, e.target.checked) }} className="size-4 accent-[var(--accent-solid)]" />
               <NotebookPen className="size-4 shrink-0 text-warn" aria-hidden />
               <span className={cn('min-w-0 flex-1 truncate', t.status === 'done' && 'text-fg-muted line-through')}>{t.title}</span>
               {t.subjectId && <span className="shrink-0 text-xs text-fg-muted">{ctx.subjects.get(t.subjectId)?.name}</span>}

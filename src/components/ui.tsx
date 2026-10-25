@@ -1,10 +1,11 @@
 import { clsx } from 'clsx'
 import {
-  createContext, forwardRef, useCallback, useContext, useEffect, useId, useRef, useState,
+  createContext, forwardRef, useCallback, useContext, useEffect, useId, useLayoutEffect, useRef, useState,
   type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes,
 } from 'react'
 import { Link, type LinkProps } from 'react-router-dom'
-import { Loader2, X, type LucideIcon } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Info, Loader2, X, type LucideIcon } from 'lucide-react'
+import { CountUpText, useMounted } from './motion'
 
 export const cn = clsx
 
@@ -14,8 +15,9 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'soft'
 type Size = 'sm' | 'md' | 'lg'
 
 const variantCls: Record<Variant, string> = {
-  primary: 'bg-accent-solid text-accent-fg hover:bg-accent-solid-hover border border-transparent',
-  secondary: 'bg-surface-2 text-fg border border-border hover:border-border-strong hover:bg-surface-3',
+  primary:
+    'text-accent-fg border border-transparent bg-accent-solid bg-[linear-gradient(180deg,rgb(255_255_255/0.14),rgb(255_255_255/0))] shadow-[0_1px_0_rgb(255_255_255/0.18)_inset,0_1px_2px_rgb(0_0_0/0.25),0_4px_14px_-4px_color-mix(in_oklab,var(--accent-solid)_70%,transparent)] hover:bg-accent-solid-hover hover:shadow-[0_1px_0_rgb(255_255_255/0.2)_inset,0_2px_4px_rgb(0_0_0/0.25),0_8px_22px_-6px_color-mix(in_oklab,var(--accent-solid)_80%,transparent)]',
+  secondary: 'bg-surface-2 text-fg border border-border shadow-[var(--shadow-sm)] hover:border-border-strong hover:bg-surface-3',
   ghost: 'text-fg-muted hover:text-fg hover:bg-surface-2 border border-transparent',
   danger: 'bg-danger-soft text-danger border border-transparent hover:border-danger/40',
   soft: 'bg-accent-soft text-accent border border-transparent hover:border-accent/30',
@@ -28,7 +30,7 @@ const sizeCls: Record<Size, string> = {
 
 export function buttonClass(variant: Variant = 'secondary', size: Size = 'md', className?: string) {
   return cn(
-    'inline-flex items-center justify-center font-medium whitespace-nowrap select-none transition-colors duration-150',
+    'inline-flex items-center justify-center font-medium whitespace-nowrap select-none transition-[color,background-color,border-color,box-shadow,transform] duration-[var(--dur-2)] ease-[var(--ease-out)] active:scale-[0.97] active:duration-[var(--dur-1)]',
     'disabled:opacity-50 disabled:pointer-events-none cursor-pointer',
     variantCls[variant],
     sizeCls[size],
@@ -71,9 +73,9 @@ export function IconButton({ label, icon: Icon, size = 'md', className, ...rest 
     <button
       type="button"
       aria-label={label}
-      title={label}
+      data-tip={label}
       className={cn(
-        'inline-flex items-center justify-center rounded-md text-fg-muted hover:text-fg hover:bg-surface-2 transition-colors cursor-pointer disabled:opacity-40 disabled:pointer-events-none',
+        'inline-flex items-center justify-center rounded-md text-fg-muted hover:text-fg hover:bg-surface-2 transition-[color,background-color,transform] duration-[var(--dur-2)] active:scale-90 cursor-pointer disabled:opacity-40 disabled:pointer-events-none',
         size === 'sm' ? 'size-7' : 'size-9',
         className,
       )}
@@ -86,9 +88,9 @@ export function IconButton({ label, icon: Icon, size = 'md', className, ...rest 
 
 // ───────────── Layout primitives ─────────────
 
-export function Card({ className, children, as: As = 'div', ...rest }: { className?: string; children: ReactNode; as?: 'div' | 'section' | 'article' | 'li' } & Record<string, unknown>) {
+export function Card({ className, children, as: As = 'div', interactive, ...rest }: { className?: string; children: ReactNode; as?: 'div' | 'section' | 'article' | 'li'; interactive?: boolean } & Record<string, unknown>) {
   return (
-    <As className={cn('rounded-lg border border-border bg-surface', className)} {...rest}>
+    <As className={cn('surface-raised rounded-lg border border-border bg-surface', interactive && 'lift', className)} {...rest}>
       {children}
     </As>
   )
@@ -99,7 +101,7 @@ export function PageHeader({ title, eyebrow, description, actions }: { title: Re
     <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 pb-6">
       <div className="min-w-0">
         {eyebrow && <div className="eyebrow mb-1.5">{eyebrow}</div>}
-        <h1 className="text-xl sm:text-2xl font-semibold">{title}</h1>
+        <h1 className="text-xl font-semibold tracking-tight sm:text-[1.75rem]">{title}</h1>
         {description && <p className="mt-1.5 text-fg-muted max-w-2xl">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
@@ -149,19 +151,44 @@ export function Spinner({ label = 'Lädt …', className }: { label?: string; cl
   )
 }
 
+export function Skeleton({ className, style }: { className?: string; style?: React.CSSProperties }) {
+  return <div aria-hidden className={cn('skeleton', className)} style={style} />
+}
+
+/**
+ * Loading placeholder: a calm page skeleton instead of a spinner. It appears only after a short delay,
+ * so fast loads never flash. The label stays readable for screen readers (and is shown for long steps).
+ */
 export function LoadingBlock({ label }: { label?: string }) {
+  const [show, setShow] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setShow(true), 140)
+    return () => clearTimeout(t)
+  }, [])
   return (
-    <div className="flex min-h-40 items-center justify-center">
-      <Spinner label={label} />
+    <div role="status" aria-live="polite" className="flex min-h-40 flex-col gap-4 py-2">
+      <span className={label ? 'text-sm text-fg-muted' : 'sr-only'}>{label ?? 'Lädt …'}</span>
+      {show && (
+        <div className="flex flex-col gap-4 pop-in" aria-hidden>
+          <Skeleton className="h-7 w-48" />
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Skeleton className="h-20" />
+            <Skeleton className="h-20" />
+            <Skeleton className="h-20" />
+          </div>
+          <Skeleton className="h-28" />
+          <Skeleton className="h-16" />
+        </div>
+      )}
     </div>
   )
 }
 
 export function EmptyState({ icon: Icon, title, description, action, compact }: { icon?: LucideIcon; title: string; description?: ReactNode; action?: ReactNode; compact?: boolean }) {
   return (
-    <div className={cn('flex flex-col items-center text-center rounded-lg border border-dashed border-border-strong', compact ? 'px-4 py-6' : 'px-6 py-10')}>
+    <div className={cn('flex flex-col items-center text-center rounded-lg border border-dashed border-border-strong bg-[radial-gradient(ellipse_at_top,var(--accent-soft),transparent_70%)]', compact ? 'px-4 py-6' : 'px-6 py-10')}>
       {Icon && (
-        <div className="mb-3 flex size-10 items-center justify-center rounded-full bg-surface-2 text-fg-muted">
+        <div className="pop-in mb-3 flex size-11 items-center justify-center rounded-2xl border border-border bg-surface text-accent shadow-[var(--shadow-sm)]">
           <Icon className="size-5" aria-hidden />
         </div>
       )}
@@ -253,28 +280,61 @@ export function Switch({ checked, onChange, label, id }: { checked: boolean; onC
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={cn('relative inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full border transition-colors', checked ? 'bg-accent-solid border-transparent' : 'bg-surface-3 border-border-strong')}
+      className={cn('group relative inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full border transition-colors duration-[var(--dur-2)]', checked ? 'bg-accent-solid border-transparent' : 'bg-surface-3 border-border-strong')}
     >
-      <span className={cn('inline-block size-4 rounded-full bg-white shadow transition-transform', checked ? 'translate-x-5' : 'translate-x-1')} />
+      <span className={cn('inline-block size-4 rounded-full bg-white shadow-[0_1px_3px_rgb(0_0_0/0.3)] transition-[transform,width] duration-[var(--dur-3)] ease-[var(--ease-spring)] group-active:w-5', checked ? 'translate-x-5 group-active:translate-x-4' : 'translate-x-1')} />
     </button>
   )
 }
 
+/**
+ * Measures the active child of a container so an indicator can glide to it (transform only).
+ * No transition on the first measurement, so nothing slides in from the left when a page opens.
+ */
+function useIndicator(active: number, deps: unknown[] = []) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [box, setBox] = useState<{ x: number; y: number; w: number; h: number; animate: boolean } | null>(null)
+  const measure = useCallback(() => {
+    const el = ref.current?.querySelectorAll<HTMLElement>('[data-ind-item]')[active]
+    if (!el) return setBox(null)
+    setBox((b) => ({ x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight, animate: !!b }))
+  }, [active])
+  useLayoutEffect(measure, [measure, ...deps])
+  useEffect(() => {
+    if (!ref.current || typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(() => measure())
+    ro.observe(ref.current)
+    return () => ro.disconnect()
+  }, [measure])
+  return { ref, box }
+}
+
 export function Segmented<T extends string | number>({ options, value, onChange, label, size = 'md' }: { options: { value: T; label: ReactNode; title?: string }[]; value: T; onChange: (v: T) => void; label: string; size?: 'sm' | 'md' }) {
+  const active = options.findIndex((o) => o.value === value)
+  const { ref, box } = useIndicator(active, [options.length])
   return (
-    <div role="radiogroup" aria-label={label} className="inline-flex flex-wrap rounded-md border border-border bg-surface-2 p-0.5">
+    <div ref={ref} role="radiogroup" aria-label={label} className="relative inline-flex flex-wrap rounded-md border border-border bg-surface-2 p-0.5">
+      {box && (
+        <span
+          aria-hidden
+          className={cn('pointer-events-none absolute left-0 top-0 rounded-[6px] border border-border bg-surface shadow-[var(--shadow-sm)]', box.animate && 'transition-[transform,width,height] duration-[var(--dur-3)] ease-[var(--ease-out)]')}
+          style={{ transform: `translate(${box.x}px, ${box.y}px)`, width: box.w, height: box.h }}
+        />
+      )}
       {options.map((o) => (
         <button
           key={String(o.value)}
           type="button"
           role="radio"
+          data-ind-item
           aria-checked={o.value === value}
           title={o.title}
           onClick={() => onChange(o.value)}
           className={cn(
-            'rounded-[5px] font-medium transition-colors cursor-pointer',
+            'relative rounded-[6px] font-medium transition-[color,transform] duration-[var(--dur-2)] active:scale-[0.96] cursor-pointer',
             size === 'sm' ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-sm',
-            o.value === value ? 'bg-surface text-fg shadow-sm' : 'text-fg-muted hover:text-fg',
+            o.value === value ? 'text-fg' : 'text-fg-muted hover:text-fg',
+            o.value === value && !box && 'bg-surface shadow-sm',
           )}
         >
           {o.label}
@@ -300,8 +360,12 @@ export function Tabs<T extends string>({ tabs, value, onChange, label }: { tabs:
       onChange(tabs[next].id)
     }
   }
+  const { ref, box } = useIndicator(Math.max(0, tabs.findIndex((t) => t.id === value)), [tabs.length])
   return (
-    <div role="tablist" aria-label={label} className="-mx-1 flex gap-1 overflow-x-auto border-b border-border px-1">
+    <div ref={ref} role="tablist" aria-label={label} className="relative -mx-1 flex gap-1 overflow-x-auto border-b border-border px-1">
+      {box && (
+        <span aria-hidden className={cn('pointer-events-none absolute bottom-0 left-0 h-0.5 rounded-full bg-accent', box.animate && 'transition-[transform,width] duration-[var(--dur-3)] ease-[var(--ease-out)]')} style={{ transform: `translateX(${box.x}px)`, width: box.w }} />
+      )}
       {tabs.map((t, i) => {
         const active = t.id === value
         const Icon = t.icon
@@ -313,13 +377,15 @@ export function Tabs<T extends string>({ tabs, value, onChange, label }: { tabs:
             }}
             role="tab"
             type="button"
+            data-ind-item
             aria-selected={active}
             tabIndex={active ? 0 : -1}
             onKeyDown={(e) => onKey(e, i)}
             onClick={() => onChange(t.id)}
             className={cn(
-              'relative -mb-px flex shrink-0 cursor-pointer items-center gap-1.5 border-b-2 px-2.5 py-2.5 text-sm font-medium transition-colors',
-              active ? 'border-accent text-fg' : 'border-transparent text-fg-muted hover:text-fg',
+              'relative -mb-px flex shrink-0 cursor-pointer items-center gap-1.5 border-b-2 border-transparent px-2.5 py-2.5 text-sm font-medium transition-colors duration-[var(--dur-2)]',
+              active ? 'text-fg' : 'text-fg-muted hover:text-fg',
+              active && !box && 'border-accent',
             )}
           >
             {Icon && <Icon className="size-4" aria-hidden />}
@@ -336,11 +402,13 @@ export function Tabs<T extends string>({ tabs, value, onChange, label }: { tabs:
 
 export function ProgressBar({ value, tone = 'accent', label, className, showValue }: { value: number; tone?: 'accent' | 'success' | 'warn' | 'neutral'; label: string; className?: string; showValue?: boolean }) {
   const v = Math.max(0, Math.min(1, value))
+  const mounted = useMounted()
   const color = { accent: 'bg-accent-solid', success: 'bg-success', warn: 'bg-warn', neutral: 'bg-fg-subtle' }[tone]
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <div role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(v * 100)} className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-3">
-        <div className={cn('h-full rounded-full transition-[width] duration-500', color)} style={{ width: `${v * 100}%` }} />
+        {/* scaleX instead of width: animates on the compositor, from 0 on first show */}
+        <div className={cn('h-full w-full origin-left rounded-full transition-transform duration-[700ms] ease-[var(--ease-out)]', color)} style={{ transform: `scaleX(${mounted ? v : 0})` }} />
       </div>
       {showValue && <span className="w-9 text-right text-xs text-fg-muted tabular">{Math.round(v * 100)} %</span>}
     </div>
@@ -349,6 +417,7 @@ export function ProgressBar({ value, tone = 'accent', label, className, showValu
 
 export function Ring({ value, size = 56, stroke = 5, label, children, tone = 'accent' }: { value: number; size?: number; stroke?: number; label: string; children?: ReactNode; tone?: 'accent' | 'success' | 'warn' }) {
   const v = Math.max(0, Math.min(1, value))
+  const mounted = useMounted()
   const r = (size - stroke) / 2
   const c = 2 * Math.PI * r
   const color = { accent: 'var(--accent-solid)', success: 'var(--success)', warn: 'var(--warn)' }[tone]
@@ -356,9 +425,9 @@ export function Ring({ value, size = 56, stroke = 5, label, children, tone = 'ac
     <div className="relative inline-flex shrink-0 items-center justify-center" style={{ width: size, height: size }} role="img" aria-label={`${label}: ${Math.round(v * 100)} Prozent`}>
       <svg width={size} height={size} className="-rotate-90" aria-hidden>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--surface-3)" strokeWidth={stroke} />
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - v)} style={{ transition: 'stroke-dashoffset 600ms ease' }} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - (mounted ? v : 0))} style={{ transition: 'stroke-dashoffset 900ms var(--ease-out)' }} />
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center text-sm font-semibold tabular">{children ?? `${Math.round(v * 100)}`}</div>
+      <div className="absolute inset-0 flex items-center justify-center text-sm font-semibold tabular">{children ?? <CountUpText>{Math.round(v * 100)}</CountUpText>}</div>
     </div>
   )
 }
@@ -368,6 +437,16 @@ export function Ring({ value, size = 56, stroke = 5, label, children, tone = 'ac
 export function Dialog({ open, onClose, title, description, children, footer, size = 'md' }: { open: boolean; onClose: () => void; title: ReactNode; description?: ReactNode; children?: ReactNode; footer?: ReactNode; size?: 'sm' | 'md' | 'lg' | 'xl' }) {
   const ref = useRef<HTMLDialogElement>(null)
   const titleId = useId()
+  // keep the content while the dialog fades out (CSS exit transition), then unmount it
+  const [shown, setShown] = useState(open)
+  const last = useRef<{ title: ReactNode; description?: ReactNode; children?: ReactNode; footer?: ReactNode }>({ title, description, children, footer })
+  if (open) last.current = { title, description, children, footer }
+  useEffect(() => {
+    if (open) return setShown(true)
+    const t = setTimeout(() => setShown(false), 260)
+    return () => clearTimeout(t)
+  }, [open])
+  const view = open ? { title, description, children, footer } : last.current
   useEffect(() => {
     const d = ref.current
     if (!d) return
@@ -391,21 +470,21 @@ export function Dialog({ open, onClose, title, description, children, footer, si
       onClick={(e) => {
         if (e.target === ref.current) onClose()
       }}
-      className={cn('m-auto w-[calc(100%-2rem)] rounded-lg border border-border bg-surface p-0 shadow-[var(--shadow)] backdrop:bg-transparent', width)}
+      className={cn('sheet m-auto w-[calc(100%-2rem)] rounded-xl border border-border bg-surface bg-[image:var(--surface-sheen)] p-0 shadow-[var(--shadow-lg)]', width)}
     >
-      {open && (
+      {(open || shown) && (
         <div className="flex max-h-[min(85vh,900px)] flex-col">
           <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-4">
             <div className="min-w-0">
               <h2 id={titleId} className="text-md font-semibold">
-                {title}
+                {view.title}
               </h2>
-              {description && <p className="mt-0.5 text-sm text-fg-muted">{description}</p>}
+              {view.description && <p className="mt-0.5 text-sm text-fg-muted">{view.description}</p>}
             </div>
             <IconButton label="Schließen" icon={X} onClick={onClose} size="sm" />
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
-          {footer && <div className="flex flex-wrap justify-end gap-2 border-t border-border px-5 py-3">{footer}</div>}
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4">{view.children}</div>
+          {view.footer && <div className="flex flex-wrap justify-end gap-2 border-t border-border px-5 py-3">{view.footer}</div>}
         </div>
       )}
     </dialog>
@@ -459,6 +538,8 @@ export const useConfirm = () => useContext(ConfirmCtx)
 
 interface ToastItem {
   id: number
+  /** set while the toast slides out */
+  leaving?: boolean
   title: string
   description?: string
   tone: 'success' | 'danger' | 'neutral' | 'accent'
@@ -469,11 +550,15 @@ const ToastCtx = createContext<(t: Omit<ToastItem, 'id' | 'tone'> & { tone?: Toa
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ToastItem[]>([])
+  const dismiss = useCallback((id: number) => {
+    setItems((xs) => xs.map((x) => (x.id === id ? { ...x, leaving: true } : x)))
+    setTimeout(() => setItems((xs) => xs.filter((x) => x.id !== id)), 200)
+  }, [])
   const push = useCallback((t: Omit<ToastItem, 'id' | 'tone'> & { tone?: ToastItem['tone'] }) => {
     const id = Date.now() + Math.random()
     setItems((xs) => [...xs.slice(-3), { tone: 'neutral', ...t, id }])
-    setTimeout(() => setItems((xs) => xs.filter((x) => x.id !== id)), t.tone === 'danger' || t.action ? 7000 : 4000)
-  }, [])
+    setTimeout(() => dismiss(id), t.tone === 'danger' || t.action ? 7000 : 4000)
+  }, [dismiss])
   return (
     <ToastCtx.Provider value={push}>
       {children}
@@ -482,24 +567,40 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         className="pointer-events-none fixed z-50 flex flex-col gap-2"
         style={{ right: 'max(16px, env(safe-area-inset-right, 0px))', bottom: 'calc(16px + env(safe-area-inset-bottom, 0px) + var(--mobile-nav-h, 0px))', maxWidth: 'min(380px, calc(100vw - 32px))' }}
       >
-        {items.map((t) => (
-          <div key={t.id} className={cn('pointer-events-auto rounded-lg border bg-surface px-4 py-3 shadow-[var(--shadow)]', t.tone === 'danger' ? 'border-danger/40' : t.tone === 'success' ? 'border-success/40' : 'border-border')}>
-            <div className={cn('text-sm font-semibold', t.tone === 'danger' && 'text-danger', t.tone === 'success' && 'text-success')}>{t.title}</div>
-            {t.description && <div className="mt-0.5 text-sm text-fg-muted">{t.description}</div>}
-            {t.action && (
-              <button
-                type="button"
-                className="mt-1.5 cursor-pointer text-sm font-semibold text-accent underline-offset-2 hover:underline"
-                onClick={() => {
-                  t.action!.onClick()
-                  setItems((xs) => xs.filter((x) => x.id !== t.id))
-                }}
-              >
-                {t.action.label}
+        {items.map((t) => {
+          const Icon = t.tone === 'danger' ? AlertCircle : t.tone === 'success' ? CheckCircle2 : Info
+          return (
+            <div
+              key={t.id}
+              className={cn(
+                'pointer-events-auto flex gap-3 overflow-hidden rounded-xl border bg-surface bg-[image:var(--surface-sheen)] px-4 py-3 shadow-[var(--shadow-lg)]',
+                t.tone === 'danger' ? 'border-danger/40' : t.tone === 'success' ? 'border-success/40' : 'border-border',
+              )}
+              style={{ animation: t.leaving ? 'toast-out 200ms var(--ease-in-out) both' : 'toast-in 320ms var(--ease-spring) both' }}
+            >
+              <Icon className={cn('mt-0.5 size-4 shrink-0 pop-in', t.tone === 'danger' ? 'text-danger' : t.tone === 'success' ? 'text-success' : 'text-accent')} aria-hidden />
+              <div className="min-w-0 flex-1">
+                <div className={cn('text-sm font-semibold', t.tone === 'danger' && 'text-danger', t.tone === 'success' && 'text-success')}>{t.title}</div>
+                {t.description && <div className="mt-0.5 text-sm text-fg-muted">{t.description}</div>}
+                {t.action && (
+                  <button
+                    type="button"
+                    className="mt-1.5 cursor-pointer text-sm font-semibold text-accent underline-offset-2 hover:underline"
+                    onClick={() => {
+                      t.action!.onClick()
+                      dismiss(t.id)
+                    }}
+                  >
+                    {t.action.label}
+                  </button>
+                )}
+              </div>
+              <button type="button" aria-label="Meldung schließen" onClick={() => dismiss(t.id)} className="-mr-1 -mt-0.5 flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-fg-subtle transition-colors hover:bg-surface-2 hover:text-fg">
+                <X className="size-3.5" aria-hidden />
               </button>
-            )}
-          </div>
-        ))}
+            </div>
+          )
+        })}
       </div>
     </ToastCtx.Provider>
   )
@@ -547,7 +648,7 @@ export function Menu({ label, icon: Icon, items, align = 'right' }: { label: str
     <div className="relative" ref={wrap} onKeyDown={onKey}>
       <IconButton label={label} icon={Icon} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((o) => !o)} />
       {open && (
-        <div role="menu" className={cn('absolute z-30 mt-1 min-w-48 rounded-lg border border-border bg-surface p-1 shadow-[var(--shadow)]', align === 'right' ? 'right-0' : 'left-0')}>
+        <div role="menu" className={cn('menu-in absolute z-30 mt-1.5 min-w-48 rounded-xl border border-border bg-surface bg-[image:var(--surface-sheen)] p-1 shadow-[var(--shadow-lg)]', align === 'right' ? 'right-0' : 'left-0 origin-left')}>
           {items.map((it, i) => (
             <button
               key={it.label}
@@ -561,7 +662,7 @@ export function Menu({ label, icon: Icon, items, align = 'right' }: { label: str
                 setOpen(false)
                 it.onSelect()
               }}
-              className={cn('flex w-full cursor-pointer items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm hover:bg-surface-2 focus:bg-surface-2 focus:outline-none disabled:opacity-40', it.danger ? 'text-danger' : 'text-fg')}
+              className={cn('flex w-full cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm transition-colors duration-[var(--dur-1)] hover:bg-surface-2 focus:bg-surface-2 focus:outline-none active:bg-surface-3 disabled:opacity-40', it.danger ? 'text-danger' : 'text-fg')}
             >
               {it.icon && <it.icon className="size-4 shrink-0" aria-hidden />}
               {it.label}
@@ -581,12 +682,12 @@ export function SubjectDot({ color, className }: { color: number; className?: st
 
 export function StatTile({ label, value, sub, icon: Icon }: { label: string; value: ReactNode; sub?: ReactNode; icon?: LucideIcon }) {
   return (
-    <div className="min-w-0 rounded-lg border border-border bg-surface px-4 py-3">
+    <div className="surface-raised lift min-w-0 rounded-lg border border-border bg-surface px-4 py-3">
       <div className="flex items-center gap-1.5 text-xs text-fg-subtle">
-        {Icon && <Icon className="size-3.5" aria-hidden />}
+        {Icon && <span className="flex size-5 items-center justify-center rounded-md bg-accent-soft text-accent"><Icon className="size-3" aria-hidden /></span>}
         {label}
       </div>
-      <div className="mt-1 text-xl font-semibold font-display">{value}</div>
+      <div className="mt-1.5 text-xl font-semibold font-display tabular"><CountUpText>{value}</CountUpText></div>
       {sub && <div className="mt-0.5 truncate text-xs text-fg-muted">{sub}</div>}
     </div>
   )

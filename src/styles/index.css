@@ -35,6 +35,14 @@
   --danger-soft: rgb(240 116 103 / 0.14);
   --overlay: rgb(5 7 10 / 0.62);
   --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.28);
+  /* elevation: hairline highlight on top + soft drop shadow (cheap: no blur filters) */
+  --shadow-sm: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 1px 2px rgb(0 0 0 / 0.35);
+  --shadow-md: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 2px 4px rgb(0 0 0 / 0.3), 0 10px 24px -6px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 1px 0 rgb(255 255 255 / 0.05) inset, 0 4px 8px rgb(0 0 0 / 0.3), 0 24px 48px -12px rgb(0 0 0 / 0.55);
+  --surface-sheen: linear-gradient(180deg, rgb(255 255 255 / 0.025), rgb(255 255 255 / 0) 60%);
+  --glow: rgb(88 116 255 / 0.13);
+  --glow-2: rgb(199 127 216 / 0.07);
+  --glass: rgb(17 20 25 / 0.72);
   --s0: #7b93ff; --s1: #e38c5f; --s2: #52c58e; --s3: #c77fd8; --s4: #d8b24c;
   --s5: #5bb9d8; --s6: #e46f8f; --s7: #9aa5bd; --s8: #84c46f; --s9: #c09673;
   /* Google sign-in button (Google branding: dark variant) */
@@ -42,6 +50,14 @@
   --font-display: 'Schibsted Grotesk Variable', 'Segoe UI', system-ui, sans-serif;
   --font-body: 'Atkinson Hyperlegible Next Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  /* motion presets – use these instead of ad-hoc timings (see src/lib/motion.ts) */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+  --dur-1: 120ms;
+  --dur-2: 180ms;
+  --dur-3: 260ms;
+  --dur-4: 420ms;
 }
 
 @media (prefers-color-scheme: light) {
@@ -55,6 +71,10 @@
     --shadow: 0 1px 2px rgb(20 24 32 / 0.06), 0 8px 24px rgb(20 24 32 / 0.08);
     --s0: #3550d8; --s1: #c4632f; --s2: #18834f; --s3: #9a4fb0; --s4: #a07a10; --s5: #1f86a8; --s6: #c23d62; --s7: #5d6880; --s8: #4a8a33; --s9: #8c6440;
     --gbtn-bg: #ffffff; --gbtn-fg: #1f1f1f; --gbtn-border: #747775; --gbtn-hover: #f2f2f2;
+    --shadow-sm: 0 1px 2px rgb(20 24 32 / 0.06); --shadow-md: 0 1px 2px rgb(20 24 32 / 0.05), 0 8px 20px -6px rgb(20 24 32 / 0.12);
+    --shadow-lg: 0 2px 6px rgb(20 24 32 / 0.06), 0 24px 48px -12px rgb(20 24 32 / 0.22);
+    --surface-sheen: linear-gradient(180deg, rgb(255 255 255 / 0.6), rgb(255 255 255 / 0) 70%);
+    --glow: rgb(44 72 214 / 0.07); --glow-2: rgb(154 79 176 / 0.04); --glass: rgb(255 255 255 / 0.78);
   }
 }
 
@@ -68,6 +88,10 @@
   --shadow: 0 1px 2px rgb(20 24 32 / 0.06), 0 8px 24px rgb(20 24 32 / 0.08);
   --s0: #3550d8; --s1: #c4632f; --s2: #18834f; --s3: #9a4fb0; --s4: #a07a10; --s5: #1f86a8; --s6: #c23d62; --s7: #5d6880; --s8: #4a8a33; --s9: #8c6440;
   --gbtn-bg: #ffffff; --gbtn-fg: #1f1f1f; --gbtn-border: #747775; --gbtn-hover: #f2f2f2;
+  --shadow-sm: 0 1px 2px rgb(20 24 32 / 0.06); --shadow-md: 0 1px 2px rgb(20 24 32 / 0.05), 0 8px 20px -6px rgb(20 24 32 / 0.12);
+  --shadow-lg: 0 2px 6px rgb(20 24 32 / 0.06), 0 24px 48px -12px rgb(20 24 32 / 0.22);
+  --surface-sheen: linear-gradient(180deg, rgb(255 255 255 / 0.6), rgb(255 255 255 / 0) 70%);
+  --glow: rgb(44 72 214 / 0.07); --glow-2: rgb(154 79 176 / 0.04); --glass: rgb(255 255 255 / 0.78);
 }
 
 :root[data-theme='dark'] {
@@ -107,8 +131,10 @@
   --text-xl: 1.5rem;
   --text-2xl: 1.875rem;
   --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --radius-md: 9px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 22px;
 }
 
 html,
@@ -119,7 +145,11 @@ body,
 
 body {
   margin: 0;
-  background: var(--bg);
+  /* quiet colour glow behind the app – static, so it costs nothing while scrolling */
+  background:
+    radial-gradient(1100px 520px at 12% -12%, var(--glow), transparent 62%),
+    radial-gradient(900px 480px at 100% -6%, var(--glow-2), transparent 58%),
+    var(--bg);
   color: var(--fg);
   font-family: var(--font-body);
   font-size: var(--text-base);
@@ -228,39 +258,152 @@ h1, h2, h3, h4 {
 .md .katex-display { overflow-x: auto; overflow-y: hidden; padding: 0.2em 0; }
 .katex { font-size: 1.06em; }
 
-/* Gentle entrance for routed pages – visible at rest, no opacity traps */
-@keyframes rise {
-  from { transform: translateY(4px); }
-  to { transform: none; }
+/* ───────────────────────── Motion system ─────────────────────────
+ * Only transform/opacity are animated (compositor-friendly). Durations/easings come from the tokens above;
+ * JS animations use the same values via src/lib/motion.ts. Everything collapses under prefers-reduced-motion.
+ */
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop-in { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes menu-in { from { opacity: 0; transform: translateY(-4px) scale(0.97); } to { opacity: 1; transform: none; } }
+@keyframes sheet-up { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes toast-in { from { opacity: 0; transform: translateY(14px) scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes toast-out { to { opacity: 0; transform: translateX(28px) scale(0.96); } }
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
+@keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.16); } 100% { transform: scale(1); } }
+@keyframes tip-in { from { opacity: 0; transform: translate(-50%, -3px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes drawer { from { transform: translateX(16px); opacity: 0.4; } to { transform: none; opacity: 1; } }
+@keyframes grow-y { from { transform: scaleY(0); } }
+@keyframes grow-x { from { transform: scaleX(0); } }
+@keyframes cell-in { from { opacity: 0; transform: scale(0.6); } }
+@keyframes shake { 0%, 100% { transform: none; } 25% { transform: translateX(-4px); } 50% { transform: translateX(3px); } 75% { transform: translateX(-2px); } }
+
+/* Routed pages fade in; their top-level sections follow one after another (max. ~0.3 s in total).
+ * fill-mode "backwards" on purpose: nothing stays applied after the animation, so no lasting stacking
+ * contexts (dropdowns of one section would otherwise end up below the next section). */
+.page-enter { animation: fade-in var(--dur-2) var(--ease-out) backwards; }
+.page-enter > :first-child > *,
+.stagger > * { animation: rise 320ms var(--ease-out) backwards; }
+.page-enter > :first-child > :nth-child(2), .stagger > :nth-child(2) { animation-delay: 30ms; }
+.page-enter > :first-child > :nth-child(3), .stagger > :nth-child(3) { animation-delay: 60ms; }
+.page-enter > :first-child > :nth-child(4), .stagger > :nth-child(4) { animation-delay: 90ms; }
+.page-enter > :first-child > :nth-child(5), .stagger > :nth-child(5) { animation-delay: 120ms; }
+.page-enter > :first-child > :nth-child(6), .stagger > :nth-child(6) { animation-delay: 150ms; }
+.page-enter > :first-child > :nth-child(7), .stagger > :nth-child(7) { animation-delay: 175ms; }
+.page-enter > :first-child > :nth-child(n + 8), .stagger > :nth-child(n + 8) { animation-delay: 200ms; }
+.drawer-in { animation: drawer var(--dur-2) var(--ease-out); }
+.pop-in { animation: pop-in var(--dur-2) var(--ease-out) backwards; }
+.menu-in { animation: menu-in var(--dur-2) var(--ease-out) both; transform-origin: top right; }
+.menu-in.origin-left { transform-origin: top left; }
+.bump { animation: bump 380ms var(--ease-spring); }
+.grow-y { animation: grow-y var(--dur-4) var(--ease-out) backwards; transform-origin: bottom; }
+.cell-in { animation: cell-in var(--dur-3) var(--ease-out) backwards; }
+.shake { animation: shake 320ms var(--ease-out); }
+
+/* Hover lift for clickable cards/rows; press feedback for anything tappable */
+.lift { transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out), border-color var(--dur-2) ease, background-color var(--dur-2) ease; }
+@media (hover: hover) {
+  .lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--border-strong); }
 }
-.page-enter { animation: rise 180ms ease-out; }
-@keyframes drawer {
-  from { transform: translateX(12px); opacity: 0.6; }
-  to { transform: none; opacity: 1; }
+.lift:active { transform: scale(0.99); transition-duration: var(--dur-1); }
+.press { transition: transform var(--dur-1) var(--ease-out); }
+.press:active { transform: scale(0.96); }
+
+/* Layered surfaces */
+.surface-raised { background-image: var(--surface-sheen); box-shadow: var(--shadow-sm); }
+.glass { background: var(--glass); -webkit-backdrop-filter: saturate(1.5) blur(14px); backdrop-filter: saturate(1.5) blur(14px); }
+.text-gradient {
+  background: linear-gradient(100deg, var(--fg) 30%, color-mix(in oklab, var(--accent) 80%, var(--fg)));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
 }
-.drawer-in { animation: drawer 160ms ease-out; }
+
+/* Skeletons (only while loading) */
+.skeleton {
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, var(--surface-2) 0%, var(--surface-3) 20%, var(--surface-2) 40%, var(--surface-2) 100%);
+  background-size: 300% 100%;
+  animation: shimmer 1.3s linear infinite;
+}
+
+/* Tooltips for icon buttons (pointer devices only; shown on hover or keyboard focus) */
+@media (hover: hover) {
+  [data-tip] { position: relative; }
+  [data-tip]::after {
+    content: attr(data-tip); display: none; position: absolute; left: 50%; top: calc(100% + 6px); z-index: 60;
+    white-space: nowrap; pointer-events: none; padding: 3px 8px; border-radius: 6px;
+    background: var(--fg); color: var(--bg); font: 500 0.72rem/1.4 var(--font-body); box-shadow: var(--shadow-md);
+  }
+  [data-tip]:hover::after, [data-tip]:focus-visible::after { display: block; animation: tip-in var(--dur-2) var(--ease-out) 380ms both; }
+}
+
+/* Native dialogs: fade/scale in and out (CSS-only exit via allow-discrete); bottom sheet on phones */
+dialog {
+  color: var(--fg);
+  opacity: 0;
+  transform: translateY(10px) scale(0.97);
+  transition: opacity var(--dur-2) var(--ease-out), transform var(--dur-3) var(--ease-out), overlay var(--dur-2) allow-discrete, display var(--dur-2) allow-discrete;
+}
+dialog[open] { opacity: 1; transform: none; }
+@starting-style { dialog[open] { opacity: 0; transform: translateY(10px) scale(0.97); } }
+dialog::backdrop {
+  background: var(--overlay);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity var(--dur-2) ease, overlay var(--dur-2) allow-discrete, display var(--dur-2) allow-discrete;
+}
+dialog[open]::backdrop { opacity: 1; }
+@starting-style { dialog[open]::backdrop { opacity: 0; } }
+@media (max-width: 639px) {
+  dialog.sheet {
+    margin: auto 0 0 0; width: 100%; max-width: 100%;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0; border-bottom-width: 0;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    opacity: 1; transform: translateY(100%);
+    transition: transform var(--dur-3) var(--ease-out), overlay var(--dur-3) allow-discrete, display var(--dur-3) allow-discrete;
+  }
+  dialog.sheet[open] { transform: none; }
+  @starting-style { dialog.sheet[open] { transform: translateY(100%); } }
+  dialog.sheet::before { content: ''; display: block; width: 36px; height: 4px; margin: 8px auto 0; border-radius: 4px; background: var(--border-strong); }
+}
+
+/* Expandable sections animate their height (where the browser supports it; otherwise they just open) */
+:root { interpolate-size: allow-keywords; }
+details::details-content {
+  block-size: 0; overflow: clip;
+  transition: block-size var(--dur-3) var(--ease-out), content-visibility var(--dur-3) allow-discrete;
+}
+details[open]::details-content { block-size: auto; }
+summary { list-style: none; display: flex; align-items: center; gap: 0.5rem; }
+summary::-webkit-details-marker { display: none; }
+summary::after {
+  content: ''; flex-shrink: 0; margin-left: auto; width: 0.45rem; height: 0.45rem;
+  border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; opacity: 0.55;
+  transform: translateY(-2px) rotate(45deg); transition: transform var(--dur-3) var(--ease-out);
+}
+details[open] > summary::after { transform: translateY(1px) rotate(-135deg); }
+
+/* Confetti pieces (see src/lib/motion.ts – created on success, removed after their animation) */
+.confetti-piece { position: fixed; z-index: 80; pointer-events: none; width: 7px; height: 11px; border-radius: 2px; will-change: transform, opacity; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
 /* Flashcard flip */
 .flip { perspective: 1400px; }
-.flip-inner { transition: transform 360ms cubic-bezier(0.2, 0.7, 0.2, 1); transform-style: preserve-3d; position: relative; }
+.flip-inner { transition: transform 420ms var(--ease-out); transform-style: preserve-3d; position: relative; }
 .flip-inner.flipped { transform: rotateY(180deg); }
 .flip-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .flip-back { transform: rotateY(180deg); position: absolute; inset: 0; }
 
-dialog::backdrop {
-  background: var(--overlay);
-  backdrop-filter: blur(2px);
-}
-dialog {
-  color: var(--fg);
-}
 
 @media (max-width: 1023px) {
   :root {
@@ -289,3 +432,52 @@ dialog {
 .tt-in-left { animation: tt-in-left 200ms ease-out; }
 .tt-in-right { animation: tt-in-right 200ms ease-out; }
 .tt-free { background: repeating-linear-gradient(135deg, transparent 0 8px, color-mix(in oklab, var(--border) 45%, transparent) 8px 9px); }
+
+/* Animated checkboxes and radio buttons (still native inputs – keyboard, labels and forms keep working) */
+@layer base {
+  input[type='checkbox'],
+  input[type='radio'] {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-grid;
+    place-content: center;
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    margin: 0;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 5px;
+    background: var(--surface);
+    cursor: pointer;
+    transition: background-color var(--dur-1) ease, border-color var(--dur-1) ease, box-shadow var(--dur-1) ease, transform var(--dur-1) ease;
+  }
+  input[type='radio'] { border-radius: 999px; }
+  input[type='checkbox']::before {
+    content: '';
+    width: 0.62rem;
+    height: 0.62rem;
+    background: var(--accent-fg);
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    transform: scale(0);
+    transition: transform var(--dur-2) var(--ease-spring);
+  }
+  input[type='radio']::before {
+    content: '';
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 999px;
+    background: var(--accent-fg);
+    transform: scale(0);
+    transition: transform var(--dur-2) var(--ease-spring);
+  }
+  input[type='checkbox']:checked,
+  input[type='radio']:checked { background: var(--accent-solid); border-color: var(--accent-solid); }
+  input[type='checkbox']:checked::before,
+  input[type='radio']:checked::before { transform: scale(1); }
+  input[type='checkbox']:hover:not(:checked):not(:disabled),
+  input[type='radio']:hover:not(:checked):not(:disabled) { border-color: var(--accent); }
+  input[type='checkbox']:active:not(:disabled),
+  input[type='radio']:active:not(:disabled) { transform: scale(0.9); }
+  input[type='checkbox']:disabled,
+  input[type='radio']:disabled { opacity: 0.5; cursor: not-allowed; }
+}

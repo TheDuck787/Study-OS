@@ -5,6 +5,7 @@ import {
   ArrowRightLeft, Bell, BookOpen, CalendarClock, CalendarPlus, Check, Copy, ExternalLink, FileText, GraduationCap, Layers, ListTodo, MapPin, Pencil, Play, Repeat, Trash2, User, X,
 } from 'lucide-react'
 import { db } from '@/db/index'
+import { success } from '@/lib/motion'
 import type { DayKey } from '@/db/types'
 import { deleteEvent, deletePlanSession, deleteTask, duplicateItem, moveItem, scheduleTask, setItemDone, toggleChecklist, toggleSubtask } from '@/db/calendar'
 import { deleteExam, ValidationError } from '@/db/repo'
@@ -123,7 +124,7 @@ export function DetailPanel({ item, ctx, today, onClose, onEdit, onDeleted }: { 
         <div>
           <div className="mb-1 flex items-center justify-between text-xs text-fg-muted"><span>{item.source === 'task' ? 'Teilaufgaben' : 'Checkliste'}</span><span className="tabular">{checklist.filter((c) => c.done).length}/{checklist.length}</span></div>
           <ProgressBar value={checklist.filter((c) => c.done).length / checklist.length} label="Fortschritt der Checkliste" className="mb-2" />
-          <ul className="flex flex-col gap-0.5">
+          <ul className="stagger flex flex-col gap-0.5">
             {checklist.map((c) => (
               <li key={c.id}>
                 <button type="button" onClick={() => (item.source === 'task' ? toggleSubtask(item.refId, c.id) : toggleChecklist(item.refId, c.id))} className="flex w-full cursor-pointer items-center gap-2 rounded-md px-1.5 py-1 text-left text-sm hover:bg-surface-2">
@@ -150,7 +151,7 @@ export function DetailPanel({ item, ctx, today, onClose, onEdit, onDeleted }: { 
         <div className="rounded-lg border border-border p-3 text-sm">
           <div className="mb-1 font-medium">Eingeplante Arbeitszeit</div>
           {full.sessions.length === 0 ? <p className="text-fg-muted">Noch keine. Plane Zeit ein oder lass den Planer verteilen.</p> : (
-            <ul className="flex flex-col gap-0.5 text-fg-muted">
+            <ul className="stagger flex flex-col gap-0.5 text-fg-muted">
               {full.sessions.sort((a, b) => a.date.localeCompare(b.date)).map((s) => <li key={s.id} className={cn(s.status === 'done' && 'line-through')}>{parseDay(s.date).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' })} {formatTimeRange(s.start, s.end)}{s.source === 'planner' && !s.pinned ? ' · Planer' : ''}</li>)}
             </ul>
           )}
@@ -181,7 +182,7 @@ export function DetailPanel({ item, ctx, today, onClose, onEdit, onDeleted }: { 
 
       <div className="flex flex-wrap gap-2 border-t border-border pt-3">
         {sessionLink && !item.done && <ButtonLink to={sessionLink} variant="primary" size="sm" icon={Play}>Jetzt lernen</ButtonLink>}
-        {canDone && <Button size="sm" variant={item.done || sessionLink ? 'secondary' : 'primary'} icon={Check} onClick={() => run(() => setItemDone(item, !item.done))}>{item.done ? 'Wieder offen' : 'Erledigt'}</Button>}
+        {canDone && <Button size="sm" variant={item.done || sessionLink ? 'secondary' : 'primary'} icon={Check} onClick={(e) => { if (!item.done) success(e.currentTarget); void run(() => setItemDone(item, !item.done)) }}>{item.done ? 'Wieder offen' : 'Erledigt'}</Button>}
         <Button size="sm" icon={Pencil} onClick={onEdit}>Bearbeiten</Button>
         <Button size="sm" icon={ArrowRightLeft} onClick={() => setMoveOpen((o) => !o)}>Verschieben</Button>
         <Button size="sm" icon={Copy} onClick={() => run(() => duplicateItem(item), item.source === 'event' || item.source === 'task' ? 'Dupliziert' : 'Als eigener Lernblock kopiert')}>Duplizieren</Button>

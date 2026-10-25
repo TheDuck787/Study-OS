@@ -40,12 +40,12 @@ export function AnswerInput({ q, value, onChange, onSubmit, locked, correctness 
               disabled={locked}
               onClick={() => onChange(v)}
               className={cn(
-                'flex w-full items-center gap-3 rounded-lg border px-3.5 py-3 text-left transition-colors cursor-pointer disabled:cursor-default',
-                showCorrect ? 'border-success/60 bg-success-soft' : showWrong ? 'border-warn/60 bg-warn-soft' : selected ? 'border-accent bg-accent-soft' : 'border-border bg-surface hover:border-border-strong',
+                'flex w-full items-center gap-3 rounded-lg border px-3.5 py-3 text-left transition-[background-color,border-color,box-shadow,transform] duration-[var(--dur-2)] ease-[var(--ease-out)] cursor-pointer active:scale-[0.99] disabled:cursor-default disabled:active:scale-100',
+                showCorrect ? 'border-success/60 bg-success-soft pop-in' : showWrong ? 'border-warn/60 bg-warn-soft shake' : selected ? 'border-accent bg-accent-soft shadow-[0_0_0_3px_var(--accent-soft)]' : 'border-border bg-surface hover:border-border-strong hover:bg-surface-2',
               )}
             >
-              <span className={cn('flex size-6 shrink-0 items-center justify-center rounded-md border text-xs font-semibold tabular', selected ? 'border-accent text-accent' : 'border-border-strong text-fg-muted')}>
-                {showCorrect ? <Check className="size-3.5 text-success" /> : showWrong ? <X className="size-3.5 text-warn" /> : i + 1}
+              <span className={cn('flex size-6 shrink-0 items-center justify-center rounded-md border text-xs font-semibold tabular transition-[background-color,color,border-color,transform] duration-[var(--dur-2)] ease-[var(--ease-spring)]', selected && !locked ? 'scale-110 border-transparent bg-accent-solid text-accent-fg' : selected ? 'border-accent text-accent' : 'border-border-strong text-fg-muted')}>
+                {showCorrect ? <Check className="pop-in size-3.5 text-success" /> : showWrong ? <X className="pop-in size-3.5 text-warn" /> : i + 1}
               </span>
               <span className="min-w-0 flex-1">
                 <Markdown inline>{opt}</Markdown>

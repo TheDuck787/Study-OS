@@ -11,6 +11,7 @@ import { formatDateTime } from '@/lib/dates'
 import { expectedAnswerText } from '@/lib/answerCheck'
 import { Badge, Button, ButtonLink, Card, cn, Notice, Ring, SectionHeader, Segmented, useToast } from '@/components/ui'
 import { Markdown } from '@/components/Markdown'
+import { AnimatedNumber, Celebrate } from '@/components/motion'
 import { TYPE_LABELS } from './QuestionView'
 
 function givenText(a: Answer | undefined, q: QuizAttempt['questionSnapshots'][number]) {
@@ -70,7 +71,10 @@ export function QuizResult({ attempt, answers }: { attempt: QuizAttempt; answers
         <h1 className="text-xl font-semibold sm:text-2xl">{attempt.title}</h1>
       </div>
 
+      {/* only right after finishing (not when looking at an old result), and only for a solid result */}
+      <Celebrate when={attempt.percent >= 60 && !!attempt.finishedAt && Date.now() - Date.parse(attempt.finishedAt) < 120_000} anchor="#quiz-ring" />
       <Card className="flex flex-col gap-5 p-5 sm:flex-row sm:items-center">
+        <span id="quiz-ring" className="contents" />
         <Ring value={attempt.percent / 100} size={88} stroke={7} label="Ergebnis" tone={attempt.percent >= 75 ? 'success' : attempt.percent >= 45 ? 'accent' : 'warn'}>
           <span className="text-lg">{Math.round(attempt.percent)} %</span>
         </Ring>
@@ -89,7 +93,7 @@ export function QuizResult({ attempt, answers }: { attempt: QuizAttempt; answers
           </div>
           <div>
             <div className="text-xs text-fg-subtle">Lern-XP</div>
-            <div className="text-xl font-semibold font-display">+{xpTotal}</div>
+            <div className="text-xl font-semibold font-display text-accent tabular">+<AnimatedNumber value={xpTotal} duration={900} /></div>
           </div>
         </div>
       </Card>
@@ -179,7 +183,7 @@ export function QuizResult({ attempt, answers }: { attempt: QuizAttempt; answers
           title="Alle Fragen mit Erklärung"
           action={<Segmented size="sm" label="Filter" value={filter} onChange={setFilter} options={[{ value: 'all', label: 'Alle' }, { value: 'wrong', label: `Nur Fehler (${wrongQs.length})` }]} />}
         />
-        <ol className="flex flex-col gap-3">
+        <ol className="stagger flex flex-col gap-3">
           {attempt.questionSnapshots.map((q, i) => {
             const a = latest.get(q.id)
             if (filter === 'wrong' && a?.correct) return null

@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { Check, CheckSquare, MapPin, Pin, Repeat, Sparkles } from 'lucide-react'
+import { success } from '@/lib/motion'
 import { cn } from '@/components/ui'
 import type { CalItem } from '@/lib/calendar/items'
 import { KIND_META } from '@/lib/calendar/meta'
@@ -42,11 +43,12 @@ export function DoneBox({ item, onToggle, className }: { item: CalItem; onToggle
       aria-label={item.done ? `„${item.title}“ als offen markieren` : `„${item.title}“ als erledigt markieren`}
       onClick={(e) => {
         e.stopPropagation()
+        if (!item.done) success(e.currentTarget)
         onToggle(!item.done)
       }}
       className={cn('flex size-4 shrink-0 cursor-pointer items-center justify-center rounded-[4px] border transition-colors', item.done ? 'border-transparent bg-[var(--c)] text-[var(--bg)]' : 'border-[color-mix(in_oklab,var(--c)_70%,var(--fg-subtle))] hover:bg-[color-mix(in_oklab,var(--c)_25%,transparent)]', className)}
     >
-      {item.done && <Check className="size-3" strokeWidth={3} />}
+      {item.done && <Check className="pop-in size-3" strokeWidth={3} />}
     </button>
   )
 }

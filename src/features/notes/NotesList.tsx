@@ -29,10 +29,10 @@ export function NotesList({ subjectId, topicId, notes: given }: { subjectId?: st
       {loaded.length === 0 ? (
         <EmptyState compact icon={NotebookPen} title="Keine Notizen" description="Schreibe Merkzettel, Regeln oder Zusammenfassungen. Formeln gehen mit $…$." />
       ) : (
-        <ul className="grid gap-2 sm:grid-cols-2">
+        <ul className="stagger grid gap-2 sm:grid-cols-2">
           {loaded.map((n) => (
             <li key={n.id}>
-              <Link to={`/bibliothek/notiz/${n.id}`} className="group flex h-full flex-col rounded-lg border border-border bg-surface p-3.5 hover:border-border-strong">
+              <Link to={`/bibliothek/notiz/${n.id}`} className="lift surface-raised group flex h-full flex-col rounded-lg border border-border bg-surface p-3.5 hover:border-border-strong">
                 <span className="font-medium group-hover:text-accent">{n.title}</span>
                 <span className="mt-1 line-clamp-2 text-sm text-fg-muted">{noteExcerpt(n)}</span>
                 <span className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-fg-subtle">

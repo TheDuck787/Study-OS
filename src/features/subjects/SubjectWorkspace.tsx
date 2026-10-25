@@ -103,7 +103,7 @@ export default function SubjectWorkspace() {
               ) : (
                 <div className="flex flex-col gap-2">
                   {recs.slice(0, 4).map((r) => (
-                    <Link key={r.topicId} to={`/quiz/neu?topic=${r.topicId}&preset=${r.action}`} className="group flex items-center gap-3 rounded-lg border border-border bg-surface px-4 py-3 hover:border-border-strong">
+                    <Link key={r.topicId} to={`/quiz/neu?topic=${r.topicId}&preset=${r.action}`} className="lift surface-raised group flex items-center gap-3 rounded-lg border border-border bg-surface px-4 py-3 hover:border-border-strong">
                       <div className="min-w-0 flex-1">
                         <div className="font-medium group-hover:text-accent">{topics.find((t) => t.id === r.topicId)?.name}: {r.actionLabel}</div>
                         <div className="truncate text-sm text-fg-muted">{r.reasons.join(' · ')}</div>

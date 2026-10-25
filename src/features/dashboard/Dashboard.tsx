@@ -1,8 +1,8 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
 import {
-  ArrowRight, BookOpen, CalendarClock, CalendarPlus, ClipboardCheck, Flame, Layers, ListChecks, RotateCcw, Sparkles, Target, Timer, TrendingUp,
+  ArrowRight, BookOpen, Check, CalendarClock, CalendarPlus, ClipboardCheck, Flame, Layers, ListChecks, RotateCcw, Sparkles, Target, Timer, TrendingUp,
 } from 'lucide-react'
 import { db } from '@/db/index'
 import { useDueCards, useExams, useOpenMistakes, useProfile, useSubjects, useTopicStats, useTopics } from '@/hooks/data'
@@ -13,6 +13,7 @@ import { averageMastery, LEVEL_LABELS, type TopicStats } from '@/lib/mastery'
 import { Badge, ButtonLink, Card, cn, EmptyState, LoadingBlock, ProgressBar, Ring, SectionHeader, StatTile, SubjectDot } from '@/components/ui'
 import { Markdown } from '@/components/Markdown'
 import { DayStrip } from '@/features/calendar/DayStrip'
+import { AnimatedNumber, Celebrate } from '@/components/motion'
 import { TodaySchool } from '@/features/timetable/TodaySchool'
 
 function greeting() {
@@ -73,10 +74,11 @@ export function Dashboard() {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="eyebrow mb-1.5">{formatDayLong(today)}</div>
-          <h1 className="text-2xl font-semibold">
+          <h1 className="text-gradient text-2xl font-semibold sm:text-[2rem]">
             {greeting()}
             {profile?.name ? `, ${profile.name.replace(/\s*\(Demo\)$/, '')}` : ''}
           </h1>
+          <TodayPulse minutes={summary.todayMinutes} goal={profile?.dailyGoalMinutes ?? 20} streak={summary.streak} xpToday={summary.xpToday} today={today} />
         </div>
         {/* Quiz shortcuts only make sense once there are questions to ask. */}
         {questionCount > 0 && <div className="flex flex-wrap gap-2">
@@ -110,17 +112,17 @@ export function Dashboard() {
             <StartHere hasSubjects={subjects.length > 0} hasTopics={(topics?.length ?? 0) > 0} hasQuestions={questionCount > 0} />
           )
         ) : (
-          <ol className="flex flex-col gap-2">
+          <ol className="stagger flex flex-col gap-2">
             {tasks.map((t, i) => (
               <li key={t.key}>
-                <Link to={t.href} className="group flex items-center gap-4 rounded-lg border border-border bg-surface px-4 py-3 transition-colors hover:border-border-strong">
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border-strong text-xs font-semibold text-fg-muted tabular">{i + 1}</span>
+                <Link to={t.href} className="lift surface-raised group flex items-center gap-4 rounded-lg border border-border bg-surface px-4 py-3 transition-colors hover:border-border-strong">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border-strong text-xs font-semibold text-fg-muted tabular transition-[background-color,color,border-color,transform] duration-[var(--dur-2)] group-hover:scale-110 group-hover:border-transparent group-hover:bg-accent-solid group-hover:text-accent-fg">{i + 1}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block font-medium group-hover:text-accent">{t.title}</span>
                     <span className="block truncate text-sm text-fg-muted">{t.detail}</span>
                   </span>
                   <span className="hidden shrink-0 text-sm text-fg-subtle tabular sm:block">≈ {t.minutes} Min.</span>
-                  <ArrowRight className="size-4 shrink-0 text-fg-subtle group-hover:text-accent" aria-hidden />
+                  <ArrowRight className="size-4 shrink-0 text-fg-subtle transition-transform duration-[var(--dur-2)] group-hover:translate-x-0.5 group-hover:text-accent" aria-hidden />
                 </Link>
               </li>
             ))}
@@ -153,7 +155,7 @@ export function Dashboard() {
                   const subject = subjects.find((s) => s.id === e.subjectId)
                   const d = diffDays(today, e.date)
                   return (
-                    <Link key={e.id} to={`/pruefungen/${e.id}`} className="group rounded-lg border border-border bg-surface px-4 py-3 hover:border-border-strong">
+                    <Link key={e.id} to={`/pruefungen/${e.id}`} className="lift surface-raised group rounded-lg border border-border bg-surface px-4 py-3 hover:border-border-strong">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 text-xs text-fg-subtle">
@@ -221,7 +223,7 @@ function StartHere({ hasSubjects, hasTopics, hasQuestions }: { hasSubjects: bool
   return (
     <div className="grid gap-3 sm:grid-cols-3">
       {steps.map((s, i) => (
-        <Link key={s.title} to={s.to} className="group flex flex-col gap-2 rounded-lg border border-border bg-surface p-4 hover:border-border-strong">
+        <Link key={s.title} to={s.to} className="lift surface-raised group flex flex-col gap-2 rounded-lg border border-border bg-surface p-4 hover:border-border-strong">
           <div className="flex items-center gap-2 text-xs text-fg-subtle">
             <span className="tabular">Schritt {i + 1}</span>
           </div>
@@ -254,7 +256,7 @@ function SubjectsAttention({ subjects, topics, stats }: { subjects: { id: string
       ) : (
         <div className="grid gap-2 sm:grid-cols-2">
           {rows.slice(0, 4).map((r) => (
-            <Link key={r.s.id} to={`/faecher/${r.s.id}`} className="group flex items-center gap-3 rounded-lg border border-border bg-surface p-3 hover:border-border-strong">
+            <Link key={r.s.id} to={`/faecher/${r.s.id}`} className="lift surface-raised group flex items-center gap-3 rounded-lg border border-border bg-surface p-3 hover:border-border-strong">
               <Ring value={r.avg} size={46} stroke={4} label={`Stand ${r.s.name}`} tone={r.struggling ? 'warn' : 'accent'} />
               <div className="min-w-0">
                 <div className="flex items-center gap-2 font-medium group-hover:text-accent">
@@ -323,5 +325,50 @@ function RecentMistakes({ ids }: { ids: string[] }) {
         </Link>
       ))}
     </Card>
+  )
+}
+
+/**
+ * Today at a glance, from real data only: minutes learned vs. the daily goal (ring), streak and XP today.
+ * Reaching the goal is celebrated once per day.
+ */
+function TodayPulse({ minutes, goal, streak, xpToday, today }: { minutes: number; goal: number; streak: number; xpToday: number; today: string }) {
+  const reached = minutes >= goal && goal > 0
+  const [celebrated] = useState(() => {
+    try {
+      return localStorage.getItem('studyos.goalCelebrated') === today
+    } catch {
+      return true
+    }
+  })
+  useEffect(() => {
+    if (!reached || celebrated) return
+    try {
+      localStorage.setItem('studyos.goalCelebrated', today)
+    } catch {
+      /* storage blocked */
+    }
+  }, [reached, celebrated, today])
+  return (
+    <div className="mt-3 inline-flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-border bg-surface/70 px-3 py-2 surface-raised" aria-label="Heute">
+      <Celebrate when={reached && !celebrated} anchor="#goal-ring" />
+      <div className="flex items-center gap-2.5">
+        <span id="goal-ring" className="inline-flex">
+          <Ring value={goal ? Math.min(1, minutes / goal) : 0} size={36} stroke={4} label="Tagesziel" tone={reached ? 'success' : 'accent'}>
+            {reached ? <Check className="pop-in size-4 text-success" aria-hidden /> : <span className="text-[0.6rem]">{Math.round(Math.min(1, minutes / Math.max(1, goal)) * 100)}</span>}
+          </Ring>
+        </span>
+        <div className="leading-tight">
+          <div className="text-sm font-semibold tabular"><AnimatedNumber value={Math.round(minutes)} /> / {goal} Min.</div>
+          <div className="text-xs text-fg-muted">{reached ? 'Tagesziel erreicht' : 'Tagesziel'}</div>
+        </div>
+      </div>
+      <span className="hidden h-7 w-px bg-border sm:block" aria-hidden />
+      <div className="flex items-center gap-2 text-sm">
+        <Flame className={cn('size-4', streak > 0 ? 'text-warn' : 'text-fg-subtle')} aria-hidden />
+        <span><span className="font-semibold tabular"><AnimatedNumber value={streak} /></span> {streak === 1 ? 'Tag' : 'Tage'} Serie</span>
+      </div>
+      {xpToday > 0 && <Badge tone="accent">+{xpToday} XP heute</Badge>}
+    </div>
   )
 }

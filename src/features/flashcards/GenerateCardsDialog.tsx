@@ -77,7 +77,7 @@ export function GenerateCardsDialog({ open, onClose, initial, subjectId, topicId
             </Field>
           )}
         </div>
-        <ul className="flex flex-col gap-2">
+        <ul className="stagger flex flex-col gap-2">
           {cards.map((c, i) => (
             <li key={i} className="grid gap-2 rounded-lg border border-border p-2.5 sm:grid-cols-[1fr_1.4fr_auto]">
               <Input value={c.front} onChange={(e) => update(i, { front: e.target.value })} aria-label={`Vorderseite Karte ${i + 1}`} placeholder="Vorderseite" className="h-9" />

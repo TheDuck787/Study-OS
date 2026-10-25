@@ -15,7 +15,7 @@ export function MistakeList({ mistakes, limit }: { mistakes: OpenMistake[]; limi
   const topics = useTopics()
   if (!questions) return <LoadingBlock />
   return (
-    <ul className="flex flex-col gap-3">
+    <ul className="stagger flex flex-col gap-3">
       {mistakes.slice(0, limit ?? 200).map((m, i) => {
         const q = questions[i]
         if (!q) return null

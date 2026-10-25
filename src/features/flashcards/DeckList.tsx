@@ -29,9 +29,9 @@ export function DeckList({ subjectId }: { subjectId?: string }) {
       {data.length === 0 ? (
         <EmptyState compact icon={Layers} title="Keine Kartenstapel" description="Lege einen Stapel an, importiere eine CSV-Datei oder erstelle Karten aus Notizen und Material." />
       ) : (
-        <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="stagger grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
           {data.map(({ deck, total, due, fresh }) => (
-            <li key={deck.id} className="flex flex-col rounded-lg border border-border bg-surface">
+            <li key={deck.id} className="lift surface-raised flex flex-col rounded-lg border border-border bg-surface">
               <Link to={`/karteikarten/${deck.id}`} className="group flex-1 p-3.5">
                 <div className="font-medium group-hover:text-accent">{deck.name}</div>
                 <div className="mt-0.5 text-sm text-fg-muted">

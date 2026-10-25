@@ -23,7 +23,7 @@ export function ExamList({ subjectId }: { subjectId?: string }) {
     const done = e.plan.filter((p) => p.done).length
     const d = diffDays(today, e.date)
     return (
-      <Link key={e.id} to={`/pruefungen/${e.id}`} className="group flex flex-col gap-2 rounded-lg border border-border bg-surface p-4 hover:border-border-strong">
+      <Link key={e.id} to={`/pruefungen/${e.id}`} className="lift surface-raised group flex flex-col gap-2 rounded-lg border border-border bg-surface p-4 hover:border-border-strong">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-xs text-fg-subtle">

@@ -71,12 +71,12 @@ export default function ProgressPage() {
       <section aria-labelledby="week">
         <SectionHeader id="week" title="Diese Woche" description={`Ein Lerntag zählt ab ${ACTIVE_DAY_XP} XP – also nach echtem Üben, nicht nach Zeit auf der Seite. Ruhetage (${profile.restDays.map((d) => WEEKDAYS_SHORT[d]).join(', ') || 'keine'}) unterbrechen die Serie nie.`} />
         <div className="flex flex-wrap gap-2">
-          {Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)).map((d) => {
+          {Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)).map((d, i) => {
             const v = xpDay.get(d) ?? 0
             const active = v >= ACTIVE_DAY_XP
             const rest = profile.restDays.includes(parseDay(d).getDay())
             return (
-              <div key={d} className={cn('flex w-16 flex-col items-center gap-1 rounded-lg border py-2', active ? 'border-success/50 bg-success-soft' : d === today ? 'border-accent/50' : 'border-border')}>
+              <div key={d} className={cn('pop-in flex w-16 flex-col items-center gap-1 rounded-lg border py-2 transition-transform duration-[var(--dur-2)] hover:-translate-y-0.5', active ? 'border-success/50 bg-success-soft' : d === today ? 'border-accent/50' : 'border-border')} style={{ animationDelay: `${i * 45}ms` }}>
                 <span className="text-xs text-fg-subtle">{WEEKDAYS_SHORT[parseDay(d).getDay()]}</span>
                 <span className="text-sm font-semibold tabular">{v > 0 ? v : rest ? 'Ruhe' : '–'}</span>
               </div>
@@ -91,18 +91,19 @@ export default function ProgressPage() {
 
       <section aria-labelledby="calendar">
         <SectionHeader id="calendar" title="Lernkalender" description="Die letzten 18 Wochen. Dunkler = mehr Lern-XP an diesem Tag." />
+        {/* columns appear left to right – one short animation per column, nothing runs afterwards */}
         <Card className="overflow-x-auto p-4">
           <div className="flex gap-1">
             <div className="mr-1 flex flex-col gap-1 pt-0 text-[10px] text-fg-subtle">
               {[1, 2, 3, 4, 5, 6, 0].map((d) => <span key={d} className="flex h-3.5 items-center">{d % 2 ? WEEKDAYS_SHORT[d] : ''}</span>)}
             </div>
             {calendar.map((col, i) => (
-              <div key={i} className="flex flex-col gap-1">
+              <div key={i} className="cell-in flex flex-col gap-1" style={{ animationDelay: `${i * 18}ms` }}>
                 {col.map((c) => {
                   const future = c.day > today
                   const level = c.xp === 0 ? 0 : c.xp < ACTIVE_DAY_XP ? 1 : c.xp < 20 ? 2 : c.xp < 45 ? 3 : 4
                   const bg = ['var(--surface-3)', 'color-mix(in srgb, var(--accent-solid) 30%, var(--surface-3))', 'color-mix(in srgb, var(--accent-solid) 55%, var(--surface-3))', 'color-mix(in srgb, var(--accent-solid) 78%, var(--surface-3))', 'var(--accent-solid)'][level]
-                  return <span key={c.day} title={`${formatDayShort(c.day)}: ${c.xp} XP, ${Math.round(c.min)} Min.`} className={cn('size-3.5 rounded-[3px]', future && 'opacity-0')} style={{ background: bg }} />
+                  return <span key={c.day} title={`${formatDayShort(c.day)}: ${c.xp} XP, ${Math.round(c.min)} Min.`} className={cn('size-3.5 rounded-[3px] transition-transform hover:scale-125', future && 'opacity-0')} style={{ background: bg }} />
                 })}
               </div>
             ))}
@@ -123,7 +124,7 @@ export default function ProgressPage() {
               {minutesBySubject.map((s) => (
                 <div key={s.id} className="flex items-center gap-3 text-sm">
                   <span className="flex w-36 shrink-0 items-center gap-2 truncate"><SubjectDot color={s.color} />{s.name}</span>
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-3"><div className="h-full rounded-full" style={{ width: `${(s.min / maxMin) * 100}%`, background: `var(--s${s.color % 10})` }} /></div>
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-surface-3"><div className="h-full origin-left rounded-full [animation:grow-x_var(--dur-4)_var(--ease-out)_backwards]" style={{ width: `${(s.min / maxMin) * 100}%`, background: `var(--s${s.color % 10})` }} /></div>
                   <span className="w-28 shrink-0 text-right text-fg-muted tabular">{formatMinutes(s.min)}</span>
                 </div>
               ))}
@@ -165,7 +166,7 @@ export default function ProgressPage() {
                   <span className="text-xs text-fg-subtle">{practiced.length}/{ts.length} geübt</span>
                 </div>
                 {practiced.length === 0 ? <p className="text-sm text-fg-muted">Noch keine Antworten in diesem Fach.</p> : (
-                  <ul className="flex flex-col gap-2">
+                  <ul className="stagger flex flex-col gap-2">
                     {practiced.map((t) => {
                       const st = stats.get(t.id)!
                       return (
@@ -190,12 +191,12 @@ export default function ProgressPage() {
 
       <section aria-labelledby="badges">
         <SectionHeader id="badges" title="Abzeichen" description={`${unlocked.length} von ${ACHIEVEMENTS.length} – für echtes Lernen, nicht fürs Herumklicken.`} />
-        <ul className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="stagger grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {ACHIEVEMENTS.map((a) => {
             const u = unlocked.find((x) => x.id === a.key)
             return (
-              <li key={a.key} className={cn('flex items-start gap-3 rounded-lg border p-3', u ? 'border-border bg-surface' : 'border-dashed border-border')}>
-                <span className={cn('flex size-9 shrink-0 items-center justify-center rounded-full', u ? 'bg-accent-soft text-accent' : 'bg-surface-2 text-fg-subtle')}>{u ? <Award className="size-4" /> : <Lock className="size-4" />}</span>
+              <li key={a.key} className={cn('flex items-start gap-3 rounded-lg border p-3', u ? 'lift surface-raised border-border bg-surface' : 'border-dashed border-border')}>
+                <span className={cn('flex size-9 shrink-0 items-center justify-center rounded-full', u ? 'bg-[linear-gradient(135deg,var(--accent-soft),color-mix(in_oklab,var(--s3)_22%,transparent))] text-accent ring-1 ring-accent/25' : 'bg-surface-2 text-fg-subtle')}>{u ? <Award className="size-4" /> : <Lock className="size-4" />}</span>
                 <span className="min-w-0">
                   <span className={cn('block text-sm font-semibold', !u && 'text-fg-muted')}>{a.title}</span>
                   <span className="block text-xs text-fg-subtle">{a.description}</span>
@@ -209,7 +210,7 @@ export default function ProgressPage() {
 
       <section aria-labelledby="xp">
         <SectionHeader id="xp" title="So gibt es XP" />
-        <ul className="grid gap-1.5 text-sm text-fg-muted sm:grid-cols-2">
+        <ul className="stagger grid gap-1.5 text-sm text-fg-muted sm:grid-cols-2">
           {XP_EXPLANATION.map((x) => <li key={x} className="flex gap-2"><CalendarDays className="mt-0.5 size-3.5 shrink-0 text-fg-subtle" />{x}</li>)}
         </ul>
       </section>

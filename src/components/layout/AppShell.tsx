@@ -39,12 +39,14 @@ function SideNav({ onNavigate }: { onNavigate?: () => void }) {
               onClick={onNavigate}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-colors',
-                  isActive ? 'bg-surface-2 text-fg font-medium' : 'text-fg-muted hover:bg-surface-2/60 hover:text-fg',
+                  'group relative flex items-center gap-2.5 rounded-md px-2.5 py-1.5 text-sm transition-[color,background-color,transform] duration-[var(--dur-2)] active:scale-[0.98]',
+                  // accent bar that grows in for the active page
+                  'before:absolute before:inset-y-1.5 before:left-0 before:w-[3px] before:rounded-full before:bg-accent before:transition-transform before:duration-[var(--dur-3)] before:ease-[var(--ease-spring)]',
+                  isActive ? 'bg-accent-soft text-fg font-medium before:scale-y-100' : 'text-fg-muted hover:bg-surface-2/70 hover:text-fg before:scale-y-0',
                 )
               }
             >
-              <n.icon className="size-4 shrink-0" aria-hidden />
+              <n.icon className="size-4 shrink-0 transition-colors group-aria-[current=page]:text-accent" aria-hidden />
               <span className="flex-1">{n.label}</span>
               {n.to === '/fehler' && mistakes && mistakes.length > 0 && <span className="rounded-full bg-warn-soft px-1.5 text-xs text-warn tabular">{mistakes.length}</span>}
             </NavLink>
@@ -129,7 +131,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <div className="flex min-w-0 flex-1 flex-col">
           {/* Mobile top bar */}
-          <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-bg/95 py-2 backdrop-blur lg:hidden" style={{ paddingLeft: 'max(12px, env(safe-area-inset-left, 0px))', paddingRight: 'max(12px, env(safe-area-inset-right, 0px))' }}>
+          <header className="glass sticky top-0 z-20 flex items-center justify-between border-b border-border py-2 lg:hidden" style={{ paddingLeft: 'max(12px, env(safe-area-inset-left, 0px))', paddingRight: 'max(12px, env(safe-area-inset-right, 0px))' }}>
             <Brand />
             <div className="flex items-center gap-1">
             <SyncIndicator variant="icon" />
@@ -151,16 +153,19 @@ export function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       {/* Mobile bottom navigation */}
-      <nav aria-label="Navigation" className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface/95 backdrop-blur lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', paddingLeft: 'env(safe-area-inset-left, 0px)', paddingRight: 'env(safe-area-inset-right, 0px)' }}>
+      <nav aria-label="Navigation" className="glass fixed inset-x-0 bottom-0 z-30 border-t border-border lg:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)', paddingLeft: 'env(safe-area-inset-left, 0px)', paddingRight: 'env(safe-area-inset-right, 0px)' }}>
         <div className="grid grid-cols-5">
           {mobileItems.map((n) => (
-            <NavLink key={n.to} to={n.to} end={n.to === '/'} className={({ isActive }) => cn('flex min-w-0 flex-col items-center gap-0.5 px-0.5 py-2 text-[0.7rem]', isActive ? 'text-accent' : 'text-fg-muted')}>
-              <n.icon className="size-5" aria-hidden />
+            <NavLink key={n.to} to={n.to} end={n.to === '/'} className={({ isActive }) => cn('group flex min-w-0 flex-col items-center gap-0.5 px-0.5 py-1.5 text-[0.7rem] transition-colors active:scale-95', isActive ? 'text-accent font-semibold' : 'text-fg-muted')}>
+              {/* icon pill: springs in behind the active destination */}
+              <span className="relative flex h-7 w-12 items-center justify-center before:absolute before:inset-0 before:rounded-full before:bg-accent-soft before:transition-[transform,opacity] before:duration-[var(--dur-3)] before:ease-[var(--ease-spring)] before:scale-x-50 before:opacity-0 group-aria-[current=page]:before:scale-x-100 group-aria-[current=page]:before:opacity-100">
+                <n.icon className="relative size-5 transition-transform duration-[var(--dur-3)] ease-[var(--ease-spring)] group-aria-[current=page]:scale-110" aria-hidden />
+              </span>
               <span className="max-w-full truncate">{n.label}</span>
             </NavLink>
           ))}
-          <button type="button" onClick={() => setMoreOpen(true)} aria-expanded={moreOpen} className="flex flex-col items-center gap-0.5 py-2 text-[0.7rem] text-fg-muted cursor-pointer">
-            <Ellipsis className="size-5" aria-hidden />
+          <button type="button" onClick={() => setMoreOpen(true)} aria-expanded={moreOpen} className="flex flex-col items-center gap-0.5 py-1.5 text-[0.7rem] text-fg-muted cursor-pointer transition-transform active:scale-95">
+            <span className="flex h-7 w-12 items-center justify-center"><Ellipsis className="size-5" aria-hidden /></span>
             Mehr
           </button>
         </div>
@@ -168,17 +173,18 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       {moreOpen && (
         <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Weitere Bereiche">
-          <button type="button" aria-label="Schließen" className="absolute inset-0 bg-[var(--overlay)] cursor-default" onClick={() => setMoreOpen(false)} />
-          <div className="absolute inset-x-0 bottom-0 rounded-t-2xl border-t border-border bg-surface px-4 pt-3" style={{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))' }}>
+          <button type="button" aria-label="Schließen" className="absolute inset-0 bg-[var(--overlay)] cursor-default" style={{ animation: 'fade-in var(--dur-2) ease both' }} onClick={() => setMoreOpen(false)} />
+          <div className="absolute inset-x-0 bottom-0 rounded-t-[var(--radius-2xl)] border-t border-border bg-surface bg-[image:var(--surface-sheen)] px-4 pt-2 shadow-[var(--shadow-lg)]" style={{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom, 0px))', animation: 'sheet-up var(--dur-3) var(--ease-out) both' }}>
+            <div className="mx-auto mb-2 h-1 w-9 rounded-full bg-border-strong" aria-hidden />
             <div className="mb-2 flex items-center justify-between">
               <span className="eyebrow">Alle Bereiche</span>
               <button type="button" onClick={() => setMoreOpen(false)} aria-label="Schließen" className="flex size-9 items-center justify-center rounded-md text-fg-muted cursor-pointer">
                 <X className="size-5" />
               </button>
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="stagger grid grid-cols-3 gap-2">
               {NAV.map((n) => (
-                <button key={n.to} type="button" onClick={() => navigate(n.to)} className="flex flex-col items-center gap-1.5 rounded-lg border border-border bg-surface-2 px-2 py-3 text-xs text-fg cursor-pointer">
+                <button key={n.to} type="button" onClick={() => navigate(n.to)} className="press flex flex-col items-center gap-1.5 rounded-lg border border-border bg-surface-2 px-2 py-3 text-xs text-fg cursor-pointer">
                   <n.icon className="size-5 text-fg-muted" aria-hidden />
                   <span className="text-center leading-tight">{n.label}</span>
                 </button>

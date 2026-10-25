@@ -79,7 +79,7 @@ function PeriodsTab({ settings }: { settings: TimetableSettings }) {
         <p className="mt-2 text-xs text-fg-subtle">Trag die Zeiten deiner Schule ein (stehen meist im Schulplaner oder auf der Schul-Website). Danach kannst du jede Stunde einzeln anpassen.</p>
       </details>
       {rows.length > 0 ? (
-        <ul className="flex flex-col gap-2" aria-label="Stunden">
+        <ul className="stagger flex flex-col gap-2" aria-label="Stunden">
           {rows.map((r, i) => (
             <li key={i} className="grid grid-cols-[3.5rem_1fr_1fr_auto] items-center gap-2">
               <Input type="number" min={0} max={20} value={r.n} onChange={(e) => update(i, { n: Number(e.target.value) })} aria-label="Nummer der Stunde" />
@@ -164,7 +164,7 @@ function TeachersTab({ settings }: { settings: TimetableSettings }) {
   return (
     <div className="flex flex-col gap-3">
       {rows.length === 0 && <p className="text-sm text-fg-muted">Lehrkräfte werden automatisch gemerkt, wenn du sie bei einer Stunde einträgst. Hier kannst du Kürzel und Namen pflegen.</p>}
-      <ul className="flex flex-col gap-2">
+      <ul className="stagger flex flex-col gap-2">
         {rows.map((r, i) => (
           <li key={r.id} className="grid grid-cols-[6rem_1fr_auto] gap-2">
             <Input value={r.short} onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, short: e.target.value } : x)))} aria-label="Kürzel" placeholder="Kürzel" maxLength={12} />
@@ -195,7 +195,7 @@ function RoomsTab({ settings }: { settings: TimetableSettings }) {
   return (
     <div className="flex flex-col gap-3">
       {rows.length === 0 && <p className="text-sm text-fg-muted">Räume werden automatisch gemerkt, wenn du sie bei einer Stunde einträgst.</p>}
-      <ul className="flex flex-col gap-2">
+      <ul className="stagger flex flex-col gap-2">
         {rows.map((r, i) => (
           <li key={r.id} className="grid grid-cols-[1fr_auto] gap-2">
             <Input value={r.name} onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))} aria-label="Raum" maxLength={40} />
