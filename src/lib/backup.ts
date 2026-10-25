@@ -1,11 +1,12 @@
 import { z } from 'zod'
 import { db, activeKind } from '@/db/index'
 
-export const BACKUP_VERSION = 1
+/** 2: calendar events, tasks and custom entry types. Version-1 backups can still be restored. */
+export const BACKUP_VERSION = 2
 
 const TABLES = [
   'profile', 'subjects', 'topics', 'notes', 'materials', 'decks', 'cards', 'cardReviews', 'questions', 'attempts', 'answers',
-  'exams', 'gradingScales', 'teacherGrades', 'sessions', 'xpEvents', 'achievements', 'tutorChats', 'meta',
+  'exams', 'gradingScales', 'teacherGrades', 'sessions', 'xpEvents', 'achievements', 'tutorChats', 'meta', 'events', 'tasks', 'eventCategories',
 ] as const
 type TableName = (typeof TABLES)[number]
 
@@ -22,6 +23,9 @@ const REQUIRED: Partial<Record<TableName, string[]>> = {
   answers: ['id', 'attemptId', 'questionId', 'topicId', 'at'],
   exams: ['id', 'subjectId', 'date', 'plan'],
   meta: ['key'],
+  events: ['id', 'title', 'category', 'date'],
+  tasks: ['id', 'title', 'kind', 'status'],
+  eventCategories: ['id', 'name'],
 }
 
 const backupSchema = z.object({

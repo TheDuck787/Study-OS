@@ -77,7 +77,8 @@ export function orderTopics(topics: PlanTopic[]): PlanTopic[] {
  */
 export function generateStudyPlan(input: PlanInput): PlanResult {
   const warnings: string[] = []
-  const kept = (input.keep ?? []).filter((s) => s.done)
+  // done sessions and sessions the student placed by hand (pinned) stay as they are
+  const kept = (input.keep ?? []).filter((s) => s.done || s.pinned)
   const daysUntil = diffDays(input.today, input.examDate)
   if (daysUntil <= 0) {
     return { sessions: kept, warnings: [daysUntil === 0 ? 'Die Prüfung ist heute. Viel Erfolg – eine kurze, ruhige Wiederholung reicht jetzt.' : 'Das Prüfungsdatum liegt in der Vergangenheit.'] }

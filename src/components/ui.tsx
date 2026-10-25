@@ -459,6 +459,8 @@ interface ToastItem {
   title: string
   description?: string
   tone: 'success' | 'danger' | 'neutral' | 'accent'
+  /** Optional action, e.g. "Rückgängig". */
+  action?: { label: string; onClick: () => void }
 }
 const ToastCtx = createContext<(t: Omit<ToastItem, 'id' | 'tone'> & { tone?: ToastItem['tone'] }) => void>(() => {})
 
@@ -467,7 +469,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const push = useCallback((t: Omit<ToastItem, 'id' | 'tone'> & { tone?: ToastItem['tone'] }) => {
     const id = Date.now() + Math.random()
     setItems((xs) => [...xs.slice(-3), { tone: 'neutral', ...t, id }])
-    setTimeout(() => setItems((xs) => xs.filter((x) => x.id !== id)), t.tone === 'danger' ? 7000 : 4000)
+    setTimeout(() => setItems((xs) => xs.filter((x) => x.id !== id)), t.tone === 'danger' || t.action ? 7000 : 4000)
   }, [])
   return (
     <ToastCtx.Provider value={push}>
@@ -481,6 +483,18 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div key={t.id} className={cn('pointer-events-auto rounded-lg border bg-surface px-4 py-3 shadow-[var(--shadow)]', t.tone === 'danger' ? 'border-danger/40' : t.tone === 'success' ? 'border-success/40' : 'border-border')}>
             <div className={cn('text-sm font-semibold', t.tone === 'danger' && 'text-danger', t.tone === 'success' && 'text-success')}>{t.title}</div>
             {t.description && <div className="mt-0.5 text-sm text-fg-muted">{t.description}</div>}
+            {t.action && (
+              <button
+                type="button"
+                className="mt-1.5 cursor-pointer text-sm font-semibold text-accent underline-offset-2 hover:underline"
+                onClick={() => {
+                  t.action!.onClick()
+                  setItems((xs) => xs.filter((x) => x.id !== t.id))
+                }}
+              >
+                {t.action.label}
+              </button>
+            )}
           </div>
         ))}
       </div>

@@ -1,7 +1,7 @@
 import Dexie, { type Table } from 'dexie'
 import type {
-  AchievementUnlock, Answer, Card, CardReview, Deck, Exam, GradingScale, Material, MaterialBlob, MetaEntry, Note,
-  Profile, Question, QuizAttempt, StudySession, Subject, TeacherGrade, Topic, TutorChat, XpEvent,
+  AchievementUnlock, Answer, CalendarEvent, Card, CardReview, Deck, EventCustomCategory, Exam, GradingScale, Material, MaterialBlob,
+  MetaEntry, Note, Profile, Question, QuizAttempt, StudySession, Subject, Task, TeacherGrade, Topic, TutorChat, XpEvent,
 } from './types'
 
 export class StudyDB extends Dexie {
@@ -25,6 +25,9 @@ export class StudyDB extends Dexie {
   achievements!: Table<AchievementUnlock, string>
   tutorChats!: Table<TutorChat, string>
   meta!: Table<MetaEntry, string>
+  events!: Table<CalendarEvent, string>
+  tasks!: Table<Task, string>
+  eventCategories!: Table<EventCustomCategory, string>
 
   constructor(name: string) {
     super(name)
@@ -50,6 +53,12 @@ export class StudyDB extends Dexie {
       tutorChats: 'id, subjectId, updatedAt',
       meta: 'key',
     })
+    // v2: calendar & planner. Only new tables – existing rows need no migration.
+    this.version(2).stores({
+      events: 'id, date, category, subjectId, taskId, examId, seriesId, source',
+      tasks: 'id, status, dueDate, subjectId, kind',
+      eventCategories: 'id',
+    })
   }
 
   /** All data tables in a stable order (used for export/import/reset). */
@@ -57,7 +66,7 @@ export class StudyDB extends Dexie {
     return [
       this.profile, this.subjects, this.topics, this.notes, this.materials, this.decks, this.cards, this.cardReviews,
       this.questions, this.attempts, this.answers, this.exams, this.gradingScales, this.teacherGrades, this.sessions,
-      this.xpEvents, this.achievements, this.tutorChats, this.meta,
+      this.xpEvents, this.achievements, this.tutorChats, this.meta, this.events, this.tasks, this.eventCategories,
     ] as unknown as Table<{ id?: string; key?: string }, string>[]
   }
 }

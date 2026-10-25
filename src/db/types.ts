@@ -41,6 +41,8 @@ export interface Subject {
   name: string
   /** Index into the subject color palette (see lib/colors.ts). */
   color: number
+  /** Key of a subject icon (see lib/calendar/icons.tsx); optional. */
+  icon?: string | null
   order: number
   createdAt: ISODate
 }
@@ -267,6 +269,10 @@ export interface PlanSession {
   done: boolean
   doneAt: ISODate | null
   attemptId: ID | null
+  /** Start time HH:MM, assigned by the planner or the student (null = no fixed time). */
+  start?: string | null
+  /** Set when the student moved/edited the session by hand – the planner never moves it again. */
+  pinned?: boolean
 }
 
 export type ExamType = 'Klassenarbeit' | 'Test' | 'Vokabeltest' | 'Präsentation' | 'Sonstiges'
@@ -288,6 +294,14 @@ export interface Exam {
   planWarnings: string[]
   planGeneratedAt: ISODate | null
   gradingScaleId: ID | null
+  /** Optional time and room (HH:MM). */
+  startTime?: string | null
+  endTime?: string | null
+  location?: string
+  /** Self-assessed confidence per topic, 1 (unsicher) … 5 (sehr sicher). Shown next to – never mixed with – measured mastery. */
+  topicConfidence?: Record<ID, number>
+  /** Student's own estimate of the total preparation time in minutes. */
+  estimatedPrepMinutes?: number | null
   createdAt: ISODate
 }
 
@@ -370,4 +384,124 @@ export interface TutorChat {
 export interface MetaEntry {
   key: string
   value: unknown
+}
+
+// ───────────────────────── Calendar & planner ─────────────────────────
+
+/** Built-in entry types. Exams live in `exams`, homework/projects in `tasks`; everything else in `events`. */
+export type EventCategory = 'lesson' | 'study' | 'flashcards' | 'appointment' | 'internship' | 'break' | 'custom'
+export type Priority = 'low' | 'medium' | 'high'
+export type EventStatus = 'planned' | 'done' | 'cancelled'
+
+export interface ChecklistItem {
+  id: ID
+  text: string
+  done: boolean
+}
+
+export interface Recurrence {
+  freq: 'daily' | 'weekly' | 'monthly'
+  /** Every n days/weeks/months (weekly + interval 2 = every other week). */
+  interval: number
+  /** weekly: weekdays 0 (So) … 6 (Sa); empty = weekday of the start date. */
+  byWeekday: number[]
+  until: DayKey | null
+  count: number | null
+  /** Occurrence dates that were deleted or replaced by a separate event. */
+  exceptions: DayKey[]
+}
+
+export interface CalendarEvent {
+  id: ID
+  title: string
+  category: EventCategory
+  /** Only for category "custom". */
+  customCategoryId: ID | null
+  subjectId: ID | null
+  /** First (or only) day. */
+  date: DayKey
+  /** Last day for multi-day all-day entries (internship, trip); null = same day. */
+  endDate: DayKey | null
+  allDay: boolean
+  /** HH:MM, null when allDay. */
+  start: string | null
+  end: string | null
+  priority: Priority
+  status: EventStatus
+  description: string
+  location: string
+  teacher: string
+  topicIds: ID[]
+  materialIds: ID[]
+  deckId: ID | null
+  /** Work session for a task (homework, project). */
+  taskId: ID | null
+  /** Study block that belongs to an exam (besides the exam's own plan). */
+  examId: ID | null
+  workloadMinutes: number | null
+  /** Minutes before start; null = no reminder. */
+  reminderMinutes: number | null
+  checklist: ChecklistItem[]
+  recurrence: Recurrence | null
+  /** Recurring entries: occurrence dates marked as done. */
+  completedDates: DayKey[]
+  /** Separate event that replaces one occurrence of a series. */
+  seriesId: ID | null
+  originalDate: DayKey | null
+  /** "planner" entries may be replaced by the planner; "manual" ones never. */
+  source: 'manual' | 'planner'
+  /** Planner entries the student moved by hand are kept on re-planning. */
+  pinned: boolean
+  /** Unavailable for studying (e.g. internship day, family event) even if all-day. */
+  blocksStudy: boolean
+  createdAt: ISODate
+  updatedAt: ISODate
+}
+
+export interface EventCustomCategory {
+  id: ID
+  name: string
+  color: number
+  createdAt: ISODate
+}
+
+export type TaskKind = 'homework' | 'project' | 'todo'
+
+export interface Task {
+  id: ID
+  title: string
+  description: string
+  kind: TaskKind
+  subjectId: ID | null
+  topicIds: ID[]
+  materialId: ID | null
+  dueDate: DayKey | null
+  dueTime: string | null
+  priority: Priority
+  estimateMinutes: number | null
+  status: 'open' | 'done'
+  doneAt: ISODate | null
+  subtasks: ChecklistItem[]
+  reminderMinutes: number | null
+  createdAt: ISODate
+  updatedAt: ISODate
+}
+
+export interface TimeWindow {
+  from: string
+  to: string
+}
+
+export interface PlannerSettings {
+  /** Study windows per weekday (index 0 = Sunday); null = no studying that day. */
+  windows: (TimeWindow | null)[]
+  /** School hours per weekday – shaded in the week view. */
+  school: (TimeWindow | null)[]
+  maxDailyMinutes: number
+  sessionMaxMinutes: number
+  breakMinutes: number
+  /** Gap kept free around lessons and appointments. */
+  bufferMinutes: number
+  horizonDays: number
+  includeFlashcards: boolean
 }

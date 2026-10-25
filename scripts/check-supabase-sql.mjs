@@ -4,6 +4,7 @@ import { PGlite } from '@electric-sql/pglite'
 import { readFileSync } from 'node:fs'
 
 const sql = readFileSync(new URL('../supabase/migrations/0001_init.sql', import.meta.url), 'utf8')
+const sql2 = readFileSync(new URL('../supabase/migrations/0002_calendar.sql', import.meta.url), 'utf8')
 const db = new PGlite()
 
 await db.exec(`
@@ -13,6 +14,7 @@ await db.exec(`
   create role authenticated nologin;
 `)
 await db.exec(sql.replace('create extension if not exists pgcrypto;', ''))
+await db.exec(sql2)
 await db.exec(`
   grant usage on schema public to authenticated;
   grant all on all tables in schema public to authenticated;
@@ -57,4 +59,17 @@ try {
 }
 if (!gradeRejected) throw new Error('Check constraint: grade 7 accepted')
 
-console.log('Supabase migration OK: schema created, RLS isolates users, constraints enforced.')
+// calendar (0002): RLS and the time constraint
+await as(A, `insert into public.calendar_events (id, user_id, title, category, date, start_time, end_time) values ('e1', '${A}', 'Mathe', 'lesson', '2026-11-02', '08:00', '08:45')`)
+if ((await as(B, 'select id from public.calendar_events')).rows.length !== 0) throw new Error('RLS: B sees A\'s events')
+let badTime = false
+try {
+  await as(A, `insert into public.calendar_events (id, user_id, title, category, date, start_time, end_time) values ('e2', '${A}', 'X', 'lesson', '2026-11-02', '09:00', '08:00')`)
+} catch {
+  badTime = true
+}
+if (!badTime) throw new Error('Check constraint: end before start accepted')
+await as(A, `insert into public.tasks (id, user_id, title, kind, due_date) values ('t1', '${A}', 'Hausaufgabe', 'homework', '2026-11-03')`)
+if ((await as(B, 'select id from public.tasks')).rows.length !== 0) throw new Error('RLS: B sees A\'s tasks')
+
+console.log('Supabase migration OK: schema (0001 + 0002 calendar) created, RLS isolates users, constraints enforced.')

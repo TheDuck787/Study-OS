@@ -110,7 +110,7 @@ export async function createSubject(name: string, color?: number): Promise<ID> {
   return id
 }
 
-export async function updateSubject(id: ID, patch: Partial<Pick<Subject, 'name' | 'color'>>) {
+export async function updateSubject(id: ID, patch: Partial<Pick<Subject, 'name' | 'color' | 'icon'>>) {
   const s = await db.subjects.get(id)
   if (!s) throw new ValidationError('Fach nicht gefunden.')
   const name = patch.name !== undefined ? requireText(patch.name, 'Der Fachname', 60) : s.name
@@ -142,7 +142,12 @@ export async function subjectDeletionImpact(id: ID) {
 
 /** Deletes a subject with everything that belongs to it. Materials are kept but unassigned. */
 export async function deleteSubject(id: ID) {
-  await db.transaction('rw', [db.subjects, db.topics, db.notes, db.materials, db.decks, db.cards, db.cardReviews, db.questions, db.exams, db.answers, db.teacherGrades, db.tutorChats], async () => {
+  await db.transaction('rw', [db.subjects, db.topics, db.notes, db.materials, db.decks, db.cards, db.cardReviews, db.questions, db.exams, db.answers, db.teacherGrades, db.tutorChats, db.events, db.tasks], async () => {
+    // calendar entries and tasks are the student's own plans – they stay, just without subject
+    await db.events.where('subjectId').equals(id).modify({ subjectId: null, topicIds: [] })
+    await db.tasks.where('subjectId').equals(id).modify({ subjectId: null, topicIds: [] })
+    const examIds = (await db.exams.where('subjectId').equals(id).primaryKeys()) as string[]
+    await db.events.where('examId').anyOf(examIds).modify({ examId: null })
     const deckIds = (await db.decks.where('subjectId').equals(id).toArray()).map((d) => d.id)
     await db.cards.where('deckId').anyOf(deckIds).delete()
     await db.cardReviews.where('deckId').anyOf(deckIds).delete()
@@ -215,7 +220,15 @@ export async function topicDeletionImpact(id: ID) {
 /** Deletes a topic and its subtopics. Questions and answers go; notes and cards are kept (unassigned). */
 export async function deleteTopic(id: ID) {
   const ids = await collectTopicTree(id)
-  await db.transaction('rw', [db.topics, db.questions, db.answers, db.notes, db.cards, db.materials, db.exams, db.decks], async () => {
+  await db.transaction('rw', [db.topics, db.questions, db.answers, db.notes, db.cards, db.materials, db.exams, db.decks, db.events, db.tasks], async () => {
+    const dropTopics = (x: { topicIds: ID[] }) => {
+      if (x.topicIds.some((tid) => ids.includes(tid))) x.topicIds = x.topicIds.filter((tid) => !ids.includes(tid))
+    }
+    await db.events.toCollection().modify(dropTopics)
+    await db.tasks.toCollection().modify(dropTopics)
+    await db.exams.toCollection().modify((e) => {
+      if (e.topicConfidence) for (const tid of ids) delete e.topicConfidence[tid]
+    })
     await db.questions.where('topicId').anyOf(ids).delete()
     await db.answers.where('topicId').anyOf(ids).delete()
     await db.notes.where('topicId').anyOf(ids).modify({ topicId: null })
@@ -269,7 +282,11 @@ export async function updateMaterial(id: ID, patch: Partial<Material>) {
 }
 
 export async function deleteMaterial(id: ID) {
-  await db.transaction('rw', [db.materials, db.materialBlobs, db.notes, db.cards, db.questions, db.exams, db.tutorChats], async () => {
+  await db.transaction('rw', [db.materials, db.materialBlobs, db.notes, db.cards, db.questions, db.exams, db.tutorChats, db.events, db.tasks], async () => {
+    await db.events.filter((e) => e.materialIds.includes(id)).modify((e) => {
+      e.materialIds = e.materialIds.filter((x) => x !== id)
+    })
+    await db.tasks.filter((t) => t.materialId === id).modify({ materialId: null })
     await db.materials.delete(id)
     await db.materialBlobs.delete(id)
     // generated content stays, but loses the (now dead) reference
@@ -300,7 +317,8 @@ export async function saveDeck(d: Partial<Deck> & { name: string }): Promise<ID>
 }
 
 export async function deleteDeck(id: ID) {
-  await db.transaction('rw', db.decks, db.cards, db.cardReviews, async () => {
+  await db.transaction('rw', db.decks, db.cards, db.cardReviews, db.events, async () => {
+    await db.events.filter((e) => e.deckId === id).modify({ deckId: null })
     await db.cards.where('deckId').equals(id).delete()
     await db.cardReviews.where('deckId').equals(id).delete()
     await db.decks.delete(id)
@@ -584,7 +602,10 @@ export async function saveExam(e: Omit<Exam, 'id' | 'createdAt' | 'plan' | 'plan
 }
 
 export async function deleteExam(id: ID) {
-  await db.transaction('rw', db.exams, db.teacherGrades, async () => {
+  await db.transaction('rw', db.exams, db.teacherGrades, db.events, async () => {
+    // planner blocks for this exam go with it; the student's own entries stay (unlinked)
+    await db.events.where('examId').equals(id).filter((e) => e.source === 'planner' && !e.pinned).delete()
+    await db.events.where('examId').equals(id).modify({ examId: null })
     await db.exams.delete(id)
     await db.teacherGrades.filter((g) => g.examId === id).modify({ examId: null })
   })
