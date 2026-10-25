@@ -192,8 +192,11 @@ export function Notice({ tone = 'neutral', icon: Icon, title, children, classNam
 const controlCls =
   'w-full rounded-md border border-border bg-surface-2 px-3 text-base text-fg placeholder:text-fg-subtle transition-colors hover:border-border-strong focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25 disabled:opacity-60'
 
+/** Controls are full width unless the caller passes its own width (w-28, w-auto …). */
+const ctl = (className?: string) => (className && /(^|\s)w-/.test(className) ? controlCls.replace(/(^|\s)w-full(?=\s|$)/, ' ') : controlCls)
+
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement> & { invalid?: boolean }>(function Input({ className, invalid, ...rest }, ref) {
-  return <input ref={ref} className={cn(controlCls, 'h-10', invalid && 'border-danger', className)} aria-invalid={invalid || undefined} {...rest} />
+  return <input ref={ref} className={cn(ctl(className), 'h-10', invalid && 'border-danger', className)} aria-invalid={invalid || undefined} {...rest} />
 })
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement> & { invalid?: boolean }>(function Textarea({ className, invalid, ...rest }, ref) {
@@ -202,7 +205,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<H
 
 export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(function Select({ className, children, ...rest }, ref) {
   return (
-    <select ref={ref} className={cn(controlCls, 'h-10 pr-8 cursor-pointer appearance-none bg-[length:16px] bg-[right_0.6rem_center] bg-no-repeat', className)} style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")" }} {...rest}>
+    <select ref={ref} className={cn(ctl(className), 'h-10 pr-8 cursor-pointer appearance-none bg-[length:16px] bg-[right_0.6rem_center] bg-no-repeat', className)} style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")" }} {...rest}>
       {children}
     </select>
   )

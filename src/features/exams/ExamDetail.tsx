@@ -12,27 +12,8 @@ import { percentToGrade, BUILTIN_SCALES } from '@/lib/grading'
 import { Badge, Button, ButtonLink, Card, cn, EmptyState, LoadingBlock, Menu, Notice, PageHeader, ProgressBar, SectionHeader, SubjectDot, useConfirm, useToast } from '@/components/ui'
 import { ExamForm } from './ExamForm'
 import { GradeDialog } from './ExamsPage'
-import { regeneratePlan } from './plan'
-
-function sessionHref(s: PlanSession, examId: string, subjectId: string): string {
-  const base = `exam=${examId}&session=${s.id}&subject=${subjectId}`
-  const topics = s.topicIds.join(',')
-  switch (s.type) {
-    case 'diagnostic':
-      return `/quiz/neu?preset=diagnostic&${base}`
-    case 'mock':
-      return `/quiz/neu?preset=mock&${base}`
-    case 'learn':
-      return `/quiz/neu?preset=learn&topic=${s.topicIds[0] ?? ''}&${base}`
-    case 'practice':
-      return s.topicIds.length === 1 ? `/quiz/neu?preset=practice&topic=${s.topicIds[0]}&${base}` : `/quiz/neu?preset=practice&topics=${topics}&${base}`
-    case 'analysis':
-      return `/quiz/neu?preset=mistakes&${base}`
-    case 'review':
-    case 'final':
-      return `/quiz/neu?preset=review&topics=${topics}&${base}`
-  }
-}
+import { regeneratePlan, sessionHref } from './plan'
+import { PrepPanel } from './PrepPanel'
 
 export default function ExamDetail() {
   const { examId } = useParams()
@@ -94,7 +75,7 @@ export default function ExamDetail() {
       <PageHeader
         eyebrow={<span className="inline-flex items-center gap-2">{subject && <SubjectDot color={subject.color} />}{subject?.name} · {exam.type}</span>}
         title={exam.title}
-        description={`${formatDayLong(exam.date)} – ${relativeDay(exam.date, today)}.${exam.notes ? ` ${exam.notes}` : ''}`}
+        description={`${formatDayLong(exam.date)}${exam.startTime ? `, ${exam.startTime}${exam.endTime ? `–${exam.endTime}` : ''} Uhr` : ''}${exam.location ? ` · Raum ${exam.location}` : ''} – ${relativeDay(exam.date, today)}.${exam.notes ? ` ${exam.notes}` : ''}`}
         actions={
           <>
             <Button icon={RefreshCcw} onClick={replan} loading={busy} disabled={d <= 0}>Plan neu berechnen</Button>
@@ -108,6 +89,8 @@ export default function ExamDetail() {
           {grades && grades.length > 0 ? <>Eingetragene Note: <strong>{grades.map((g) => g.grade).join(', ')}</strong>.</> : <>Wie lief es? Trag die echte Note ein, sobald du sie hast. <Button size="sm" variant="ghost" onClick={() => setGradeOpen(true)}>Note eintragen</Button></>}
         </Notice>
       )}
+
+      <PrepPanel exam={exam} />
 
       <div className="grid gap-8 lg:grid-cols-5">
         <section className="lg:col-span-3" aria-labelledby="plan">
@@ -150,7 +133,8 @@ export default function ExamDetail() {
                           <div className="flex flex-wrap items-center gap-2">
                             <Badge tone={s.type === 'mock' ? 'accent' : s.type === 'final' ? 'success' : 'neutral'}>{SESSION_LABELS[s.type]}</Badge>
                             <span className={cn('font-medium', s.done && 'line-through')}>{s.title}</span>
-                            <span className="text-xs text-fg-subtle tabular">{s.minutes} Min.</span>
+                            <span className="text-xs text-fg-subtle tabular">{s.start ? `${s.start} · ` : ''}{s.minutes} Min.</span>
+                            {s.pinned && <span className="text-xs text-fg-subtle">· von dir festgelegt</span>}
                           </div>
                           <p className="mt-1 text-sm text-fg-muted">{s.description}</p>
                           {!s.done && (

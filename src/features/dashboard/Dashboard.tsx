@@ -12,6 +12,7 @@ import { addDays, dayKey, diffDays, formatDayLong, formatMinutes, relativeDay } 
 import { averageMastery, LEVEL_LABELS, type TopicStats } from '@/lib/mastery'
 import { Badge, ButtonLink, Card, cn, EmptyState, LoadingBlock, ProgressBar, Ring, SectionHeader, StatTile, SubjectDot } from '@/components/ui'
 import { Markdown } from '@/components/Markdown'
+import { DayStrip } from '@/features/calendar/DayStrip'
 
 function greeting() {
   const h = new Date().getHours()
@@ -86,6 +87,8 @@ export function Dashboard() {
           </ButtonLink>
         </div>}
       </header>
+
+      <DayStrip />
 
       {/* Was soll ich heute lernen? */}
       <section aria-labelledby="today">

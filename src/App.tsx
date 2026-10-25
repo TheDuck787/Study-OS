@@ -29,6 +29,10 @@ const ImportPage = lazy(() => import('./features/library/ImportPage'))
 const ProgressPage = lazy(() => import('./features/progress/ProgressPage'))
 const MistakesPage = lazy(() => import('./features/mistakes/MistakesPage'))
 const SettingsPage = lazy(() => import('./features/settings/SettingsPage'))
+const CalendarPage = lazy(() => import('./features/calendar/CalendarPage'))
+const MyDayPage = lazy(() => import('./features/calendar/MyDayPage'))
+const WeekPlanPage = lazy(() => import('./features/calendar/WeekPlanPage'))
+const TasksPage = lazy(() => import('./features/tasks/TasksPage'))
 
 /** Runs once per page load – React StrictMode mounts effects twice, so the work must not run twice (demo seeding is not idempotent). */
 let bootPromise: Promise<void> | null = null
@@ -110,6 +114,10 @@ export function App() {
                           <Route path="/fortschritt" element={<ProgressPage />} />
                           <Route path="/fehler" element={<MistakesPage />} />
                           <Route path="/einstellungen" element={<SettingsPage />} />
+                          <Route path="/kalender" element={<CalendarPage />} />
+                          <Route path="/mein-tag" element={<MyDayPage />} />
+                          <Route path="/wochenplanung" element={<WeekPlanPage />} />
+                          <Route path="/aufgaben" element={<TasksPage />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </Suspense>

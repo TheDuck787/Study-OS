@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/db/index'
 import type { Exam, ExamType } from '@/db/types'
 import { saveExam, ValidationError } from '@/db/repo'
+import { updateExamSchedule } from '@/db/calendar'
 import { addDays, dayKey, WEEKDAYS_SHORT } from '@/lib/dates'
 import { Button, Checkbox, cn, Dialog, Field, Input, Notice, Segmented, Select, Textarea } from '@/components/ui'
 import { useScales, useSubjects } from '@/hooks/data'
@@ -26,6 +27,11 @@ export function ExamForm({ open, onClose, exam, subjectId: presetSubject }: { op
   const [weekdays, setWeekdays] = useState<number[]>([1, 2, 3, 4, 5, 6])
   const [notes, setNotes] = useState('')
   const [scaleId, setScaleId] = useState('')
+  const [startTime, setStartTime] = useState('')
+  const [endTime, setEndTime] = useState('')
+  const [location, setLocation] = useState('')
+  const [confidence, setConfidence] = useState<Record<string, number>>({})
+  const [prepMinutes, setPrepMinutes] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const topics = useLiveQuery(() => (subjectId ? db.topics.where('subjectId').equals(subjectId).sortBy('order') : db.topics.limit(0).toArray()), [subjectId])
@@ -44,6 +50,11 @@ export function ExamForm({ open, onClose, exam, subjectId: presetSubject }: { op
     setWeekdays(exam?.availableWeekdays ?? [1, 2, 3, 4, 5, 6])
     setNotes(exam?.notes ?? '')
     setScaleId(exam?.gradingScaleId ?? '')
+    setStartTime(exam?.startTime ?? '')
+    setEndTime(exam?.endTime ?? '')
+    setLocation(exam?.location ?? '')
+    setConfidence(exam?.topicConfidence ?? {})
+    setPrepMinutes(exam?.estimatedPrepMinutes ? String(exam.estimatedPrepMinutes) : '')
     setError(null)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
@@ -56,7 +67,12 @@ export function ExamForm({ open, onClose, exam, subjectId: presetSubject }: { op
   const save = async () => {
     setBusy(true)
     try {
+      if (Boolean(startTime) !== Boolean(endTime)) throw new ValidationError('Bitte gib Beginn und Ende an – oder lass beide leer.')
       const id = await saveExam({ id: exam?.id, subjectId, title, type, date, topicIds, materialIds, difficulty, minutesPerDay: minutes, availableWeekdays: weekdays, notes, gradingScaleId: scaleId || null })
+      await updateExamSchedule(id, {
+        startTime: startTime || null, endTime: endTime || null, location: location.trim(), estimatedPrepMinutes: prepMinutes ? Math.round(Number(prepMinutes)) : null,
+        topicConfidence: Object.fromEntries(Object.entries(confidence).filter(([t]) => topicIds.includes(t))),
+      })
       const saved = await db.exams.get(id)
       if (saved && (!exam || saved.plan.length === 0)) await regeneratePlan(saved)
       onClose()
@@ -88,6 +104,11 @@ export function ExamForm({ open, onClose, exam, subjectId: presetSubject }: { op
           <Field label="Datum" htmlFor="ex-date">
             <Input id="ex-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Beginn" htmlFor="ex-start" optional><Input id="ex-start" type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} /></Field>
+            <Field label="Ende" htmlFor="ex-end" optional><Input id="ex-end" type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} /></Field>
+          </div>
+          <Field label="Raum" htmlFor="ex-room" optional><Input id="ex-room" value={location} onChange={(e) => setLocation(e.target.value)} maxLength={120} /></Field>
         </div>
         <fieldset>
           <legend className="mb-1.5 text-sm font-medium">Welche Themen kommen dran?</legend>
@@ -99,6 +120,23 @@ export function ExamForm({ open, onClose, exam, subjectId: presetSubject }: { op
             <p className="text-sm text-fg-muted">Dieses Fach hat noch keine Themen. Ohne Themen wird der Plan allgemein.</p>
           )}
         </fieldset>
+        {topicIds.length > 0 && topics && (
+          <fieldset>
+            <legend className="mb-1.5 text-sm font-medium">Wie sicher fühlst du dich? <span className="font-normal text-fg-subtle">(1 = unsicher, 5 = sehr sicher – optional)</span></legend>
+            <div className="flex flex-col gap-1.5">
+              {topics.filter((t) => topicIds.includes(t.id)).map((t) => (
+                <div key={t.id} className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                  <span className="truncate">{t.name}</span>
+                  <div className="flex gap-1" role="radiogroup" aria-label={`Gefühl bei ${t.name}`}>
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <button key={n} type="button" role="radio" aria-checked={confidence[t.id] === n} onClick={() => setConfidence((c) => ({ ...c, [t.id]: n }))} className={cn('size-7 cursor-pointer rounded-md border text-xs tabular', confidence[t.id] === n ? 'border-accent bg-accent-soft font-semibold text-accent' : 'border-border text-fg-muted')}>{n}</button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </fieldset>
+        )}
         {materials && materials.length > 0 && (
           <fieldset>
             <legend className="mb-1.5 text-sm font-medium">Lernmaterial <span className="font-normal text-fg-subtle">(optional)</span></legend>
@@ -113,6 +151,9 @@ export function ExamForm({ open, onClose, exam, subjectId: presetSubject }: { op
           </Field>
           <Field label="Lernzeit pro Tag (Minuten)" htmlFor="ex-min">
             <Input id="ex-min" type="number" min={10} max={240} step={5} value={minutes} onChange={(e) => setMinutes(Number(e.target.value))} />
+          </Field>
+          <Field label="Geschätzte Vorbereitungszeit gesamt (Minuten)" htmlFor="ex-prep" optional>
+            <Input id="ex-prep" type="number" min={0} max={6000} step={15} value={prepMinutes} onChange={(e) => setPrepMinutes(e.target.value)} />
           </Field>
         </div>
         <fieldset>

@@ -6,7 +6,9 @@ import { deleteSubject, reorderSubjects, subjectDeletionImpact } from '@/db/repo
 import { useExams, useSubjects, useTopicStats, useTopics } from '@/hooks/data'
 import { averageMastery } from '@/lib/mastery'
 import { diffDays, dayKey, relativeDay } from '@/lib/dates'
-import { Badge, Button, EmptyState, LoadingBlock, Menu, PageHeader, Ring, SubjectDot, useConfirm, useToast } from '@/components/ui'
+import { Badge, Button, EmptyState, LoadingBlock, Menu, PageHeader, Ring, useConfirm, useToast } from '@/components/ui'
+import { subjectIcon } from '@/lib/calendar/meta'
+import { subjectColorVar } from '@/lib/colors'
 import { SubjectDialog } from './SubjectDialog'
 
 export default function SubjectsPage() {
@@ -72,7 +74,7 @@ export default function SubjectsPage() {
                   </Ring>
                   <Link to={`/faecher/${s.id}`} className="group min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <SubjectDot color={s.color} />
+                      <SubjectBadge subject={s} />
                       <h2 className="truncate text-md font-semibold group-hover:text-accent">{s.name}</h2>
                     </div>
                     <p className="mt-0.5 text-sm text-fg-muted">
@@ -108,4 +110,9 @@ export default function SubjectsPage() {
       <SubjectDialog open={dialog.open} subject={dialog.subject} onClose={() => setDialog({ open: false })} />
     </div>
   )
+}
+
+function SubjectBadge({ subject }: { subject: Subject }) {
+  const Icon = subjectIcon(subject)
+  return <Icon className="size-4 shrink-0" style={{ color: subjectColorVar(subject.color) }} aria-hidden />
 }

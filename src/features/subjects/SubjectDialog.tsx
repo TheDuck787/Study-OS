@@ -4,10 +4,12 @@ import type { Subject } from '@/db/types'
 import { createSubject, updateSubject, ValidationError } from '@/db/repo'
 import { Button, cn, Dialog, Field, Input, useToast } from '@/components/ui'
 import { SUBJECT_COLOR_COUNT, subjectColorVar } from '@/lib/colors'
+import { guessSubjectIcon, SUBJECT_ICONS } from '@/lib/calendar/meta'
 
 export function SubjectDialog({ open, onClose, subject }: { open: boolean; onClose: () => void; subject?: Subject }) {
   const [name, setName] = useState('')
   const [color, setColor] = useState(0)
+  const [icon, setIcon] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const toast = useToast()
@@ -16,6 +18,7 @@ export function SubjectDialog({ open, onClose, subject }: { open: boolean; onClo
     if (open) {
       setName(subject?.name ?? '')
       setColor(subject?.color ?? Math.floor(Math.random() * SUBJECT_COLOR_COUNT))
+      setIcon(subject?.icon ?? null)
       setError(null)
     }
   }, [open, subject])
@@ -24,11 +27,12 @@ export function SubjectDialog({ open, onClose, subject }: { open: boolean; onClo
     setBusy(true)
     try {
       if (subject) {
-        await updateSubject(subject.id, { name, color })
+        await updateSubject(subject.id, { name, color, icon })
         toast({ title: 'Fach gespeichert', tone: 'success' })
         onClose()
       } else {
         const id = await createSubject(name, color)
+        if (icon) await updateSubject(id, { icon })
         onClose()
         navigate(`/faecher/${id}`)
       }
@@ -72,6 +76,21 @@ export function SubjectDialog({ open, onClose, subject }: { open: boolean; onClo
                 style={{ background: subjectColorVar(i) }}
               />
             ))}
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend className="mb-2 text-sm font-medium">Symbol <span className="font-normal text-fg-subtle">(erscheint im Kalender und in Listen)</span></legend>
+          <div className="grid grid-cols-8 gap-1.5" role="radiogroup" aria-label="Symbol">
+            {Object.entries(SUBJECT_ICONS).map(([key, { label, icon: Icon }]) => {
+              const on = (icon ?? guessSubjectIcon(name)) === key
+              return (
+                <button key={key} type="button" role="radio" aria-checked={on} aria-label={label} title={label} onClick={() => setIcon(key)}
+                  className={cn('flex size-9 cursor-pointer items-center justify-center rounded-md border', on ? 'border-transparent text-[var(--bg)]' : 'border-border text-fg-muted hover:text-fg')}
+                  style={on ? { background: subjectColorVar(color) } : undefined}>
+                  <Icon className="size-4" />
+                </button>
+              )
+            })}
           </div>
         </fieldset>
       </form>

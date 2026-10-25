@@ -53,6 +53,8 @@ export interface Demand {
   latest: DayKey
   /** Lower = more important when days are full. */
   urgency: number
+  /** Tie-breaker that keeps a content order (e.g. diagnosis before practice). */
+  seq?: number
 }
 
 export interface DaySupply {
@@ -104,7 +106,7 @@ export function candidateDays(d: Demand, firstDay: DayKey): DayKey[] {
 export function placeDemands(demands: Demand[], supply: DaySupply[], breakMin: number): PlaceResult {
   const byDay = new Map(supply.map((s) => [s.date, { ...s, free: s.free.map((f) => [...f] as [number, number]) }]))
   const firstDay = supply[0]?.date ?? '9999-12-31'
-  const ordered = [...demands].sort((a, b) => a.latest.localeCompare(b.latest) || a.urgency - b.urgency || a.preferred.localeCompare(b.preferred) || a.id.localeCompare(b.id))
+  const ordered = [...demands].sort((a, b) => a.latest.localeCompare(b.latest) || a.urgency - b.urgency || a.preferred.localeCompare(b.preferred) || (a.seq ?? 0) - (b.seq ?? 0) || a.id.localeCompare(b.id))
   const placements: Placement[] = []
   const unplaced: Demand[] = []
   for (const d of ordered) {
@@ -271,7 +273,7 @@ export function proposeFullPlan(data: PlannerData): PlanProposal {
     const fresh = gen.sessions.filter((s) => !kept.some((k) => k.id === s.id)).filter((s) => !kept.some((k) => !k.done && sameSession(k, s)))
     const old = exam.plan.filter(replaceableSession)
     const usedOld = new Set<string>()
-    for (const s of fresh) {
+    for (const [seq, s] of fresh.entries()) {
       const match = old.find((o) => !usedOld.has(o.id) && sameSession(o, s))
       if (match) usedOld.add(match.id)
       const session: PlanSession = { ...s, id: match?.id ?? s.id, start: null, pinned: false }
@@ -283,7 +285,7 @@ export function proposeFullPlan(data: PlannerData): PlanProposal {
         continue
       }
       refs.push({
-        demand: { id: `plan:${exam.id}:${session.id}`, title: s.title, minutes: s.minutes, earliest: today, preferred: s.date, latest, urgency: days * 10 + (s.type === 'final' ? 0 : 5) },
+        demand: { id: `plan:${exam.id}:${session.id}`, title: s.title, minutes: s.minutes, earliest: today, preferred: s.date, latest, urgency: days * 10 + (s.type === 'final' ? 0 : 5), seq },
         make: (p) => {
           const date = p?.date ?? s.date
           const start = p?.start ?? null
@@ -304,7 +306,8 @@ export function proposeFullPlan(data: PlannerData): PlanProposal {
   }
 
   // 2) Tasks with a due date: remaining effort → sessions spread before the deadline.
-  const oldTaskEvents = data.events.filter((e) => replaceableEvent(e) && e.taskId)
+  // oldest first, so part 1 keeps matching part 1 and re-planning does not shuffle the parts
+  const oldTaskEvents = data.events.filter((e) => replaceableEvent(e) && e.taskId).sort((a, b) => a.date.localeCompare(b.date) || (a.start ?? '').localeCompare(b.start ?? ''))
   const usedTaskEvents = new Set<string>()
   for (const t of data.tasks) {
     if (t.status === 'done' || !t.dueDate) continue
@@ -357,6 +360,7 @@ export function proposeFullPlan(data: PlannerData): PlanProposal {
     for (const day of rangeDays(today, horizonEnd)) {
       const count = data.cardsDueByDay.get(day) ?? 0
       if (count < (day === today ? 1 : 5)) continue
+      if (!settings.windows[weekday(day)] || data.restDays.includes(weekday(day))) continue // no study time that day
       if (data.events.some((e) => e.category === 'flashcards' && e.date === day && !replaceableEvent(e))) continue
       const minutes = Math.min(20, Math.max(5, Math.ceil(count * 0.5)))
       const old = oldCardEvents.find((e) => e.date === day && !usedCard.has(e.id))

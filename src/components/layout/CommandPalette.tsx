@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLiveQuery } from 'dexie-react-hooks'
-import { BookOpen, CalendarClock, FileText, Layers, ListChecks, NotebookPen, Search, Timer, Zap, type LucideIcon } from 'lucide-react'
+import { BookOpen, CalendarClock, CalendarDays, FileText, Layers, ListChecks, ListTodo, NotebookPen, Search, Timer, Zap, type LucideIcon } from 'lucide-react'
 import { db } from '@/db/index'
 import { searchScore } from '@/lib/text'
 import { NAV } from './nav'
@@ -26,10 +26,10 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
 
   const data = useLiveQuery(async () => {
     if (!open) return null
-    const [subjects, topics, notes, materials, decks, cards, exams] = await Promise.all([
-      db.subjects.toArray(), db.topics.toArray(), db.notes.toArray(), db.materials.toArray(), db.decks.toArray(), db.cards.toArray(), db.exams.toArray(),
+    const [subjects, topics, notes, materials, decks, cards, exams, events, tasks] = await Promise.all([
+      db.subjects.toArray(), db.topics.toArray(), db.notes.toArray(), db.materials.toArray(), db.decks.toArray(), db.cards.toArray(), db.exams.toArray(), db.events.toArray(), db.tasks.toArray(),
     ])
-    return { subjects, topics, notes, materials, decks, cards, exams }
+    return { subjects, topics, notes, materials, decks, cards, exams, events, tasks }
   }, [open])
 
   useEffect(() => {
@@ -47,6 +47,8 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
       { key: 'a-cards', label: 'Fällige Karteikarten lernen', icon: Layers, to: '/karteikarten/lernen', group: 'Aktionen', score: 1 },
       { key: 'a-note', label: 'Neue Notiz', icon: NotebookPen, to: '/bibliothek?neu=notiz', group: 'Aktionen', score: 1 },
       { key: 'a-exam', label: 'Prüfung eintragen', icon: CalendarClock, to: '/pruefungen?neu=1', group: 'Aktionen', score: 1 },
+      { key: 'a-task', label: 'Neue Aufgabe / Hausaufgabe', icon: ListTodo, to: '/aufgaben', group: 'Aktionen', score: 1 },
+      { key: 'a-week', label: 'Woche im Kalender', icon: CalendarDays, to: '/kalender?ansicht=week', group: 'Aktionen', score: 1 },
       ...NAV.map((n) => ({ key: `nav-${n.to}`, label: n.label, icon: n.icon, to: n.to, group: 'Bereiche', score: 1 })),
     ]
     const query = q.trim()
@@ -81,6 +83,14 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
       for (const e of data.exams) {
         const sc = searchScore(query, e.title, e.type)
         if (sc) out.push({ key: e.id, label: e.title, detail: e.date, icon: CalendarClock, to: `/pruefungen/${e.id}`, group: 'Prüfungen', score: sc + 5 })
+      }
+      for (const e of data.events) {
+        const sc = searchScore(query, e.title, e.description, e.location, e.teacher)
+        if (sc) out.push({ key: e.id, label: e.title, detail: e.recurrence ? 'Termin (wiederkehrend)' : new Date(`${e.date}T12:00`).toLocaleDateString('de-DE'), icon: CalendarDays, to: `/kalender?ansicht=day&datum=${e.date}`, group: 'Kalender', score: sc + (e.recurrence ? 0 : 3) })
+      }
+      for (const t of data.tasks) {
+        const sc = searchScore(query, t.title, t.description, t.subtasks.map((x) => x.text).join(' '))
+        if (sc) out.push({ key: t.id, label: t.title, detail: t.status === 'done' ? 'Aufgabe (erledigt)' : t.dueDate ? `Aufgabe, fällig ${new Date(`${t.dueDate}T12:00`).toLocaleDateString('de-DE')}` : 'Aufgabe', icon: ListTodo, to: `/aufgaben?aufgabe=${t.id}`, group: 'Aufgaben', score: sc + (t.status === 'done' ? 0 : 4) })
       }
     }
     return out.sort((a, b) => b.score - a.score).slice(0, 30)

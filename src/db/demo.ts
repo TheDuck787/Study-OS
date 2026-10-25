@@ -1,11 +1,12 @@
 import { db } from './index'
-import type { Answer, CardReview, Question, QuizAttempt, StudySession, XpEvent } from './types'
+import type { Answer, CalendarEvent, CardReview, Question, QuizAttempt, StudySession, Task, XpEvent } from './types'
 import { seedLibrary, subjectIdFor } from './seed'
 import { saveProfile, saveNote, addMaterial, saveExam, setExamPlan, saveTeacherGrade, setMeta } from './repo'
 import { CURRICULUM } from '@/content/curriculum'
 import { seededRandom, shuffle, uid } from '@/lib/id'
-import { addDays, dayKey } from '@/lib/dates'
-import { reviewCard, newSrs } from '@/lib/srs'
+import { addDays, dayKey, startOfWeek } from '@/lib/dates'
+import { reviewCard, newSrs, selectDueCards } from '@/lib/srs'
+import { applyProposal, DEFAULT_PLANNER_SETTINGS, proposeFullPlan } from '@/lib/calendar/planner'
 import { percentToGrade, BUILTIN_SCALES } from '@/lib/grading'
 import { XP_RULES } from '@/lib/progress'
 import { computeTopicStats } from '@/lib/mastery'
@@ -147,5 +148,76 @@ export async function seedDemo(now: Date = new Date()) {
   })
   await saveTeacherGrade({ subjectId: maSid, examId: null, title: 'Test Lineare Funktionen', grade: '2-', date: addDays(today, -20), note: 'Echte Note vom Lehrer (Demo)' })
   await saveTeacherGrade({ subjectId: subjectIdFor('en'), examId: null, title: 'Klassenarbeit Unit 1', grade: '3', date: addDays(today, -30), note: '' })
+  await seedDemoCalendar(today, now)
   await setMeta('demoSeededAt', now.toISOString())
+}
+
+/** Timetable, homework, appointments and a planner run, so the calendar can be explored in the demo. */
+async function seedDemoCalendar(today: string, now: Date) {
+  const sid = (k: string) => subjectIdFor(k)
+  const slots = [['07:45', '08:30'], ['08:35', '09:20'], ['09:40', '10:25'], ['10:30', '11:15'], ['11:35', '12:20'], ['12:25', '13:10'], ['13:30', '14:15']]
+  const timetable: Record<number, [string, string, string][]> = {
+    1: [['ma', 'A 2.14', 'Fr. Krüger'], ['ma', 'A 2.14', 'Fr. Krüger'], ['de', 'B 1.03', 'Hr. Lenz'], ['en', 'B 1.03', 'Fr. Okafor'], ['bio', 'NW 2', 'Hr. Schulz'], ['ge', 'B 1.03', 'Fr. Brandt']],
+    2: [['en', 'B 1.03', 'Fr. Okafor'], ['ph', 'NW 1', 'Hr. Wendt'], ['ph', 'NW 1', 'Hr. Wendt'], ['de', 'B 1.03', 'Hr. Lenz'], ['geo', 'B 2.07', 'Fr. Möller'], ['ma', 'A 2.14', 'Fr. Krüger']],
+    3: [['ch', 'NW 3', 'Fr. Yilmaz'], ['ch', 'NW 3', 'Fr. Yilmaz'], ['ma', 'A 2.14', 'Fr. Krüger'], ['en', 'B 1.03', 'Fr. Okafor'], ['de', 'B 1.03', 'Hr. Lenz'], ['ge', 'B 1.03', 'Fr. Brandt'], ['bio', 'NW 2', 'Hr. Schulz']],
+    4: [['de', 'B 1.03', 'Hr. Lenz'], ['ma', 'A 2.14', 'Fr. Krüger'], ['en', 'B 1.03', 'Fr. Okafor'], ['geo', 'B 2.07', 'Fr. Möller'], ['bio', 'NW 2', 'Hr. Schulz'], ['ph', 'NW 1', 'Hr. Wendt']],
+    5: [['en', 'B 1.03', 'Fr. Okafor'], ['de', 'B 1.03', 'Hr. Lenz'], ['ma', 'A 2.14', 'Fr. Krüger'], ['ch', 'NW 3', 'Fr. Yilmaz'], ['ge', 'B 1.03', 'Fr. Brandt']],
+  }
+  const weekStart = startOfWeek(addDays(today, -14))
+  const iso = now.toISOString()
+  const ev = (p: Partial<CalendarEvent> & Pick<CalendarEvent, 'title' | 'category' | 'date'>): CalendarEvent => ({
+    id: uid('ev'), customCategoryId: null, subjectId: null, endDate: null, allDay: false, start: null, end: null, priority: 'medium', status: 'planned', description: '', location: '', teacher: '',
+    topicIds: [], materialIds: [], deckId: null, taskId: null, examId: null, workloadMinutes: null, reminderMinutes: null, checklist: [], recurrence: null, completedDates: [], seriesId: null,
+    originalDate: null, source: 'manual', pinned: false, blocksStudy: false, createdAt: iso, updatedAt: iso, ...p,
+  })
+  const weekly = (wd: number) => ({ freq: 'weekly' as const, interval: 1, byWeekday: [wd], until: null, count: null, exceptions: [] })
+  const events: CalendarEvent[] = []
+  for (const [wdStr, lessons] of Object.entries(timetable)) {
+    const wd = Number(wdStr)
+    const date = addDays(weekStart, wd - 1)
+    for (let i = 0; i < lessons.length; i++) {
+      const [key, room, teacher] = lessons[i]
+      if (i > 0 && lessons[i - 1][0] === key) continue // double lesson: merged below
+      const double = lessons[i + 1]?.[0] === key
+      const name = CURRICULUM.find((c) => c.key === key)?.name ?? key
+      events.push(ev({ title: name, category: 'lesson', subjectId: sid(key), date, start: slots[i][0], end: slots[double ? i + 1 : i][1], location: room, teacher, recurrence: weekly(wd) }))
+    }
+  }
+  const chor = uid('cat')
+  await db.eventCategories.add({ id: chor, name: 'Chor', color: 3, createdAt: iso })
+  events.push(
+    ev({ title: 'Fußballtraining', category: 'appointment', date: addDays(weekStart, 1), start: '17:00', end: '18:30', location: 'Sportplatz Nord', recurrence: { ...weekly(2), byWeekday: [2, 4] } }),
+    ev({ title: 'Schulchor', category: 'custom', customCategoryId: chor, date: addDays(weekStart, 2), start: '14:30', end: '15:30', location: 'Aula', recurrence: weekly(3) }),
+    ev({ title: 'Zahnarzt', category: 'appointment', date: addDays(today, 2), start: '16:00', end: '16:45', location: 'Praxis Dr. Albers', reminderMinutes: 60 }),
+    ev({ title: 'Betriebspraktikum', category: 'internship', date: addDays(today, 24), endDate: addDays(today, 28), allDay: true, blocksStudy: true, location: 'Stadtwerke', description: 'Praktikumsmappe mitnehmen.' }),
+    ev({ title: 'Oma Geburtstag', category: 'break', date: addDays(today, 5), allDay: true, blocksStudy: true }),
+  )
+  await db.events.bulkAdd(events)
+  const task = (p: Partial<Task> & Pick<Task, 'title'>): Task => ({ id: uid('task'), description: '', kind: 'homework', subjectId: null, topicIds: [], materialId: null, dueDate: null, dueTime: null, priority: 'medium', estimateMinutes: null, status: 'open', doneAt: null, subtasks: [], reminderMinutes: null, createdAt: iso, updatedAt: iso, ...p })
+  await db.tasks.bulkAdd([
+    task({ title: 'Mathe S. 112 Nr. 4–7', subjectId: sid('ma'), topicIds: ['ma-pythagoras'], dueDate: addDays(today, 1), dueTime: '07:45', estimateMinutes: 30, priority: 'high' }),
+    task({ title: 'Englisch: Text „Jobs of the future“ lesen', subjectId: sid('en'), dueDate: addDays(today, 2), estimateMinutes: 20 }),
+    task({ title: 'Deutsch: Erörterung Gliederung', subjectId: sid('de'), dueDate: addDays(today, -1), estimateMinutes: 40, priority: 'high' }),
+    task({ title: 'Bio-Referat Immunsystem', kind: 'project', subjectId: sid('bio'), topicIds: ['bio-immun'], dueDate: addDays(today, 11), estimateMinutes: 180, priority: 'high', subtasks: [
+      { id: uid('chk'), text: 'Quellen suchen', done: true }, { id: uid('chk'), text: 'Gliederung', done: false }, { id: uid('chk'), text: 'Folien erstellen', done: false }, { id: uid('chk'), text: 'Vortrag üben', done: false },
+    ] }),
+    task({ title: 'Chemie Protokoll Versuch 3', subjectId: sid('ch'), dueDate: addDays(today, -4), status: 'done', doneAt: iso }),
+    task({ title: 'Sportsachen waschen', kind: 'todo' }),
+    task({ title: 'Geschichte: Quellen zur Weimarer Republik sammeln', subjectId: sid('ge') }),
+  ])
+  const maExam = (await db.exams.toArray()).find((x) => x.subjectId === sid('ma'))
+  if (maExam) await db.exams.update(maExam.id, { startTime: '07:45', endTime: '09:20', location: 'A 2.14', estimatedPrepMinutes: 300, topicConfidence: { 'ma-potenzen': 3, 'ma-pythagoras': 2, 'ma-quadgl': 2 } })
+  // let the planner lay out the next two weeks, exactly as "Lernplan automatisch erstellen" would
+  const [allEvents, exams, tasks, topics, answers, cards, cardReviews] = await Promise.all([db.events.toArray(), db.exams.toArray(), db.tasks.toArray(), db.topics.toArray(), db.answers.toArray(), db.cards.toArray(), db.cardReviews.toArray()])
+  const due = selectDueCards(cards, cardReviews, now)
+  const proposal = proposeFullPlan({
+    today, nowMin: 0, settings: DEFAULT_PLANNER_SETTINGS, restDays: [0], events: allEvents, exams, tasks, topics, cardsDueByDay: new Map([[today, due.reviews.length + due.fresh.length]]),
+    topicState: (id) => {
+      const st = computeTopicStats(id, answers, now)
+      return { mastery: st.mastery, level: st.level }
+    },
+  })
+  const applied = applyProposal(proposal, new Set(proposal.changes.map((c) => c.id)), exams)
+  for (const [id, plan] of applied.examPlans) await db.exams.update(id, { plan })
+  await db.events.bulkPut(applied.putEvents)
 }

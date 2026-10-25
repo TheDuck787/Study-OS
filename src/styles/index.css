@@ -230,6 +230,11 @@ h1, h2, h3, h4 {
   to { transform: none; }
 }
 .page-enter { animation: rise 180ms ease-out; }
+@keyframes drawer {
+  from { transform: translateX(12px); opacity: 0.6; }
+  to { transform: none; opacity: 1; }
+}
+.drawer-in { animation: drawer 160ms ease-out; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

@@ -8,6 +8,7 @@ import { useOpenMistakes, useProfile } from '@/hooks/data'
 import { CommandPalette } from './CommandPalette'
 import { useAchievementSync } from '@/features/progress/useAchievementSync'
 import { useReminders } from '@/features/settings/useReminders'
+import { useCalendarReminders } from '@/features/calendar/useCalendarReminders'
 
 function Brand() {
   return (
@@ -76,6 +77,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const profile = useProfile()
   useAchievementSync()
   useReminders()
+  useCalendarReminders()
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -96,6 +98,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [location.pathname])
 
   const mobileItems = NAV.filter((n) => MOBILE_PRIMARY.includes(n.to))
+  // The calendar uses the whole screen (own scrolling areas) instead of the centred content column.
+  const fullBleed = location.pathname === '/kalender'
 
   return (
     <div className="flex h-full flex-col">
@@ -130,10 +134,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Search className="size-5" aria-hidden />
             </button>
           </header>
-          <main id="main" tabIndex={-1} className="min-h-0 flex-1 overflow-y-auto outline-none">
-            <div key={location.pathname} className="page-enter mx-auto w-full max-w-6xl pt-6 pb-28 lg:pt-8 lg:pb-12" style={{ paddingLeft: 'max(16px, env(safe-area-inset-left, 0px))', paddingRight: 'max(16px, env(safe-area-inset-right, 0px))' }}>
-              {children}
-            </div>
+          <main id="main" tabIndex={-1} className={cn('min-h-0 flex-1 outline-none', fullBleed ? 'overflow-hidden' : 'overflow-y-auto')}>
+            {fullBleed ? (
+              <div key={location.pathname} className="page-enter h-full pb-[calc(var(--mobile-nav-h,0px)+env(safe-area-inset-bottom,0px))] lg:pb-0">{children}</div>
+            ) : (
+              <div key={location.pathname} className="page-enter mx-auto w-full max-w-6xl pt-6 pb-28 lg:pt-8 lg:pb-12" style={{ paddingLeft: 'max(16px, env(safe-area-inset-left, 0px))', paddingRight: 'max(16px, env(safe-area-inset-right, 0px))' }}>
+                {children}
+              </div>
+            )}
           </main>
         </div>
       </div>

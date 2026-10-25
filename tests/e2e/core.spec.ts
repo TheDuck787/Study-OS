@@ -79,9 +79,10 @@ test.describe('Definition of done – core learning flows (no AI configured)', (
     await page.getByLabel('Satz des Pythagoras', { exact: true }).check()
     await page.getByRole('button', { name: 'Lernplan erstellen' }).click()
     await expect(page.getByRole('heading', { name: 'Klassenarbeit Gleichungen' })).toBeVisible()
-    await expect(page.getByText('Diagnosetest')).toBeVisible()
+    const plan = page.getByRole('list').filter({ hasText: 'Probeklausur' })
+    await expect(plan.getByText('Diagnosetest')).toBeVisible()
     await expect(page.getByText('Probeklausur').first()).toBeVisible()
-    await expect(page.getByText('Abschluss-Wiederholung')).toBeVisible()
+    await expect(plan.getByText('Abschluss-Wiederholung', { exact: true })).toBeVisible()
 
     // 12. Close and reopen without losing data
     await page.reload()
